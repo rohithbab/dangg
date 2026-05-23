@@ -66,10 +66,10 @@ export function AnalyticsDashboardPage() {
           </div>
         </section>
 
-        <section className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-          <div className="lg:col-span-8">
+        <section className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+          <div className="flex flex-col lg:col-span-8">
             <SectionTitle title="Engagement Pulse" />
-            <AnimatedCardEntrance delay={0.4}>
+            <AnimatedCardEntrance delay={0.4} className="flex flex-1 flex-col">
               <EngagementCard
                 title="Weekly User Engagement"
                 value="24.8K"
@@ -84,11 +84,11 @@ export function AnalyticsDashboardPage() {
             </AnimatedCardEntrance>
           </div>
 
-          <div className="lg:col-span-4">
+          <div className="flex flex-col lg:col-span-4">
             <SectionTitle title="User Distribution" />
-            <div className="space-y-4">
+            <div className="flex flex-1 flex-col justify-between gap-4">
               {DEMOGRAPHICS.map((item, i) => (
-                <AnimatedCardEntrance key={item.label} delay={0.5 + i * 0.1}>
+                <AnimatedCardEntrance key={item.label} delay={0.5 + i * 0.1} className="flex-1">
                   <DemographicCard {...item} />
                 </AnimatedCardEntrance>
               ))}
@@ -96,7 +96,7 @@ export function AnalyticsDashboardPage() {
           </div>
         </section>
 
-        <section className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+        <section className="grid grid-cols-1 gap-10 lg:grid-cols-12">
           <div className="lg:col-span-12">
             <AnimatedCardEntrance delay={0.8}>
               <FeatureCard

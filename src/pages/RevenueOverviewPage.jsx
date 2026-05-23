@@ -4,7 +4,6 @@ import { MaterialIcon } from '../components/ui/MaterialIcon';
 import { RevenueMetricCard } from '../components/ui/RevenueMetricCard';
 import { PendingPayoutsCard } from '../components/ui/PendingPayoutsCard';
 import { WalletBalanceCard } from '../components/ui/WalletBalanceCard';
-import { ActivityFeed } from '../components/ui/ActivityFeed';
 import { AnimatedCardEntrance, AnimatedStaggerGroup } from '../components/animation';
 
 const WALLET_AVATARS = [
@@ -41,27 +40,6 @@ const REVENUE_METRICS = [
   },
 ];
 
-const ACTIVITY_ITEMS = [
-  {
-    id: '1',
-    icon: 'shopping_cart',
-    iconColor: 'text-primary',
-    title: 'Walk Booking #8921',
-    meta: '2 minutes ago • Bangalore, IN',
-    amount: 45000,
-    amountColor: 'text-on-surface',
-  },
-  {
-    id: '2',
-    icon: 'account_balance_wallet',
-    iconColor: 'text-secondary',
-    title: 'Payout Disbursed - ID #WAL-22',
-    meta: '1 hour ago • Payouts Division',
-    amount: -120000,
-    amountColor: 'text-error',
-  },
-];
-
 export function RevenueOverviewPage() {
   return (
     <PageContainer>
@@ -77,25 +55,17 @@ export function RevenueOverviewPage() {
           </div>
         </section>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-          <div className="space-y-8 lg:col-span-8">
-            <AnimatedCardEntrance delay={0.4}>
-              <WalletBalanceCard
-                amount={420000}
-                avatarUrls={WALLET_AVATARS}
-                avatarCount={12}
-              />
-            </AnimatedCardEntrance>
-            <AnimatedCardEntrance delay={0.6}>
-              <PendingPayoutsCard />
-            </AnimatedCardEntrance>
-          </div>
-
-          <div className="lg:col-span-4">
-            <AnimatedCardEntrance delay={0.8}>
-              <ActivityFeed items={ACTIVITY_ITEMS} />
-            </AnimatedCardEntrance>
-          </div>
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
+          <AnimatedCardEntrance delay={0.4}>
+            <WalletBalanceCard
+              amount={420000}
+              avatarUrls={WALLET_AVATARS}
+              avatarCount={12}
+            />
+          </AnimatedCardEntrance>
+          <AnimatedCardEntrance delay={0.6}>
+            <PendingPayoutsCard />
+          </AnimatedCardEntrance>
         </div>
       </AnimatedStaggerGroup>
     </PageContainer>

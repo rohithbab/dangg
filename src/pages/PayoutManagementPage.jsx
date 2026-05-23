@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { PageContainer } from '../components/layout/PageContainer';
 import { MaterialIcon } from '../components/ui/MaterialIcon';
 import { RevenueMetricCard } from '../components/ui/RevenueMetricCard';
@@ -8,6 +9,7 @@ import { TableSearchToolbar } from '../components/ui/TableSearchToolbar';
 import { TablePagination } from '../components/ui/TablePagination';
 import { TableUserCell } from '../components/ui/TableUserCell';
 import { StatusBadge } from '../components/ui/StatusBadge';
+import { useDataFilter } from '../hooks/useDataFilter';
 
 const PAYOUT_STATS = [
   {
@@ -186,6 +188,20 @@ const itemVariants = {
 };
 
 export function PayoutManagementPage() {
+  const [showFilters, setShowFilters] = useState(false);
+
+  const {
+    filteredData,
+    searchQuery,
+    setSearchQuery,
+    filters,
+    updateFilter,
+    resetFilters,
+  } = useDataFilter(PAYOUT_REQUESTS, {
+    searchFields: ['id', 'name', 'upiId'],
+    initialFilters: { status: 'all' },
+  });
+
   return (
     <PageContainer>
       <motion.section 
@@ -207,49 +223,103 @@ export function PayoutManagementPage() {
         <DistributionCard title="Payout Distribution" segments={DISTRIBUTION_SEGMENTS} />
       </section>
 
-      <section>
+      <section className="mt-8">
         <AdminTableCard
           title="Recent Requests"
-          toolbar={<TableSearchToolbar />}
-          footer={
-            <TablePagination summary="Showing 1 to 5 of 45 results" currentPage={1} pages={[1, 2, 3]} />
+          toolbar={
+            <div className="space-y-4">
+              <TableSearchToolbar 
+                searchPlaceholder="Search by ID, name or UPI..." 
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                onFilterClick={() => setShowFilters(!showFilters)}
+                onReset={resetFilters}
+                showReset={searchQuery || filters.status !== 'all'}
+              />
+              {showFilters && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex gap-2 p-3 bg-surface-container-low rounded-lg border border-outline-variant"
+                >
+                  {['all', 'pending', 'approved', 'completed', 'rejected'].map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => updateFilter('status', s)}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors capitalize ${
+                        filters.status === s
+                          ? 'bg-primary text-on-primary'
+                          : 'bg-white hover:bg-surface-container text-on-surface-variant border border-outline-variant'
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </div>
           }
         >
-          <table className="w-full border-collapse text-left">
-            <thead>
-              <tr className="table-head">
-                {TABLE_COLUMNS.map((col) => (
-                  <th
-                    key={col}
-                    className={`border-b border-outline-variant px-6 py-4 ${
-                      col === 'Amount' || col === 'Actions' ? 'text-right' : ''
-                    }`}
-                  >
-                    {col}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="type-body-md divide-y divide-outline-variant text-on-surface">
-              {PAYOUT_REQUESTS.map((row) => (
-                <tr key={row.id} className="table-row">
-                  <td className="table-cell-mono px-6 py-5">#{row.id}</td>
-                  <td className="px-6 py-5">
-                    <TableUserCell name={row.name} avatarUrl={row.avatarUrl} />
-                  </td>
-                  <td className="px-6 py-5 text-right font-bold">{row.amount}</td>
-                  <td className="px-6 py-5">
-                    <StatusBadge variant={row.status}>{row.statusLabel}</StatusBadge>
-                  </td>
-                  <td className="px-6 py-5 italic text-on-surface-variant">{row.upiId}</td>
-                  <td className="px-6 py-5 text-on-surface-variant">{row.date}</td>
-                  <td className="table-cell-actions px-6 py-5">
-                    <PayoutRowActions type={row.actions} />
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left">
+              <thead>
+                <tr className="table-head">
+                  {TABLE_COLUMNS.map((col) => (
+                    <th
+                      key={col}
+                      className={`border-b border-outline-variant px-6 py-4 ${
+                        col === 'Amount' || col === 'Actions' ? 'text-right' : ''
+                      }`}
+                    >
+                      {col}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="type-body-md divide-y divide-outline-variant text-on-surface">
+                <AnimatePresence>
+                  {filteredData.length > 0 ? (
+                    filteredData.map((row) => (
+                      <motion.tr 
+                        key={row.id} 
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="table-row"
+                      >
+                        <td className="table-cell-mono px-6 py-5">#{row.id}</td>
+                        <td className="px-6 py-5">
+                          <TableUserCell name={row.name} avatarUrl={row.avatarUrl} />
+                        </td>
+                        <td className="px-6 py-5 text-right font-bold">{row.amount}</td>
+                        <td className="px-6 py-5">
+                          <StatusBadge variant={row.status}>{row.statusLabel}</StatusBadge>
+                        </td>
+                        <td className="px-6 py-5 italic text-on-surface-variant">{row.upiId}</td>
+                        <td className="px-6 py-5 text-on-surface-variant">{row.date}</td>
+                        <td className="table-cell-actions px-6 py-5">
+                          <PayoutRowActions type={row.actions} />
+                        </td>
+                      </motion.tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={TABLE_COLUMNS.length} className="text-center py-20">
+                        <div className="flex flex-col items-center gap-2 text-on-surface-variant">
+                          <MaterialIcon name="payments" className="!text-5xl opacity-20" />
+                          <p className="type-title-md">No payout requests found</p>
+                          <button onClick={resetFilters} className="mt-2 text-primary font-semibold hover:underline">
+                            Clear all filters
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </AnimatePresence>
+              </tbody>
+            </table>
+          </div>
         </AdminTableCard>
       </section>
     </PageContainer>

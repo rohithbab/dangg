@@ -31,9 +31,9 @@ export function WalletBalanceCard({
       <div className="relative z-10 w-full p-8">
         <div className="mb-12 flex items-start justify-between">
           <div className="text-white">
-            <div className="mb-1 flex items-center gap-2 opacity-90">
-              <MaterialIcon name="female" className="text-[18px]" />
-              <span className="type-label-md tracking-widest opacity-80">{label}</span>
+            <div className="mb-1 flex items-center gap-2">
+              <MaterialIcon name="female" className="text-[18px] text-indigo-200" />
+              <span className="type-label-md font-bold tracking-widest text-indigo-100">{label}</span>
             </div>
             <h5 className="type-headline-lg text-white">{title}</h5>
           </div>

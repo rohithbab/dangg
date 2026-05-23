@@ -44,7 +44,7 @@ export function FemaleUserProfilePage() {
 
   return (
     <PageContainer>
-      <AnimatedStaggerGroup className="space-y-8">
+      <AnimatedStaggerGroup className="space-y-10">
         <AnimatedCardEntrance delay={0}>
           <FemaleProfileHeader
             avatarUrl={user.avatarUrl}
@@ -52,6 +52,7 @@ export function FemaleUserProfilePage() {
             name={user.name}
             age={user.age}
             userId={user.id}
+            userStatus={user.onlineStatus || 'active'}
           />
         </AnimatedCardEntrance>
 
@@ -66,8 +67,8 @@ export function FemaleUserProfilePage() {
           </div>
         </section>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-          <div className="space-y-6 lg:col-span-8">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+          <div className="space-y-10 lg:col-span-8">
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               {user.ratings.map((item, i) => (
                 <AnimatedCardEntrance key={item.label} delay={0.3 + i * 0.05}>

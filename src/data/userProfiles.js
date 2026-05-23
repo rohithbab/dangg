@@ -42,6 +42,7 @@ export const MOCK_USERS = [
     age: 28,
     phone: '+1 555-0199',
     lastActive: '2 mins ago',
+    onlineStatus: 'active',
     avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuABAusYRpvnVcV2_3AF-9D9s63euMikz6gxN9lSSKreK98RR-_CESFkBenKJ22Uvy9X_am0lIF2PQSn0eQu3ue-83MNJc3u66ulJCKUkg7eqhMgKk_wLJTC1_1rSGZh-yhzjC3Qz9B6oDTca8iPxlMQVZAKo8XJ4k1EnL5sID-1nPlEuBS3H-v04z0fKYW8Rdp-zBJT97KN0XoDDNbgJyxnlUO6rUkfjEX7yvVQWbWS3G_-F9mdGBAlEG13BGTUEd_509na54Ns070',
     earnings: [
       { label: 'Total', value: 1250000 },
@@ -104,6 +105,7 @@ export const MOCK_USERS = [
     age: 31,
     phone: '+966 50 123 4567',
     lastActive: '5 mins ago',
+    onlineStatus: 'busy',
     avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuABAusYRpvnVcV2_3AF-9D9s63euMikz6gxN9lSSKreK98RR-_CESFkBenKJ22Uvy9X_am0lIF2PQSn0eQu3ue-83MNJc3u66ulJCKUkg7eqhMgKk_wLJTC1_1rSGZh-yhzjC3Qz9B6oDTca8iPxlMQVZAKo8XJ4k1EnL5sID-1nPlEuBS3H-v04z0fKYW8Rdp-zBJT97KN0XoDDNbgJyxnlUO6rUkfjEX7yvVQWbWS3G_-F9mdGBAlEG13BGTUEd_509na54Ns070',
     earnings: [
       { label: 'Total', value: 892000 },

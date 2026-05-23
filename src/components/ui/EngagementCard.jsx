@@ -15,7 +15,7 @@ export function EngagementCard({
       <div className="absolute right-0 top-0 p-8 opacity-10 transition-opacity group-hover:opacity-20">
         <MaterialIcon name={watermarkIcon} size="lg" />
       </div>
-      <div className="card-pad-lg relative z-10">
+      <div className="card-pad-lg relative z-10 flex-1">
         <h3 className="type-headline-md mb-2 text-on-surface-variant">{title}</h3>
         <h2 className="type-display mb-6 text-primary">
           <AnimatedCounter value={value} />

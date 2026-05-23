@@ -1,6 +1,9 @@
-import { PageContainer } from '../components/layout/PageContainer';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { PageContainer, PageHeader } from '../components/layout';
 import { VerificationRequestCard } from '../components/ui/VerificationRequestCard';
-import { ListPageFooter } from '../components/ui/ListPageFooter';
+import { MaterialIcon } from '../components/ui/MaterialIcon';
+import { useDataFilter } from '../hooks/useDataFilter';
 
 const VERIFICATION_REQUESTS = [
   {
@@ -54,22 +57,73 @@ const VERIFICATION_REQUESTS = [
 ];
 
 export function PendingVerificationPage() {
+  const {
+    filteredData,
+    searchQuery,
+    setSearchQuery,
+    resetFilters,
+  } = useDataFilter(VERIFICATION_REQUESTS, {
+    searchFields: ['name', 'id', 'phone'],
+  });
+
   return (
     <PageContainer>
-      <header className="mb-8">
-        <h1 className="type-headline-lg text-on-surface">Pending Verification</h1>
-        <p className="type-body-md mt-1 normal-case">Female accounts awaiting manual review</p>
-      </header>
-
-      <section>
-        <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 lg:grid-cols-3">
-          {VERIFICATION_REQUESTS.map((request) => (
-            <VerificationRequestCard key={request.id} {...request} />
-          ))}
+      <PageHeader description="Female accounts awaiting manual review">
+        <div className="relative w-full max-w-sm">
+          <MaterialIcon
+            name="search"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-outline"
+          />
+          <input
+            type="text"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-body-md"
+            placeholder="Search by name, ID or phone..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
-      </section>
+      </PageHeader>
 
-      <ListPageFooter summary="Showing 6 of 42 pending requests" />
+      <section className="min-h-[400px]">
+        <AnimatePresence>
+          {filteredData.length > 0 ? (
+            <motion.div 
+              layout
+              className="grid grid-cols-1 gap-gutter md:grid-cols-2 lg:grid-cols-3"
+            >
+              {filteredData.map((request) => (
+                <motion.div
+                  key={request.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <VerificationRequestCard {...request} />
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center justify-center py-20 bg-surface-container-low rounded-3xl border-2 border-dashed border-outline-variant"
+            >
+              <MaterialIcon name="person_search" className="!text-6xl text-outline-variant mb-4" />
+              <h3 className="type-title-lg text-on-surface">No verification requests found</h3>
+              <p className="type-body-md text-on-surface-variant mt-1">
+                Try a different search term or clear filters.
+              </p>
+              <button
+                onClick={resetFilters}
+                className="mt-6 btn-secondary"
+              >
+                Clear Search
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </section>
     </PageContainer>
   );
 }

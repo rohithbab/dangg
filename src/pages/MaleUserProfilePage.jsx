@@ -49,7 +49,7 @@ export function MaleUserProfilePage() {
 
   return (
     <PageContainer className="shell-content--narrow">
-      <AnimatedStaggerGroup className="space-y-8">
+      <AnimatedStaggerGroup className="space-y-10">
         <AnimatedCardEntrance delay={0}>
           <UserProfileHeader
             avatarUrl={user.avatarUrl}
@@ -70,7 +70,7 @@ export function MaleUserProfilePage() {
             ))}
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-8">
             <AnimatedCardEntrance delay={0.5}>
               <ChatEngagementCard metrics={user.chatMetrics} />
             </AnimatedCardEntrance>

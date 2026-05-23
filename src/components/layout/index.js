@@ -3,6 +3,7 @@ export { Sidebar } from './Sidebar';
 export { SidebarNavItem } from './SidebarNavItem';
 export { TopBar } from './TopBar';
 export { PageContainer } from './PageContainer';
+export { PageHeader } from './PageHeader';
 export { SectionTitle } from './SectionTitle';
 export { SectionHeader } from './SectionHeader';
 export { ProfileTopBarActions } from './ProfileTopBarActions';

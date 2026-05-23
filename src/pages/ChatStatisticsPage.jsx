@@ -1,4 +1,4 @@
-import { PageContainer } from '../components/layout/PageContainer';
+import { PageContainer, PageHeader } from '../components/layout';
 import { ChatStatCard } from '../components/ui/ChatStatCard';
 import { EngagementMapCard } from '../components/ui/EngagementMapCard';
 import { OperatorPulseCard } from '../components/ui/OperatorPulseCard';
@@ -81,12 +81,7 @@ const OPERATOR_ITEMS = [
 export function ChatStatisticsPage() {
   return (
     <PageContainer>
-      <header className="mb-8">
-        <h1 className="type-display text-on-surface">Chat Performance</h1>
-        <p className="text-body-lg normal-case text-on-surface-variant">
-          Real-time engagement and operational efficiency metrics.
-        </p>
-      </header>
+      <PageHeader description="Real-time engagement and operational efficiency metrics." />
 
       <AnimatedStaggerGroup className="space-y-8">
         <section>

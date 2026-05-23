@@ -1,3 +1,5 @@
+import { StatusBadge } from './StatusBadge';
+
 export function FemaleProfileHeader({
   avatarUrl,
   avatarAlt = '',
@@ -6,6 +8,7 @@ export function FemaleProfileHeader({
   userId,
   status = 'VERIFIED',
   statusTone = 'text-emerald-600',
+  userStatus = 'active',
   onViewVerification,
 }) {
   return (
@@ -30,11 +33,16 @@ export function FemaleProfileHeader({
         </button>
       </div>
 
-      <div className="relative z-10 text-right">
-        <p className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
-          Account Status
-        </p>
-        <p className={`type-headline-md font-bold ${statusTone}`}>{status}</p>
+      <div className="relative z-10 flex flex-col items-center gap-2 text-center md:items-end md:text-right">
+        <StatusBadge variant={userStatus.toLowerCase()}>
+          {userStatus.charAt(0).toUpperCase() + userStatus.slice(1)}
+        </StatusBadge>
+        <div>
+          <p className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
+            Account Status
+          </p>
+          <p className={`type-headline-md font-bold ${statusTone}`}>{status}</p>
+        </div>
       </div>
     </section>
   );

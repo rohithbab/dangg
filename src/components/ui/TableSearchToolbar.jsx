@@ -4,13 +4,17 @@ import { MaterialIcon } from './MaterialIcon';
 export function TableSearchToolbar({
   searchPlaceholder = 'Search users...',
   filterLabel = 'Filter',
+  searchQuery,
+  onSearchChange,
+  onFilterClick,
+  onReset,
+  showReset,
 }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2 items-center">
       <motion.div 
         initial={false}
-        whileFocus={{ width: 300 }}
-        className="relative w-full sm:w-auto"
+        className="relative w-full sm:w-auto min-w-[200px]"
       >
         <MaterialIcon
           name="search"
@@ -22,6 +26,8 @@ export function TableSearchToolbar({
           className="input-search"
           placeholder={searchPlaceholder}
           aria-label={searchPlaceholder}
+          value={searchQuery}
+          onChange={(e) => onSearchChange?.(e.target.value)}
         />
       </motion.div>
       <motion.button 
@@ -29,10 +35,25 @@ export function TableSearchToolbar({
         whileTap={{ scale: 0.95 }}
         type="button" 
         className="btn-toolbar"
+        onClick={onFilterClick}
       >
         <MaterialIcon name="filter_list" className="text-[18px]" />
         <span className="type-body-md normal-case text-on-surface">{filterLabel}</span>
       </motion.button>
+      
+      {showReset && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          whileHover={{ backgroundColor: 'var(--error-container)' }}
+          whileTap={{ scale: 0.95 }}
+          onClick={onReset}
+          className="btn-toolbar text-error border-error/20"
+        >
+          <MaterialIcon name="restart_alt" className="!text-[18px]" />
+          <span>Reset</span>
+        </motion.button>
+      )}
     </div>
   );
 }

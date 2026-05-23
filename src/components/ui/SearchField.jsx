@@ -4,6 +4,8 @@ export function SearchField({
   placeholder = 'Search...',
   className = '',
   variant = 'full',
+  value,
+  onChange,
 }) {
   const inputClass = variant === 'full' ? 'input-search-full' : 'input-search';
 
@@ -18,6 +20,8 @@ export function SearchField({
         className={inputClass}
         placeholder={placeholder}
         aria-label={placeholder}
+        value={value}
+        onChange={(e) => onChange?.(e.target.value)}
       />
     </div>
   );

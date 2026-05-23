@@ -1,17 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PageContainer } from '../components/layout/PageContainer';
+import { motion, AnimatePresence } from 'framer-motion';
+import { PageContainer, PageHeader } from '../components/layout';
 import { MaterialIcon } from '../components/ui/MaterialIcon';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { Divider } from '../components/ui/Divider';
+import { ChatFiltersPanel } from '../components/ui/ChatFiltersPanel';
+import { useDataFilter } from '../hooks/useDataFilter';
 
-const ACTIVE_SESSIONS = [
+const COMPLETED_SESSIONS = [
   {
-    id: 'harmony',
+    id: '#CHT-harmony',
     title: 'Pastel Harmony Session',
     host: 'Julian M.',
+    hostId: 'USR-1029',
     guest: 'Elena R.',
-    status: 'Active',
+    guestId: 'USR-2045',
+    status: 'Completed',
+    date: 'May 23, 2026',
     duration: '42:15',
     messages: 128,
     safetyScore: '9.8/10',
@@ -21,11 +27,14 @@ const ACTIVE_SESSIONS = [
     guestPremium: true,
   },
   {
-    id: 'technical',
+    id: '#CHT-technical',
     title: 'Technical Admin Support',
     host: 'Liam S.',
+    hostId: 'USR-3001',
     guest: 'Sophia K.',
+    guestId: 'USR-2046',
     status: 'Completed',
+    date: 'May 22, 2026',
     duration: '18:32',
     messages: 45,
     safetyScore: '9.5/10',
@@ -35,11 +44,14 @@ const ACTIVE_SESSIONS = [
     guestPremium: false,
   },
   {
-    id: 'revenue',
+    id: '#CHT-revenue',
     title: 'Revenue Verification Query',
     host: 'Noah W.',
+    hostId: 'USR-3002',
     guest: 'Olivia M.',
-    status: 'Active',
+    guestId: 'USR-2045',
+    status: 'Completed',
+    date: 'May 15, 2026',
     duration: '29:45',
     messages: 82,
     safetyScore: '9.9/10',
@@ -49,11 +61,14 @@ const ACTIVE_SESSIONS = [
     guestPremium: true,
   },
   {
-    id: 'general',
+    id: '#CHT-general',
     title: 'General Feedback Session',
     host: 'Mason T.',
+    hostId: 'USR-1029',
     guest: 'Isabella G.',
-    status: 'Pending',
+    guestId: 'USR-2046',
+    status: 'Completed',
+    date: 'Apr 20, 2026',
     duration: '05:12',
     messages: 14,
     safetyScore: '9.2/10',
@@ -68,6 +83,20 @@ export function ChatDetailPage() {
   const navigate = useNavigate();
   const [selectedSession, setSelectedSession] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+
+  const {
+    filteredData,
+    searchQuery,
+    setSearchQuery,
+    filters,
+    updateFilter,
+    resetFilters,
+  } = useDataFilter(COMPLETED_SESSIONS, {
+    searchFields: ['id', 'title', 'host', 'hostId', 'guest', 'guestId'],
+    initialFilters: { dateRange: { type: 'all' }, id: '' },
+    initialSort: { field: 'date', direction: 'desc' },
+  });
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -100,77 +129,159 @@ export function ChatDetailPage() {
   };
 
   const handleViewChat = () => {
-    // Route to the chat replay page (e.g. transcript #1)
     navigate('/transcript/1');
   };
 
   return (
     <PageContainer>
-      <header className="mb-8">
-        <h1 className="type-display text-on-surface">Chat Management</h1>
-        <p className="text-body-lg normal-case text-on-surface-variant">
-          Monitor and review live support session metrics, verified hosts, and premium guest engagements.
-        </p>
-      </header>
-
-      {/* Grid of Active Chat Cards */}
-      <section className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {ACTIVE_SESSIONS.map((session) => (
-          <div
-            key={session.id}
-            onClick={() => handleOpenDetails(session)}
-            className="card-interactive card-pad cursor-pointer flex flex-col justify-between"
-          >
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex -space-x-2">
-                  <img
-                    src={session.hostAvatar}
-                    alt={session.host}
-                    className="w-8 h-8 rounded-full border-2 border-white object-cover"
-                  />
-                  <img
-                    src={session.guestAvatar}
-                    alt={session.guest}
-                    className="w-8 h-8 rounded-full border-2 border-white object-cover"
-                  />
-                </div>
-                <StatusBadge variant={session.status === 'Active' ? 'growing' : 'stable'}>
-                  {session.status}
-                </StatusBadge>
-              </div>
-              <h3 className="type-headline-md font-bold mb-2 text-on-surface">
-                {session.title}
-              </h3>
-              <p className="text-sm text-on-surface-variant mb-4">
-                Host: <span className="font-semibold text-on-surface">{session.host}</span> | Guest:{' '}
-                <span className="font-semibold text-on-surface">{session.guest}</span>
-              </p>
-            </div>
-            
-            <div className="flex justify-between items-center pt-4 border-t border-outline-variant/60 text-xs text-on-surface-variant">
-              <span className="flex items-center gap-1">
-                <MaterialIcon name="schedule" className="!text-[16px] text-primary" />
-                {session.duration}
-              </span>
-              <span className="flex items-center gap-1">
-                <MaterialIcon name="chat" className="!text-[16px] text-secondary" />
-                {session.messages} Messages
-              </span>
-            </div>
+      <div className="max-w-6xl mx-auto space-y-8">
+        {/* Filter & Search Bar Area - Simplified to match Stitch style */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="relative w-full max-w-md">
+            <MaterialIcon
+              name="search"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-outline"
+            />
+            <input
+              type="text"
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-body-md"
+              placeholder="Search hosts, guests, names..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
-        ))}
-      </section>
+          
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-2 px-4 py-2 bg-white border border-outline-variant rounded-lg text-body-md hover:bg-surface-container-low transition-colors ${
+                showFilters ? 'bg-primary/5 border-primary text-primary' : ''
+              }`}
+            >
+              <MaterialIcon name="tune" className="!text-[18px]" />
+              <span>Quick Filter</span>
+            </button>
+          </div>
+        </div>
+
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div
+              initial={{ height: 0, opacity: 0, marginBottom: 0 }}
+              animate={{ height: 'auto', opacity: 1, marginBottom: 24 }}
+              exit={{ height: 0, opacity: 0, marginBottom: 0 }}
+              className="overflow-hidden"
+            >
+              <ChatFiltersPanel 
+                filters={filters}
+                onFilterChange={updateFilter}
+                onReset={resetFilters}
+                showStatusFilter={false}
+                showChatIdFilter={true}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Grid of Completed Chat Cards */}
+        <section className="min-h-[400px]">
+          <AnimatePresence>
+            {filteredData.length > 0 ? (
+              <motion.div 
+                layout
+                className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+              >
+                {filteredData.map((session) => (
+                  <motion.div
+                    key={session.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    onClick={() => handleOpenDetails(session)}
+                    className="glass-card border border-outline-variant rounded-xl p-5 hover:shadow-md transition-shadow group cursor-pointer flex flex-col justify-between h-full"
+                  >
+                    <div>
+                      <div className="flex justify-between items-center mb-4">
+                        <div className="flex -space-x-2">
+                          <img
+                            src={session.hostAvatar}
+                            alt={session.host}
+                            className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-sm"
+                          />
+                          <img
+                            src={session.guestAvatar}
+                            alt={session.guest}
+                            className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-sm"
+                          />
+                        </div>
+                        <StatusBadge variant="resolved" size="sm">
+                          Completed
+                        </StatusBadge>
+                      </div>
+                      <h3 className="type-headline-sm font-bold mb-1 text-on-surface group-hover:text-primary transition-colors">
+                        {session.title}
+                      </h3>
+                      <p className="text-xs text-primary font-bold mb-3 uppercase tracking-widest">{session.id}</p>
+                      <p className="text-sm text-on-surface-variant mb-4">
+                        Host: <span className="font-semibold text-on-surface">{session.host}</span><br />
+                        Guest: <span className="font-semibold text-on-surface">{session.guest}</span>
+                      </p>
+                    </div>
+                    
+                    <div className="flex justify-between items-center pt-4 border-t border-outline-variant/60 text-xs text-on-surface-variant">
+                      <span className="flex items-center gap-1">
+                        <MaterialIcon name="calendar_today" className="!text-[16px] text-outline" />
+                        {session.date}
+                      </span>
+                      <div className="flex gap-4">
+                        <span className="flex items-center gap-1">
+                          <MaterialIcon name="schedule" className="!text-[16px] text-primary" />
+                          {session.duration}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MaterialIcon name="chat" className="!text-[16px] text-secondary" />
+                          {session.messages}
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex flex-col items-center justify-center py-32 bg-surface-container-low rounded-3xl border-2 border-dashed border-outline-variant"
+              >
+                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-6">
+                  <MaterialIcon name="search_off" className="!text-4xl text-outline-variant" />
+                </div>
+                <h3 className="type-headline-md text-on-surface">No sessions found</h3>
+                <p className="type-body-md text-on-surface-variant mt-2">
+                  Try adjusting your search terms or filters to find specific sessions.
+                </p>
+                <button
+                  onClick={resetFilters}
+                  className="mt-8 btn-primary rounded-xl px-8"
+                >
+                  Clear All Filters
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </section>
+      </div>
 
       {/* Modal Overlay for Detail Display */}
       {isModalOpen && selectedSession && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/20 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/10 backdrop-blur-sm animate-in fade-in duration-200">
           {/* Modal Container */}
-          <div className="card-base w-full max-w-2xl overflow-hidden shadow-2xl relative animate-in zoom-in duration-300">
+          <div className="card-base w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl relative animate-in fade-in zoom-in duration-300">
             {/* Close Button */}
             <button
               onClick={handleCloseDetails}
-              className="absolute top-6 right-6 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant transition-all hover:rotate-90"
+              className="absolute top-6 right-6 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-highest/50 hover:bg-surface-container-highest text-on-surface-variant transition-all hover:rotate-90"
               title="Close details"
             >
               <MaterialIcon name="close" />
@@ -200,32 +311,27 @@ export function ChatDetailPage() {
                       className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-lg relative z-0 object-cover"
                     />
                     {selectedSession.hostVerified && (
-                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-white px-3 py-1 rounded-full shadow-sm border border-outline-variant flex items-center gap-1">
-                        <span className="text-[11px] font-bold text-on-surface-variant flex items-center gap-1">
-                          <MaterialIcon
-                            name="verified"
-                            className="text-blue-500 fill !text-[14px]"
-                          />
+                      <div className="absolute -bottom-2 bg-white px-3 py-1 rounded-full shadow-sm border border-outline-variant/10">
+                        <span className="text-label-sm font-label-sm text-on-surface-variant flex items-center gap-1">
+                          <MaterialIcon name="verified" className="text-primary !text-[14px]" />
                           Verified
                         </span>
                       </div>
                     )}
                   </div>
-                  <h3 className="type-headline-md text-on-surface">{selectedSession.host}</h3>
-                  <p className="type-label-md uppercase tracking-wide mt-1">Host</p>
+                  <h3 className="type-headline-sm font-bold text-on-surface mb-1">{selectedSession.host}</h3>
+                  <p className="text-label-md font-label-md text-on-surface-variant uppercase tracking-widest">
+                    Host
+                  </p>
                 </div>
 
-                {/* Duration Counter (Center) */}
+                {/* Session Duration Badge (Center) */}
                 <div className="flex flex-col items-center gap-2">
                   <div className="h-px w-20 bg-gradient-to-r from-transparent via-outline-variant to-transparent md:h-20 md:w-px"></div>
-                  <div className="bg-surface-container-low px-6 py-3 rounded-2xl flex flex-col items-center shadow-sm border border-outline-variant/60">
+                  <div className="bg-surface-container-highest px-6 py-3 rounded-2xl flex flex-col items-center shadow-sm border border-outline-variant/20">
                     <MaterialIcon name="schedule" className="text-primary mb-1" />
-                    <span className="text-label-md normal-case text-on-surface-variant uppercase tracking-tighter">
-                      Duration
-                    </span>
-                    <span className="type-headline-md text-primary font-bold">
-                      {selectedSession.duration}
-                    </span>
+                    <span className="text-label-md font-label-md text-on-surface-variant uppercase tracking-tighter">Duration</span>
+                    <span className="type-headline-sm font-bold text-primary">{selectedSession.duration}</span>
                   </div>
                   <div className="h-px w-20 bg-gradient-to-r from-transparent via-outline-variant to-transparent md:h-20 md:w-px"></div>
                 </div>
@@ -240,59 +346,50 @@ export function ChatDetailPage() {
                       className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-lg relative z-0 object-cover"
                     />
                     {selectedSession.guestPremium && (
-                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-white px-3 py-1 rounded-full shadow-sm border border-outline-variant flex items-center gap-1">
-                        <span className="text-[11px] font-bold text-on-surface-variant flex items-center gap-1">
-                          <MaterialIcon
-                            name="stars"
-                            className="text-secondary fill !text-[14px]"
-                          />
+                      <div className="absolute -bottom-2 bg-white px-3 py-1 rounded-full shadow-sm border border-outline-variant/10">
+                        <span className="text-label-sm font-label-sm text-on-surface-variant flex items-center gap-1">
+                          <MaterialIcon name="stars" className="text-secondary !text-[14px]" />
                           Premium
                         </span>
                       </div>
                     )}
                   </div>
-                  <h3 className="type-headline-md text-on-surface">{selectedSession.guest}</h3>
-                  <p className="type-label-md uppercase tracking-wide mt-1">Guest</p>
+                  <h3 className="type-headline-sm font-bold text-on-surface mb-1">{selectedSession.guest}</h3>
+                  <p className="text-label-md font-label-md text-on-surface-variant uppercase tracking-widest">
+                    Guest
+                  </p>
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <button
                   onClick={handleViewChat}
-                  className="btn-primary flex items-center justify-center gap-2"
+                  className="bg-primary-container hover:bg-primary text-on-primary-container px-10 py-4 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all active:scale-95 shadow-md shadow-primary/20"
                 >
-                  <MaterialIcon name="visibility" className="text-on-primary" />
-                  View Chat
+                  <MaterialIcon name="visibility" className="group-hover:scale-110 transition-transform" />
+                  <span>View Chat</span>
                 </button>
                 <button
                   onClick={() => handleDeleteHistory(selectedSession.id)}
-                  className="btn-outline flex items-center justify-center gap-2"
+                  className="border border-outline-variant text-on-surface-variant hover:bg-surface-container-low px-10 py-4 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all active:scale-95"
                 >
-                  <MaterialIcon name="delete_outline" />
-                  Delete History
+                  <MaterialIcon name="delete_outline" className="group-hover:rotate-12 transition-transform" />
+                  <span>Delete History</span>
                 </button>
               </div>
             </div>
 
             {/* Footer Stats */}
-            <div className="bg-surface-container-low border-t border-outline-variant/60 p-6 flex justify-around items-center">
+            <div className="bg-surface-container-low/50 border-t border-outline-variant/10 p-6 flex justify-around items-center">
               <div className="flex flex-col items-center">
-                <span className="type-label-md normal-case text-on-surface-variant">
-                  Total Messages
-                </span>
-                <span className="type-headline-md font-bold text-on-surface">
-                  {selectedSession.messages}
-                </span>
+                <span className="text-label-md font-label-md text-on-surface-variant uppercase tracking-tight">Total Messages</span>
+                <span className="type-headline-sm font-bold text-on-surface">{selectedSession.messages}</span>
               </div>
-              <Divider className="!h-8 !w-px bg-outline-variant" />
+              <div className="w-px h-8 bg-outline-variant/20"></div>
               <div className="flex flex-col items-center">
-                <span className="type-label-md normal-case text-on-surface-variant">
-                  Safety Score
-                </span>
-                <span className="type-headline-md font-bold text-tertiary">
-                  {selectedSession.safetyScore}
-                </span>
+                <span className="text-label-md font-label-md text-on-surface-variant uppercase tracking-tight">Safety Score</span>
+                <span className="type-headline-sm font-bold text-emerald-600">{selectedSession.safetyScore}</span>
               </div>
             </div>
           </div>
