@@ -13,6 +13,7 @@ export const MOCK_USERS = [
     age: 32,
     phone: '+91 98765 43210',
     lastActive: '2 mins ago',
+    status: 'Active',
     avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCxjsUSJK0qXzDF8PYcPVHrtNAk4Ek7jpom2waWGSs2OGneDUdqNe85iB_LFswE4JRP43tkfR5hv2ehrlbttNrF_rAScSbz3_AfSwWzMdULtvbhENqWmQ1v-5OONr-N2ap5fd-Q31eW3bQMgISDctI3OtJ40SXAR67zW19SanSksu9mtWOKHFQD0YbmuSTav5GfJ7cVTGN7kGAy9Zn_NHx7ZbVBIEFcAs8PHzIApyNeVW0fk3rVoVzBxWXwxCKQ8pZpnVVUaprkRaQ',
     financialStats: [
       { label: 'Current Balance', value: '₹ 4,250.00', icon: 'account_balance', accent: 'primary', trend: '+2.4%' },
@@ -42,6 +43,7 @@ export const MOCK_USERS = [
     age: 28,
     phone: '+1 555-0199',
     lastActive: '2 mins ago',
+    status: 'Verified',
     onlineStatus: 'active',
     avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuABAusYRpvnVcV2_3AF-9D9s63euMikz6gxN9lSSKreK98RR-_CESFkBenKJ22Uvy9X_am0lIF2PQSn0eQu3ue-83MNJc3u66ulJCKUkg7eqhMgKk_wLJTC1_1rSGZh-yhzjC3Qz9B6oDTca8iPxlMQVZAKo8XJ4k1EnL5sID-1nPlEuBS3H-v04z0fKYW8Rdp-zBJT97KN0XoDDNbgJyxnlUO6rUkfjEX7yvVQWbWS3G_-F9mdGBAlEG13BGTUEd_509na54Ns070',
     earnings: [
@@ -77,6 +79,7 @@ export const MOCK_USERS = [
     age: 45,
     phone: '+1 555-0142',
     lastActive: '10 mins ago',
+    status: 'Premium',
     avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCxjsUSJK0qXzDF8PYcPVHrtNAk4Ek7jpom2waWGSs2OGneDUdqNe85iB_LFswE4JRP43tkfR5hv2ehrlbttNrF_rAScSbz3_AfSwWzMdULtvbhENqWmQ1v-5OONr-N2ap5fd-Q31eW3bQMgISDctI3OtJ40SXAR67zW19SanSksu9mtWOKHFQD0YbmuSTav5GfJ7cVTGN7kGAy9Zn_NHx7ZbVBIEFcAs8PHzIApyNeVW0fk3rVoVzBxWXwxCKQ8pZpnVVUaprkRaQ',
     financialStats: [
       { label: 'Current Balance', value: '₹ 1,500.00', icon: 'account_balance', accent: 'primary', trend: '+1.0%' },
@@ -105,6 +108,7 @@ export const MOCK_USERS = [
     age: 31,
     phone: '+966 50 123 4567',
     lastActive: '5 mins ago',
+    status: 'Suspended',
     onlineStatus: 'busy',
     avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuABAusYRpvnVcV2_3AF-9D9s63euMikz6gxN9lSSKreK98RR-_CESFkBenKJ22Uvy9X_am0lIF2PQSn0eQu3ue-83MNJc3u66ulJCKUkg7eqhMgKk_wLJTC1_1rSGZh-yhzjC3Qz9B6oDTca8iPxlMQVZAKo8XJ4k1EnL5sID-1nPlEuBS3H-v04z0fKYW8Rdp-zBJT97KN0XoDDNbgJyxnlUO6rUkfjEX7yvVQWbWS3G_-F9mdGBAlEG13BGTUEd_509na54Ns070',
     earnings: [
@@ -136,6 +140,7 @@ export const MOCK_USERS = [
     age: 24,
     phone: '+886 912 345 678',
     lastActive: 'Just now',
+    status: 'Offline',
     avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCxjsUSJK0qXzDF8PYcPVHrtNAk4Ek7jpom2waWGSs2OGneDUdqNe85iB_LFswE4JRP43tkfR5hv2ehrlbttNrF_rAScSbz3_AfSwWzMdULtvbhENqWmQ1v-5OONr-N2ap5fd-Q31eW3bQMgISDctI3OtJ40SXAR67zW19SanSksu9mtWOKHFQD0YbmuSTav5GfJ7cVTGN7kGAy9Zn_NHx7ZbVBIEFcAs8PHzIApyNeVW0fk3rVoVzBxWXwxCKQ8pZpnVVUaprkRaQ',
     financialStats: [
       { label: 'Current Balance', value: '₹ 8,900.00', icon: 'account_balance', accent: 'primary', trend: '+15.2%' },

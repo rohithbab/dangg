@@ -22,7 +22,6 @@ export { VerificationRequestCard } from './VerificationRequestCard';
 export { ListPageFooter } from './ListPageFooter';
 export { FilterTabBar } from './FilterTabBar';
 export { SearchField } from './SearchField';
-export { UserFiltersPanel } from './UserFiltersPanel';
 export { UserIdentityCell } from './UserIdentityCell';
 export { TablePaginationFull } from './TablePaginationFull';
 export { ProfileStatCard } from './ProfileStatCard';
@@ -42,3 +41,6 @@ export { ChatDateSeparator } from './ChatDateSeparator';
 export { ChatMessageBubble } from './ChatMessageBubble';
 export { ChatStatusBanner } from './ChatStatusBanner';
 export { ChatReplayFooter } from './ChatReplayFooter';
+export { SearchableSelect } from './SearchableSelect';
+export { FilterPanel } from './FilterPanel';
+

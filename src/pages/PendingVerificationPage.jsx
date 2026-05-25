@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PageContainer, PageHeader } from '../components/layout';
 import { VerificationRequestCard } from '../components/ui/VerificationRequestCard';
 import { MaterialIcon } from '../components/ui/MaterialIcon';
-import { useDataFilter } from '../hooks/useDataFilter';
+import { useFilteredData } from '../hooks/useFilteredData';
 
 const VERIFICATION_REQUESTS = [
   {
@@ -58,11 +58,11 @@ const VERIFICATION_REQUESTS = [
 
 export function PendingVerificationPage() {
   const {
-    filteredData,
+    filteredResults,
     searchQuery,
     setSearchQuery,
     resetFilters,
-  } = useDataFilter(VERIFICATION_REQUESTS, {
+  } = useFilteredData(VERIFICATION_REQUESTS, {
     searchFields: ['name', 'id', 'phone'],
   });
 
@@ -86,12 +86,12 @@ export function PendingVerificationPage() {
 
       <section className="min-h-[400px]">
         <AnimatePresence>
-          {filteredData.length > 0 ? (
+          {filteredResults.length > 0 ? (
             <motion.div 
               layout
               className="grid grid-cols-1 gap-gutter md:grid-cols-2 lg:grid-cols-3"
             >
-              {filteredData.map((request) => (
+              {filteredResults.map((request) => (
                 <motion.div
                   key={request.id}
                   initial={{ opacity: 0, scale: 0.9 }}

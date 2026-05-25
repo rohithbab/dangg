@@ -1,6 +1,5 @@
 export { AppShell } from './AppShell';
 export { Sidebar } from './Sidebar';
-export { SidebarNavItem } from './SidebarNavItem';
 export { TopBar } from './TopBar';
 export { PageContainer } from './PageContainer';
 export { PageHeader } from './PageHeader';

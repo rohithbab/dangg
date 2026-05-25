@@ -1,36 +1,34 @@
 import { motion } from 'framer-motion';
-import { NavLink } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { MaterialIcon } from '../ui/MaterialIcon';
-import { DASHBOARD_NAV_ITEMS } from '../../routes/dashboardRoutes';
+import { DASHBOARD_NAV_ITEMS, getNavItemByPath } from '../../routes/dashboardRoutes';
 
-function SidebarNavItem({ to, icon, label }) {
+function SidebarNavItem({ to, icon, label, id }) {
+  const { pathname } = useLocation();
+  const currentItem = getNavItemByPath(pathname);
+  const isActive = currentItem?.id === id;
+
   return (
-    <NavLink
+    <Link
       to={to}
-      className={({ isActive }) =>
-        `nav-item group relative ${isActive ? 'nav-item-active' : ''}`
-      }
+      className={`nav-item group relative ${isActive ? 'nav-item-active' : ''}`}
     >
-      {({ isActive }) => (
-        <>
-          <div className="flex items-center gap-3">
-            <MaterialIcon 
-              name={icon} 
-              fill={isActive} 
-              className={isActive ? 'text-primary' : 'text-on-surface-variant group-hover:text-primary'}
-            />
-            <span className="type-label-md normal-case tracking-normal">{label}</span>
-          </div>
-          {isActive && (
-            <motion.div
-              layoutId="activeNavIndicator"
-              className="absolute left-0 h-6 w-1 rounded-r-full bg-primary"
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            />
-          )}
-        </>
+      <div className="flex items-center gap-3">
+        <MaterialIcon 
+          name={icon} 
+          fill={isActive} 
+          className={isActive ? 'text-primary' : 'text-on-surface-variant group-hover:text-primary'}
+        />
+        <span className="type-label-md normal-case tracking-normal">{label}</span>
+      </div>
+      {isActive && (
+        <motion.div
+          layoutId="activeNavIndicator"
+          className="absolute left-0 h-6 w-1 rounded-r-full bg-primary"
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        />
       )}
-    </NavLink>
+    </Link>
   );
 }
 
@@ -49,6 +47,7 @@ export function Sidebar({ brandTitle = 'DANGG', brandSubtitle = 'ADMIN CONSOLE' 
         {DASHBOARD_NAV_ITEMS.map((item) => (
           <SidebarNavItem
             key={item.id}
+            id={item.id}
             to={item.path}
             icon={item.icon}
             label={item.label}
