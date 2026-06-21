@@ -5,60 +5,129 @@ import { EngagementCard } from '../components/ui/EngagementCard';
 import { DemographicCard } from '../components/ui/DemographicCard';
 import { FeatureCard } from '../components/ui/FeatureCard';
 import { AnimatedCardEntrance, AnimatedStaggerGroup } from '../components/animation';
+import { useAdminQuery } from '../hooks/useAdminQuery';
+import { supabase } from '../lib/supabase';
+import { formatRupees } from '../lib/utils';
 
-const REVENUE_STATS = [
-  {
-    label: 'Coin Revenue',
-    value: 12450,
-    icon: 'payments',
-    trend: '+12%',
-    trendDirection: 'up',
-    accent: 'primary',
-    progress: 75,
-  },
-  {
-    label: 'Net Profit',
-    value: 8200,
-    icon: 'trending_up',
-    trend: '+5.4%',
-    trendDirection: 'up',
-    accent: 'secondary',
-    progress: 50,
-  },
-  {
-    label: 'Pending Payouts',
-    value: 3100,
-    icon: 'hourglass_empty',
-    trend: '-2%',
-    trendDirection: 'down',
-    accent: 'tertiary',
-    progress: 33,
-  },
-  {
-    label: 'Actual Profit',
-    value: 7850,
-    icon: 'account_balance',
-    trend: '+8%',
-    trendDirection: 'up',
-    accent: 'primary',
-    progress: 66,
-  },
-];
+async function fetchAnalytics() {
+  const [
+    { count: totalUsers },
+    { count: maleUsers },
+    { count: femaleUsers },
+    { data: payments },
+    { data: pendingPayouts },
+    { count: totalChats },
+    { count: completedChats },
+    { count: totalMessages },
+  ] = await Promise.all([
+    supabase.from('users').select('*', { count: 'exact', head: true }),
+    supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'male'),
+    supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'female'),
+    supabase.from('payments').select('amount_paisa').eq('status', 'captured'),
+    supabase.from('payouts').select('payout_amount_paisa').in('status', ['pending', 'processing']),
+    supabase.from('chat_sessions').select('*', { count: 'exact', head: true }),
+    supabase.from('chat_sessions').select('*', { count: 'exact', head: true }).eq('status', 'completed'),
+    supabase.from('chat_messages').select('*', { count: 'exact', head: true }),
+  ])
 
-const DEMOGRAPHICS = [
-  { icon: 'group', label: 'Total Users', value: '850', accent: 'primary' },
-  { icon: 'male', label: 'Male Users', value: '450', accent: 'secondary' },
-  { icon: 'female', label: 'Female Users', value: '400', accent: 'tertiary' },
-];
+  const totalRevenuePaisa = (payments || []).reduce((s, p) => s + (p.amount_paisa || 0), 0)
+  const pendingPayoutsPaisa = (pendingPayouts || []).reduce((s, p) => s + (p.payout_amount_paisa || 0), 0)
+
+  return {
+    totalUsers: totalUsers || 0,
+    maleUsers: maleUsers || 0,
+    femaleUsers: femaleUsers || 0,
+    totalRevenuePaisa,
+    pendingPayoutsPaisa,
+    totalChats: totalChats || 0,
+    completedChats: completedChats || 0,
+    totalMessages: totalMessages || 0,
+  }
+}
+
+function PageSkeleton() {
+  return (
+    <PageContainer>
+      <div className="space-y-10 animate-pulse">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-36 bg-surface-container rounded-3xl" />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+          <div className="h-48 bg-surface-container rounded-3xl lg:col-span-8" />
+          <div className="flex flex-col gap-4 lg:col-span-4">
+            {[...Array(3)].map((_, i) => <div key={i} className="h-14 bg-surface-container rounded-2xl" />)}
+          </div>
+        </div>
+      </div>
+    </PageContainer>
+  )
+}
 
 export function AnalyticsDashboardPage() {
+  const { data, loading } = useAdminQuery(fetchAnalytics)
+
+  if (loading) return <PageSkeleton />
+
+  const d = data || {}
+
+  const revenueStats = [
+    {
+      label: 'Coin Revenue',
+      value: d.totalRevenuePaisa / 100,
+      icon: 'payments',
+      trend: null,
+      trendDirection: 'up',
+      accent: 'primary',
+      progress: 75,
+    },
+    {
+      label: 'Total Chats',
+      value: d.totalChats,
+      icon: 'forum',
+      trend: null,
+      trendDirection: 'up',
+      accent: 'secondary',
+      progress: d.totalChats > 0 ? Math.min(100, Math.round((d.completedChats / d.totalChats) * 100)) : 0,
+    },
+    {
+      label: 'Pending Payouts',
+      value: d.pendingPayoutsPaisa / 100,
+      icon: 'hourglass_empty',
+      trend: null,
+      trendDirection: 'down',
+      accent: 'tertiary',
+      progress: 33,
+    },
+    {
+      label: 'Total Messages',
+      value: d.totalMessages,
+      icon: 'chat_bubble',
+      trend: null,
+      trendDirection: 'up',
+      accent: 'primary',
+      progress: 66,
+    },
+  ]
+
+  const demographics = [
+    { icon: 'group', label: 'Total Users', value: String(d.totalUsers), accent: 'primary' },
+    { icon: 'male', label: 'Male Users', value: String(d.maleUsers), accent: 'secondary' },
+    { icon: 'female', label: 'Female Users', value: String(d.femaleUsers), accent: 'tertiary' },
+  ]
+
+  const completionRate = d.totalChats > 0
+    ? Math.round((d.completedChats / d.totalChats) * 100)
+    : 0
+
   return (
     <PageContainer>
       <AnimatedStaggerGroup className="space-y-10">
         <section>
           <SectionTitle title="Revenue Velocity" />
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {REVENUE_STATS.map((stat, i) => (
+            {revenueStats.map((stat, i) => (
               <AnimatedCardEntrance key={stat.label} delay={i * 0.1}>
                 <StatCard {...stat} />
               </AnimatedCardEntrance>
@@ -71,13 +140,13 @@ export function AnalyticsDashboardPage() {
             <SectionTitle title="Engagement Pulse" />
             <AnimatedCardEntrance delay={0.4} className="flex flex-1 flex-col">
               <EngagementCard
-                title="Weekly User Engagement"
-                value="24.8K"
-                description="Active interactions across all modules including chat, voice, and profile browsing."
+                title="Chat Engagement"
+                value={d.totalChats.toLocaleString('en-IN')}
+                description="Active chat sessions initiated across the platform."
                 metrics={[
-                  { label: 'Chat Sessions', value: '12.4K', progress: 85 },
-                  { label: 'Voice Calls', value: '4.2K', progress: 45 },
-                  { label: 'Profile Views', value: '8.2K', progress: 65 },
+                  { label: 'Completed Chats', value: d.completedChats.toLocaleString('en-IN'), progress: completionRate },
+                  { label: 'Total Messages', value: d.totalMessages.toLocaleString('en-IN'), progress: Math.min(100, d.totalMessages) },
+                  { label: 'Male Users', value: String(d.maleUsers), progress: d.totalUsers > 0 ? Math.round((d.maleUsers / d.totalUsers) * 100) : 0 },
                 ]}
                 footerAction="View Detailed Engagement"
               />
@@ -87,7 +156,7 @@ export function AnalyticsDashboardPage() {
           <div className="flex flex-col lg:col-span-4">
             <SectionTitle title="User Distribution" />
             <div className="flex flex-1 flex-col justify-between gap-4">
-              {DEMOGRAPHICS.map((item, i) => (
+              {demographics.map((item, i) => (
                 <AnimatedCardEntrance key={item.label} delay={0.5 + i * 0.1} className="flex-1">
                   <DemographicCard {...item} />
                 </AnimatedCardEntrance>
@@ -102,7 +171,7 @@ export function AnalyticsDashboardPage() {
               <FeatureCard
                 icon="bolt"
                 title="Growth Forecast"
-                description="Our predictive models suggest a 24% increase in user acquisition by the end of Q3 based on current organic trends."
+                description={`Currently ${d.totalUsers} users registered (${d.maleUsers} male, ${d.femaleUsers} female). Revenue: ${formatRupees(d.totalRevenuePaisa)} from coin purchases.`}
                 actionLabel="Export Full Report"
               />
             </AnimatedCardEntrance>
@@ -110,5 +179,5 @@ export function AnalyticsDashboardPage() {
         </section>
       </AnimatedStaggerGroup>
     </PageContainer>
-  );
+  )
 }

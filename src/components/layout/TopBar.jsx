@@ -1,16 +1,19 @@
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { MaterialIcon } from '../ui/MaterialIcon';
 import { Divider } from '../ui/Divider';
+import { logout } from '../../lib/auth';
 
 export function TopBar({ title, subtitle, actions, leading, user }) {
+  const navigate = useNavigate();
+
   const handleRefresh = () => {
     window.location.reload();
   };
 
   const handleLogout = () => {
-    // Current logout flow placeholder
-    console.log('Logging out...');
-    window.location.href = '/';
+    logout();
+    navigate('/login', { replace: true });
   };
 
   return (

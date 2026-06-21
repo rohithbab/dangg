@@ -5,49 +5,95 @@ import { RevenueMetricCard } from '../components/ui/RevenueMetricCard';
 import { PendingPayoutsCard } from '../components/ui/PendingPayoutsCard';
 import { WalletBalanceCard } from '../components/ui/WalletBalanceCard';
 import { AnimatedCardEntrance, AnimatedStaggerGroup } from '../components/animation';
+import { useAdminQuery } from '../hooks/useAdminQuery';
+import { supabase } from '../lib/supabase';
+import { formatRupees } from '../lib/utils';
 
-const WALLET_AVATARS = [
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuCbDPnqXOBJu0g_ai2K8T3AOwI5LDYpaRuK3-vn1vLIoFbM7n8q2-IFt3K3S0Rt6ni7edruIDoB26UmvnQIBoyIwhjtAC7sZPkbomTrjnpU4W-N_zWim_ciZeGKThlZ3DWng4YnVQrx9g8dHZH2tDh2xdmUFFK2fMLsqQY5kwqb2fmlDQh8hDMiQI_gN0m0bOq55g6wlPv26V5SOiVfmgUSDFAuIHxEloUVUbNylnnhDYKHvgM7Bf1COkoK4qbgXcKNkSIy75OlDi4',
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuDCxcYefdLGiHXlcV5rxGBNNU5WBctcSYpXuTQ4RWrqLtQEhlLX7vW3d89bnRy98oOwKLCEpY3Ipeu8pEl2ADxfCvc6ifLl7m89XE7KyiklFtw016ycogc9hdMFZEeLwSBTjRMeVdpuX0Je1nWBrDdsfX496nBxBO5WRqFD6UBQVApPJ-fbpgkUjYBy---6WM_qx9tsGXPwl7OOwaazTIf5slNshG2oViwZmEwxkbHdUP0U-5dEVgQdS6utRGeoRXMCVmI-Gm5tizI',
-];
+async function fetchRevenue() {
+  const [
+    { data: capturedPayments },
+    { data: completedPayouts },
+    { data: pendingPayouts },
+    { data: femalesData },
+    { count: femaleCount },
+  ] = await Promise.all([
+    supabase.from('payments').select('amount_paisa').eq('status', 'captured'),
+    supabase.from('payouts').select('payout_amount_paisa').eq('status', 'completed'),
+    supabase.from('payouts').select('payout_amount_paisa').in('status', ['pending', 'processing', 'approved']),
+    supabase.from('females').select('earnings_balance_coins').gt('earnings_balance_coins', 0),
+    supabase.from('females').select('*', { count: 'exact', head: true }).gt('earnings_balance_coins', 0),
+  ])
 
-const REVENUE_METRICS = [
-  {
-    label: 'Total Revenue',
-    value: 2500000,
-    icon: 'monetization_on',
-    accent: 'primary',
-    badge: (
-      <span className="badge-trend-up flex items-center gap-1">
-        <MaterialIcon name="trending_up" size="sm" />
-        +12.5%
-      </span>
-    ),
-  },
-  {
-    label: 'Completed Payouts',
-    value: 1500000,
-    icon: 'account_balance',
-    accent: 'secondary',
-    badge: <span className="badge-neutral">Verified</span>,
-  },
-  {
-    label: 'Actual Profit',
-    value: 1000000,
-    icon: 'insights',
-    accent: 'tertiary',
-    badge: <span className="badge-accent">Net 40%</span>,
-  },
-];
+  const totalRevenuePaisa = (capturedPayments || []).reduce((s, p) => s + (p.amount_paisa || 0), 0)
+  const completedPayoutsPaisa = (completedPayouts || []).reduce((s, p) => s + (p.payout_amount_paisa || 0), 0)
+  const pendingPayoutsPaisa = (pendingPayouts || []).reduce((s, p) => s + (p.payout_amount_paisa || 0), 0)
+  const totalFemaleCoins = (femalesData || []).reduce((s, f) => s + (f.earnings_balance_coins || 0), 0)
+  const actualProfitPaisa = totalRevenuePaisa - completedPayoutsPaisa
+
+  return {
+    totalRevenuePaisa,
+    completedPayoutsPaisa,
+    actualProfitPaisa,
+    pendingPayoutsPaisa,
+    totalFemaleCoins,
+    femaleCount: femaleCount || 0,
+  }
+}
+
+function PageSkeleton() {
+  return (
+    <PageContainer>
+      <div className="space-y-10 animate-pulse">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          {[...Array(3)].map((_, i) => <div key={i} className="h-36 bg-surface-container rounded-3xl" />)}
+        </div>
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
+          <div className="h-48 bg-surface-container rounded-3xl" />
+          <div className="h-48 bg-surface-container rounded-3xl" />
+        </div>
+      </div>
+    </PageContainer>
+  )
+}
 
 export function RevenueOverviewPage() {
+  const { data, loading } = useAdminQuery(fetchRevenue)
+
+  if (loading) return <PageSkeleton />
+
+  const d = data || {}
+
+  const revenueMetrics = [
+    {
+      label: 'Total Revenue',
+      value: d.totalRevenuePaisa || 0,
+      icon: 'monetization_on',
+      accent: 'primary',
+      badge: <span className="badge-neutral">Coin purchases</span>,
+    },
+    {
+      label: 'Completed Payouts',
+      value: d.completedPayoutsPaisa || 0,
+      icon: 'account_balance',
+      accent: 'secondary',
+      badge: <span className="badge-neutral">Verified</span>,
+    },
+    {
+      label: 'Actual Profit',
+      value: Math.max(0, d.actualProfitPaisa || 0),
+      icon: 'insights',
+      accent: 'tertiary',
+      badge: <span className="badge-accent">Net</span>,
+    },
+  ]
+
   return (
     <PageContainer>
       <AnimatedStaggerGroup className="space-y-10">
         <section>
           <SectionHeader title="Revenue Insights" />
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {REVENUE_METRICS.map((metric, i) => (
+            {revenueMetrics.map((metric, i) => (
               <AnimatedCardEntrance key={metric.label} delay={i * 0.1}>
                 <RevenueMetricCard {...metric} />
               </AnimatedCardEntrance>
@@ -58,16 +104,16 @@ export function RevenueOverviewPage() {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
           <AnimatedCardEntrance delay={0.4}>
             <WalletBalanceCard
-              amount={420000}
-              avatarUrls={WALLET_AVATARS}
-              avatarCount={12}
+              amount={d.totalFemaleCoins || 0}
+              avatarUrls={[]}
+              avatarCount={d.femaleCount || 0}
             />
           </AnimatedCardEntrance>
           <AnimatedCardEntrance delay={0.6}>
-            <PendingPayoutsCard />
+            <PendingPayoutsCard count={d.pendingPayoutsPaisa ? Math.round(d.pendingPayoutsPaisa / 100) : 0} />
           </AnimatedCardEntrance>
         </div>
       </AnimatedStaggerGroup>
     </PageContainer>
-  );
+  )
 }

@@ -3,106 +3,146 @@ import { ChatStatCard } from '../components/ui/ChatStatCard';
 import { EngagementMapCard } from '../components/ui/EngagementMapCard';
 import { OperatorPulseCard } from '../components/ui/OperatorPulseCard';
 import { AnimatedStaggerGroup, AnimatedCardEntrance } from '../components/animation';
+import { useAdminQuery } from '../hooks/useAdminQuery';
+import { supabase } from '../lib/supabase';
 
-const CHAT_STATS = [
-  {
-    label: 'Total Chat Initiated',
-    value: '2,842',
-    icon: 'chat_bubble',
-    iconFill: true,
-    accent: 'primary',
-    badge: '+12.4%',
-    badgeVariant: 'trend-up',
-    footer: { type: 'progress', percent: 75, color: 'primary' },
-  },
-  {
-    label: 'Completed Chat Count',
-    value: '2,610',
-    icon: 'task_alt',
-    accent: 'secondary',
-    badge: '+8.2%',
-    badgeVariant: 'trend-up',
-    footer: { type: 'progressLabeled', percent: 91.8, label: '91.8%', color: 'secondary' },
-  },
-  {
-    label: 'Rejected Chats',
-    value: '42',
-    icon: 'cancel',
-    accent: 'error',
-    badge: '-2.1%',
-    badgeVariant: 'error',
-    footer: { type: 'text', text: 'Dropped by system or timeout' },
-  },
-  {
-    label: 'Total Chat Duration',
-    value: '452h 12m',
-    icon: 'schedule',
-    accent: 'tertiary',
-    badge: 'Lifetime',
-    badgeVariant: 'neutral',
-    footer: {
-      type: 'segments',
-      segments: [true, true, true, false, false],
-    },
-  },
-  {
-    label: 'Average Chat Duration',
-    value: '8m 34s',
-    icon: 'avg_time',
-    accent: 'primary',
-    badge: '-45s',
-    badgeVariant: 'trend-up',
-    footer: { type: 'text', text: 'Optimized from 9m 19s last week' },
-  },
-  {
-    label: 'Peak Activity Hour',
-    value: '14:00 - 15:00',
-    icon: 'trending_up',
-    accent: 'secondary',
-    badge: 'Daily',
-    badgeVariant: 'neutral',
-    footer: {
-      type: 'pills',
-      pills: [
-        { label: 'Mon: 14h', active: false },
-        { label: 'Tue: 15h', active: true },
-        { label: 'Wed: 11h', active: false },
-      ],
-    },
-  },
-];
+async function fetchChatStats() {
+  const [
+    { count: total },
+    { count: completed },
+    { count: rejected },
+    { count: totalMessages },
+    { data: durations },
+  ] = await Promise.all([
+    supabase.from('chat_sessions').select('*', { count: 'exact', head: true }),
+    supabase.from('chat_sessions').select('*', { count: 'exact', head: true }).eq('status', 'completed'),
+    supabase.from('chat_sessions').select('*', { count: 'exact', head: true }).in('status', ['rejected', 'cancelled']),
+    supabase.from('chat_messages').select('*', { count: 'exact', head: true }),
+    supabase.from('chat_sessions').select('started_at, ended_at').eq('status', 'completed').not('ended_at', 'is', null),
+  ])
 
-const OPERATOR_ITEMS = [
-  { status: 'online', label: '42 Agents Online' },
-  { status: 'break', label: '12 Agents on Break' },
-  { status: 'offline', label: '8 Agents Offline' },
-];
+  const totalDurationMs = (durations || []).reduce((sum, s) => {
+    if (!s.started_at || !s.ended_at) return sum
+    return sum + (new Date(s.ended_at) - new Date(s.started_at))
+  }, 0)
+
+  const totalDurationMin = Math.round(totalDurationMs / 60000)
+  const avgDurationSec = (durations || []).length > 0
+    ? Math.round(totalDurationMs / (durations.length * 1000))
+    : 0
+
+  const totalHours = Math.floor(totalDurationMin / 60)
+  const remainingMin = totalDurationMin % 60
+  const totalDurationLabel = totalDurationMin > 0 ? `${totalHours}h ${remainingMin}m` : '0m'
+
+  const avgMin = Math.floor(avgDurationSec / 60)
+  const avgSec = avgDurationSec % 60
+  const avgDurationLabel = avgDurationSec > 0 ? `${avgMin}m ${avgSec}s` : '0m'
+
+  const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0
+
+  return {
+    total: total || 0,
+    completed: completed || 0,
+    rejected: rejected || 0,
+    totalMessages: totalMessages || 0,
+    totalDurationLabel,
+    avgDurationLabel,
+    completionRate,
+  }
+}
 
 export function ChatStatisticsPage() {
+  const { data, loading } = useAdminQuery(fetchChatStats)
+
+  const d = data || {}
+
+  const chatStats = [
+    {
+      label: 'Total Chat Initiated',
+      value: loading ? '…' : d.total?.toLocaleString('en-IN') ?? '0',
+      icon: 'chat_bubble',
+      iconFill: true,
+      accent: 'primary',
+      badge: null,
+      badgeVariant: 'neutral',
+      footer: { type: 'progress', percent: 75, color: 'primary' },
+    },
+    {
+      label: 'Completed Chat Count',
+      value: loading ? '…' : d.completed?.toLocaleString('en-IN') ?? '0',
+      icon: 'task_alt',
+      accent: 'secondary',
+      badge: d.completionRate ? `${d.completionRate}%` : null,
+      badgeVariant: 'trend-up',
+      footer: { type: 'progressLabeled', percent: d.completionRate || 0, label: `${d.completionRate || 0}%`, color: 'secondary' },
+    },
+    {
+      label: 'Rejected / Cancelled',
+      value: loading ? '…' : d.rejected?.toLocaleString('en-IN') ?? '0',
+      icon: 'cancel',
+      accent: 'error',
+      badge: null,
+      badgeVariant: 'error',
+      footer: { type: 'text', text: 'Dropped by system or timeout' },
+    },
+    {
+      label: 'Total Chat Duration',
+      value: loading ? '…' : d.totalDurationLabel || '0m',
+      icon: 'schedule',
+      accent: 'tertiary',
+      badge: 'Lifetime',
+      badgeVariant: 'neutral',
+      footer: { type: 'segments', segments: [true, true, true, false, false] },
+    },
+    {
+      label: 'Average Chat Duration',
+      value: loading ? '…' : d.avgDurationLabel || '0m',
+      icon: 'avg_time',
+      accent: 'primary',
+      badge: null,
+      badgeVariant: 'neutral',
+      footer: { type: 'text', text: 'Per completed session' },
+    },
+    {
+      label: 'Total Messages',
+      value: loading ? '…' : d.totalMessages?.toLocaleString('en-IN') ?? '0',
+      icon: 'forum',
+      accent: 'secondary',
+      badge: null,
+      badgeVariant: 'neutral',
+      footer: { type: 'text', text: 'Across all chat sessions' },
+    },
+  ]
+
+  const operatorItems = [
+    { status: 'online', label: `${d.completed || 0} Completed Chats` },
+    { status: 'break', label: `${d.rejected || 0} Rejected / Cancelled` },
+    { status: 'offline', label: `${(d.total || 0) - (d.completed || 0) - (d.rejected || 0)} In Progress` },
+  ]
+
   return (
     <PageContainer>
       <PageHeader description="Real-time engagement and operational efficiency metrics." />
-
       <AnimatedStaggerGroup className="space-y-8">
         <section>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {CHAT_STATS.map((stat, i) => (
+            {chatStats.map((stat, i) => (
               <AnimatedCardEntrance key={stat.label} delay={i * 0.05}>
                 <ChatStatCard {...stat} />
               </AnimatedCardEntrance>
             ))}
           </div>
         </section>
-
         <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <AnimatedCardEntrance delay={0.4} className="lg:col-span-2">
             <EngagementMapCard />
           </AnimatedCardEntrance>
           <AnimatedCardEntrance delay={0.5}>
-            <OperatorPulseCard items={OPERATOR_ITEMS} />
+            <OperatorPulseCard items={operatorItems} />
           </AnimatedCardEntrance>
         </section>
       </AnimatedStaggerGroup>
     </PageContainer>
-  );
+  )
 }

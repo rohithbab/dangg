@@ -13,6 +13,8 @@ import { ChatTranscriptPage } from './pages/ChatTranscriptPage';
 import { ChatReplayPage } from './pages/ChatReplayPage';
 import { ChatDetailPage } from './pages/ChatDetailPage';
 import { PlaceholderPage } from './pages/PlaceholderPage';
+import { LoginPage } from './pages/LoginPage';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { DASHBOARD_NAV_ITEMS } from './routes/dashboardRoutes';
 
 const IMPLEMENTED_ROUTES = new Set([
@@ -40,8 +42,16 @@ const placeholderRoutes = DASHBOARD_NAV_ITEMS.filter(
 
 export const router = createBrowserRouter([
   {
+    path: '/login',
+    element: <LoginPage />,
+  },
+  {
     path: '/',
-    element: <DashboardLayout />,
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
     children: [
       { index: true, element: <Navigate to="/analytics" replace /> },
       { path: 'analytics', element: <AnalyticsDashboardPage /> },
