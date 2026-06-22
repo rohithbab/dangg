@@ -45,11 +45,11 @@ function PageSkeleton() {
     <PageContainer>
       <div className="space-y-10 animate-pulse">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {[...Array(3)].map((_, i) => <div key={i} className="h-36 bg-surface-container rounded-3xl" />)}
+          {[...Array(3)].map((_, i) => <div key={i} className="h-36 bg-surface rounded-2xl shadow-card" />)}
         </div>
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
-          <div className="h-48 bg-surface-container rounded-3xl" />
-          <div className="h-48 bg-surface-container rounded-3xl" />
+          <div className="h-48 bg-surface rounded-2xl shadow-card" />
+          <div className="h-48 bg-surface rounded-2xl shadow-card" />
         </div>
       </div>
     </PageContainer>

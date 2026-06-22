@@ -128,7 +128,7 @@ export function UserManagementPage() {
         </FilterPanel>
 
         {loading ? (
-          <div className="h-64 bg-surface-container rounded-3xl animate-pulse" />
+          <div className="h-64 bg-surface rounded-2xl shadow-card animate-pulse" />
         ) : (
           <div className="bg-white border border-outline-variant rounded-3xl overflow-hidden shadow-sm">
             <div className="overflow-x-auto">

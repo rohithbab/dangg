@@ -161,10 +161,10 @@ export function PayoutManagementPage() {
       {loading ? (
         <div className="space-y-8 animate-pulse">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {[...Array(5)].map((_, i) => <div key={i} className="h-32 bg-surface-container rounded-3xl" />)}
+            {[...Array(5)].map((_, i) => <div key={i} className="h-32 bg-surface rounded-2xl shadow-card" />)}
           </div>
-          <div className="h-20 bg-surface-container rounded-3xl" />
-          <div className="h-64 bg-surface-container rounded-3xl" />
+          <div className="h-20 bg-surface rounded-2xl shadow-card" />
+          <div className="h-64 bg-surface rounded-2xl shadow-card" />
         </div>
       ) : (
         <>

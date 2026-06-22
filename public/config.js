@@ -1,2 +1,2 @@
-window.__SUPABASE_URL__ = "";
-window.__SUPABASE_SERVICE_KEY__ = "";
+window.__SUPABASE_URL__ = "https://placeholder.supabase.co";
+window.__SUPABASE_SERVICE_KEY__ = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsYWNlaG9sZGVyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTYwMDAwMDAwMCwiZXhwIjoxOTAwMDAwMDAwfQ.placeholder";

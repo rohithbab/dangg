@@ -45,19 +45,33 @@ async function fetchAnalytics() {
   }
 }
 
+const shimmerStyle = {
+  background: 'linear-gradient(90deg, #f8f6f1 0%, #ede9e0 40%, #f8f6f1 80%)',
+  backgroundSize: '200% 100%',
+  animation: 'shimmer 1.8s infinite linear',
+}
+
+function SkeletonCard({ className = '' }) {
+  return (
+    <div
+      className={`rounded-2xl border border-outline-variant shadow-card ${className}`}
+      style={shimmerStyle}
+    />
+  )
+}
+
 function PageSkeleton() {
   return (
     <PageContainer>
-      <div className="space-y-10 animate-pulse">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-36 bg-surface-container rounded-3xl" />
-          ))}
+      <style>{`@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }`}</style>
+      <div className="space-y-8">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => <SkeletonCard key={i} className="h-40" />)}
         </div>
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
-          <div className="h-48 bg-surface-container rounded-3xl lg:col-span-8" />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <SkeletonCard className="h-56 lg:col-span-8" />
           <div className="flex flex-col gap-4 lg:col-span-4">
-            {[...Array(3)].map((_, i) => <div key={i} className="h-14 bg-surface-container rounded-2xl" />)}
+            {[...Array(3)].map((_, i) => <SkeletonCard key={i} className="h-16" />)}
           </div>
         </div>
       </div>
@@ -79,7 +93,7 @@ export function AnalyticsDashboardPage() {
       icon: 'payments',
       trend: null,
       trendDirection: 'up',
-      accent: 'primary',
+      accent: 'dark',
       progress: 75,
     },
     {
