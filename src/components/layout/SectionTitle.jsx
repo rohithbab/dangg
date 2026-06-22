@@ -1,7 +1,10 @@
 export function SectionTitle({ title, children, className = '' }) {
   return (
-    <h3 className={`mb-5 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant ${className}`.trim()}>
-      {title || children}
-    </h3>
+    <div className={`mb-4 flex items-center gap-3 ${className}`.trim()}>
+      <div className="h-5 w-[3px] rounded-full bg-on-surface" />
+      <h3 className="font-display text-sm font-black uppercase tracking-[0.14em] text-on-surface">
+        {title || children}
+      </h3>
+    </div>
   );
 }

@@ -1,67 +1,74 @@
 import { motion } from 'framer-motion';
 import { MaterialIcon } from './MaterialIcon';
-import { AnimatedCounter, AnimatedProgressBar } from '../animation';
-import { formatCurrency } from '../../utils/formatters';
+import { AnimatedCounter } from '../animation';
 
 const VARIANTS = {
   primary: {
-    card: 'bg-surface shadow-card border border-outline-variant',
-    icon: 'bg-primary/15 text-on-surface',
-    progress: 'bg-on-surface',
+    card: 'bg-surface border border-outline-variant shadow-card',
+    icon: 'bg-outline-variant/60 text-on-surface',
+    bar: 'bg-on-surface',
+    track: 'bg-outline-variant',
     label: 'text-on-surface-variant',
     value: 'text-on-surface',
+    pct: 'text-on-surface-variant/50',
   },
   secondary: {
-    card: 'bg-surface shadow-card border border-outline-variant',
+    card: 'bg-surface border border-outline-variant shadow-card',
     icon: 'bg-secondary/10 text-secondary',
-    progress: 'bg-secondary',
+    bar: 'bg-secondary',
+    track: 'bg-outline-variant',
     label: 'text-on-surface-variant',
     value: 'text-on-surface',
+    pct: 'text-on-surface-variant/50',
   },
   tertiary: {
-    card: 'bg-surface shadow-card border border-outline-variant',
+    card: 'bg-surface border border-outline-variant shadow-card',
     icon: 'bg-tertiary/15 text-tertiary',
-    progress: 'bg-tertiary',
+    bar: 'bg-tertiary',
+    track: 'bg-outline-variant',
     label: 'text-on-surface-variant',
     value: 'text-on-surface',
+    pct: 'text-on-surface-variant/50',
   },
-  /* Dark "hero" variant — used for first stat card */
   dark: {
-    card: 'bg-sidebar shadow-card-lift border border-sidebar-border',
-    icon: 'bg-primary/20 text-on-sidebar-active',
-    progress: 'bg-primary',
+    card: 'bg-sidebar border border-sidebar-border shadow-card-lift',
+    icon: 'bg-primary/20 text-primary',
+    bar: 'bg-primary',
+    track: 'bg-white/10',
     label: 'text-on-sidebar-muted',
     value: 'text-on-sidebar',
+    pct: 'text-on-sidebar-muted/50',
   },
 };
 
-export function StatCard({
-  label,
-  value,
-  icon,
-  trend,
-  trendDirection = 'up',
-  accent = 'primary',
-  progress = 75,
-}) {
+function formatNum(v) {
+  const n = typeof v === 'number' ? v : parseFloat(String(v ?? 0).replace(/[^0-9.-]/g, ''))
+  if (isNaN(n)) return '0'
+  const abs = Math.abs(n)
+  if (abs >= 10000000) return `${(n / 10000000).toFixed(1).replace(/\.0$/, '')}Cr`
+  if (abs >= 100000) return `${(n / 100000).toFixed(1).replace(/\.0$/, '')}L`
+  if (abs >= 1000) return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}K`
+  return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(n)
+}
+
+export function StatCard({ label, value, icon, trend, trendDirection = 'up', accent = 'primary', progress = 75, isCurrency = false }) {
   const v = VARIANTS[accent] ?? VARIANTS.primary;
 
   return (
     <motion.article
-      whileHover={{ y: -4, boxShadow: '0 16px 40px -8px rgb(14 14 13 / 0.22)' }}
-      transition={{ duration: 0.22, ease: 'easeOut' }}
-      className={`rounded-2xl p-6 group relative overflow-hidden ${v.card}`}
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
+      className={`rounded-2xl p-5 relative overflow-hidden ${v.card}`}
     >
-      {/* Subtle corner accent circle */}
-      <div className="pointer-events-none absolute -right-5 -top-5 h-20 w-20 rounded-full bg-current opacity-[0.04] transition-all group-hover:scale-150" />
-
-      {/* Top row */}
-      <div className="mb-5 flex items-start justify-between">
-        <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${v.icon}`}>
-          <MaterialIcon name={icon} size="sm" />
+      {/* Top row: icon + trend badge */}
+      <div className="mb-4 flex items-start justify-between">
+        <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${v.icon}`}>
+          <MaterialIcon name={icon} className="!text-[16px]" />
         </div>
         {trend != null && (
-          <span className={trendDirection === 'down' ? 'badge-trend-down' : 'badge-trend-up'}>
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+            trendDirection === 'down' ? 'bg-error/10 text-error' : 'bg-primary/15 text-on-surface'
+          }`}>
             {trendDirection === 'up' ? '+' : ''}{trend}
           </span>
         )}
@@ -72,24 +79,28 @@ export function StatCard({
         {label}
       </p>
 
-      {/* Value — Syne font for punch */}
+      {/* Value */}
       <h4 className={`font-display text-3xl font-black tracking-tight leading-none ${v.value}`}>
-        <AnimatedCounter value={value} formatter={formatCurrency} />
+        {isCurrency && (
+          <span className="font-sans font-bold text-lg mr-0.5 opacity-50">INR</span>
+        )}
+        <AnimatedCounter value={value} formatter={formatNum} />
       </h4>
 
-      {/* Progress track */}
-      <div className="mt-5 h-1 w-full overflow-hidden rounded-full bg-black/10">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-          className={`h-full rounded-full ${v.progress}`}
-        />
+      {/* Progress */}
+      <div className="mt-4">
+        <div className={`h-[3px] w-full overflow-hidden rounded-full ${v.track}`}>
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1], delay: 0.25 }}
+            className={`h-full rounded-full ${v.bar}`}
+          />
+        </div>
+        <p className={`mt-1.5 text-[10px] font-medium ${v.pct}`}>
+          {progress}% of target
+        </p>
       </div>
-
-      <p className={`mt-1.5 text-[10px] font-medium ${v.label} opacity-60`}>
-        {progress}% of target
-      </p>
     </motion.article>
   );
 }

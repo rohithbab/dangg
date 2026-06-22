@@ -2,32 +2,42 @@ import { motion } from 'framer-motion';
 import { MaterialIcon } from './MaterialIcon';
 import { AnimatedCounter } from '../animation';
 
-const ACCENT_CLASSES = {
-  primary: { bg: 'bg-primary/10', icon: 'text-on-surface' },
-  secondary: { bg: 'bg-secondary/10', icon: 'text-secondary' },
-  tertiary: { bg: 'bg-tertiary/10', icon: 'text-tertiary' },
+const ACCENT = {
+  primary: { well: 'bg-on-surface/8 text-on-surface', bar: 'bg-on-surface' },
+  secondary: { well: 'bg-secondary/12 text-secondary', bar: 'bg-secondary' },
+  tertiary: { well: 'bg-tertiary/12 text-tertiary', bar: 'bg-tertiary' },
 };
 
-export function DemographicCard({ icon, label, value, accent = 'primary' }) {
-  const style = ACCENT_CLASSES[accent] ?? ACCENT_CLASSES.primary;
+export function DemographicCard({ icon, label, value, accent = 'primary', total }) {
+  const a = ACCENT[accent] ?? ACCENT.primary;
+  const pct = total && Number(value) > 0 ? Math.round((Number(value) / total) * 100) : null;
 
   return (
     <motion.article
       whileHover={{ y: -2 }}
-      transition={{ type: 'spring', stiffness: 300 }}
-      className="card-base card-pad flex items-center gap-4 h-full"
+      transition={{ duration: 0.18, ease: 'easeOut' }}
+      className="flex items-center gap-4 rounded-2xl border border-outline-variant bg-surface px-5 py-4 shadow-card"
     >
-      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${style.bg}`}>
-        <MaterialIcon name={icon} className={style.icon} size="sm" />
+      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${a.well}`}>
+        <MaterialIcon name={icon} size="sm" />
       </div>
+
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant truncate">
+        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-on-surface-variant truncate">
           {label}
         </p>
-        <h5 className="text-2xl font-black tracking-tight text-on-surface leading-tight">
+        <h5 className="font-display text-3xl font-black tracking-tight text-on-surface leading-none">
           <AnimatedCounter value={value} />
         </h5>
       </div>
+
+      {pct != null && (
+        <div className="shrink-0 text-right">
+          <span className="font-display text-xl font-black text-on-surface-variant/40 leading-none">
+            {pct}%
+          </span>
+        </div>
+      )}
     </motion.article>
   );
 }

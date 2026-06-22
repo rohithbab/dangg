@@ -11,7 +11,12 @@ export function useAdminQuery(queryFn, deps = []) {
     let cancelled = false
     setLoading(true)
     setError(null)
-    fnRef.current()
+
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Query timeout')), 8000)
+    )
+
+    Promise.race([fnRef.current(), timeout])
       .then(result => {
         if (!cancelled) {
           setData(result)
@@ -21,6 +26,7 @@ export function useAdminQuery(queryFn, deps = []) {
       .catch(err => {
         if (!cancelled) {
           setError(err)
+          setData({})
           setLoading(false)
         }
       })
