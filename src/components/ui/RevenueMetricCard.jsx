@@ -14,29 +14,27 @@ export function RevenueMetricCard({ label, value, icon, accent = 'primary', badg
   const well = ICON_WELLS[accent] ?? ICON_WELLS.primary;
 
   return (
-    <motion.article 
-      whileHover={{ y: -4, boxShadow: '0 12px 24px -8px rgba(0,0,0,0.15)' }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="card-interactive card-pad group flex h-full flex-col justify-between overflow-hidden"
+    <motion.article
+      whileHover={{ y: -3 }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
+      className="card-base card-pad group flex h-full flex-col justify-between overflow-hidden relative"
     >
-      <div>
-        <div className="mb-4 flex items-start justify-between gap-2">
+      {/* Corner glow */}
+      <div className="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-primary/5 transition-all group-hover:scale-150 group-hover:bg-primary/8" />
+
+      <div className="relative">
+        <div className="mb-5 flex items-start justify-between gap-2">
           <div className={`${well} shrink-0`}>
-            <MaterialIcon name={icon} />
+            <MaterialIcon name={icon} size="sm" />
           </div>
-          <div className="min-w-0 shrink">
-            {badge}
-          </div>
+          {badge && <div className="min-w-0 shrink">{badge}</div>}
         </div>
-        <p className="type-label-md mb-1 truncate normal-case tracking-tight" title={label}>
+        <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant truncate">
           {label}
         </p>
       </div>
-      <h4 className="type-display truncate">
-        <AnimatedCounter 
-          value={value} 
-          formatter={formatCurrency} 
-        />
+      <h4 className="text-2xl font-black tracking-tight text-on-surface leading-none mt-2">
+        <AnimatedCounter value={value} formatter={formatCurrency} />
       </h4>
     </motion.article>
   );

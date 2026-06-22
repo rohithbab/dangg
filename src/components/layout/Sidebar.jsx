@@ -11,39 +11,55 @@ function SidebarNavItem({ to, icon, label, id }) {
   return (
     <Link
       to={to}
-      className={`nav-item group relative ${isActive ? 'nav-item-active' : ''}`}
+      className={isActive ? 'nav-item-active' : 'nav-item'}
     >
-      <div className="flex items-center gap-3">
-        <MaterialIcon 
-          name={icon} 
-          fill={isActive} 
-          className={isActive ? 'text-primary' : 'text-on-surface-variant group-hover:text-primary'}
-        />
-        <span className="type-label-md normal-case tracking-normal">{label}</span>
-      </div>
+      <MaterialIcon
+        name={icon}
+        fill={isActive}
+        className={isActive ? 'text-on-sidebar-active' : 'text-on-sidebar-muted group-hover:text-on-sidebar'}
+        size="sm"
+      />
+      <span className="nav-label">{label}</span>
       {isActive && (
         <motion.div
           layoutId="activeNavIndicator"
-          className="absolute left-0 h-6 w-1 rounded-r-full bg-primary"
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          className="ml-auto h-1.5 w-1.5 rounded-full bg-on-sidebar-active"
+          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
         />
       )}
     </Link>
   );
 }
 
-export function Sidebar({ brandTitle = 'DANGG', brandSubtitle = 'ADMIN CONSOLE' }) {
+export function Sidebar({ brandTitle = 'DANGG', brandSubtitle = 'Admin Console' }) {
   return (
     <aside className="shell-sidebar">
-      <div className="mb-8 px-6">
-        <h1 className="type-headline-md font-bold text-on-surface dark:text-on-surface-variant">
-          {brandTitle}
-        </h1>
-        <p className="text-xs font-medium uppercase tracking-wider text-on-surface-variant">
-          {brandSubtitle}
+      {/* Brand */}
+      <div className="mb-8 px-5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+            <span className="text-xs font-black text-on-primary leading-none">D</span>
+          </div>
+          <div>
+            <h1 className="text-sm font-black tracking-wider text-on-sidebar leading-none">
+              {brandTitle}
+            </h1>
+            <p className="mt-0.5 text-[10px] font-medium uppercase tracking-widest text-on-sidebar-muted">
+              {brandSubtitle}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Nav section label */}
+      <div className="mb-2 px-5">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-on-sidebar-muted/60">
+          Navigation
         </p>
       </div>
-      <nav className="flex-1 space-y-1">
+
+      {/* Nav items */}
+      <nav className="flex-1 space-y-0.5">
         {DASHBOARD_NAV_ITEMS.map((item) => (
           <SidebarNavItem
             key={item.id}
@@ -54,6 +70,14 @@ export function Sidebar({ brandTitle = 'DANGG', brandSubtitle = 'ADMIN CONSOLE' 
           />
         ))}
       </nav>
+
+      {/* Bottom divider line */}
+      <div className="mx-5 border-t border-sidebar-border" />
+
+      {/* Version tag */}
+      <div className="px-5 pt-4">
+        <p className="text-[10px] text-on-sidebar-muted/40 font-medium">v1.0 · Admin Panel</p>
+      </div>
     </aside>
   );
 }

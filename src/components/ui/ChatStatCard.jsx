@@ -109,8 +109,8 @@ export function ChatStatCard({
             <span className={badgeClass}>{badge}</span>
           ))}
       </div>
-      <p className="type-label-md mb-1 normal-case tracking-tight">{label}</p>
-      <h4 className="type-display text-on-surface">{value}</h4>
+      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">{label}</p>
+      <h4 className="text-2xl font-black tracking-tight text-on-surface leading-tight">{value}</h4>
       <ChatStatFooter footer={footer} />
     </motion.article>
   );

@@ -28,83 +28,138 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-container-low flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md"
-      >
-        <div className="bg-white rounded-3xl shadow-xl border border-outline-variant overflow-hidden">
-          {/* Header */}
-          <div className="bg-primary px-8 py-10 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mx-auto mb-4">
-              <MaterialIcon name="admin_panel_settings" className="!text-[36px] text-white" />
+    <div className="min-h-screen bg-background flex">
+      {/* Left panel — dark brand block */}
+      <div className="hidden lg:flex lg:w-1/2 bg-sidebar flex-col justify-between p-12 relative overflow-hidden">
+        {/* Background blobs */}
+        <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/8 blur-3xl" />
+        <div className="pointer-events-none absolute -left-16 bottom-16 h-56 w-56 rounded-full bg-primary/5 blur-2xl" />
+
+        {/* Brand */}
+        <div className="relative flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary">
+            <span className="text-sm font-black text-on-primary leading-none">D</span>
+          </div>
+          <div>
+            <span className="text-sm font-black tracking-wider text-on-sidebar">DANGG</span>
+            <p className="text-[10px] font-medium uppercase tracking-widest text-on-sidebar-muted">
+              Admin Console
+            </p>
+          </div>
+        </div>
+
+        {/* Center text */}
+        <div className="relative">
+          <p className="mb-4 text-[11px] font-bold uppercase tracking-widest text-on-sidebar-muted">
+            Secure Access
+          </p>
+          <h2 className="text-4xl font-black tracking-tight text-on-sidebar leading-[1.1]">
+            Manage your<br />platform with<br />
+            <span className="text-primary">confidence.</span>
+          </h2>
+          <p className="mt-6 max-w-sm text-sm text-on-sidebar-muted leading-relaxed">
+            Full oversight of users, revenue, chat sessions, and payouts — all in one place.
+          </p>
+        </div>
+
+        {/* Bottom note */}
+        <p className="relative text-[11px] text-on-sidebar-muted/40 font-medium">
+          v1.0 · Admin Panel · Protected
+        </p>
+      </div>
+
+      {/* Right panel — form */}
+      <div className="flex flex-1 items-center justify-center p-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-sm"
+        >
+          {/* Mobile brand */}
+          <div className="mb-8 flex items-center gap-3 lg:hidden">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar">
+              <span className="text-xs font-black text-on-sidebar leading-none">D</span>
             </div>
-            <h1 className="text-2xl font-black text-white tracking-tight">DANGG ADMIN</h1>
-            <p className="text-white/70 text-sm mt-1">Secure admin console access</p>
+            <span className="text-base font-black tracking-wider text-on-surface">DANGG Admin</span>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="px-8 py-8 space-y-5">
-            <div className="space-y-2">
-              <label className="text-[11px] font-black uppercase tracking-widest text-on-surface-variant/70">
+          <div className="mb-8">
+            <h1 className="text-2xl font-black tracking-tight text-on-surface">
+              Welcome back
+            </h1>
+            <p className="mt-1 text-sm text-on-surface-variant">
+              Sign in to your admin account
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Username */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
                 Username
               </label>
               <div className="relative">
-                <MaterialIcon name="person" className="absolute left-4 top-1/2 -translate-y-1/2 text-outline !text-[20px]" />
+                <MaterialIcon
+                  name="person"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/50 !text-[18px]"
+                />
                 <input
                   type="text"
                   autoComplete="username"
                   value={username}
                   onChange={e => setUsername(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3.5 bg-surface-container-low border border-outline-variant rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all text-on-surface font-medium"
+                  className="w-full pl-10 pr-4 py-3 bg-surface border border-outline-variant rounded-xl focus:ring-2 focus:ring-on-surface/15 focus:border-on-surface/40 outline-none transition-all text-on-surface text-sm font-medium placeholder:text-on-surface-variant/40"
                   placeholder="admin@danggapp"
                   required
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[11px] font-black uppercase tracking-widest text-on-surface-variant/70">
+            {/* Password */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
                 Password
               </label>
               <div className="relative">
-                <MaterialIcon name="lock" className="absolute left-4 top-1/2 -translate-y-1/2 text-outline !text-[20px]" />
+                <MaterialIcon
+                  name="lock"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/50 !text-[18px]"
+                />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-12 py-3.5 bg-surface-container-low border border-outline-variant rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all text-on-surface font-medium"
-                  placeholder="••••••••••"
+                  className="w-full pl-10 pr-11 py-3 bg-surface border border-outline-variant rounded-xl focus:ring-2 focus:ring-on-surface/15 focus:border-on-surface/40 outline-none transition-all text-on-surface text-sm font-medium placeholder:text-on-surface-variant/40"
+                  placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(p => !p)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/50 hover:text-on-surface transition-colors"
                 >
-                  <MaterialIcon name={showPassword ? 'visibility_off' : 'visibility'} className="!text-[20px]" />
+                  <MaterialIcon name={showPassword ? 'visibility_off' : 'visibility'} className="!text-[18px]" />
                 </button>
               </div>
             </div>
 
             {error && (
               <motion.div
-                initial={{ opacity: 0, y: -8 }}
+                initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-2 px-4 py-3 bg-error/10 border border-error/20 rounded-xl"
+                className="flex items-center gap-2 px-3.5 py-3 bg-error-container border border-error/20 rounded-xl"
               >
-                <MaterialIcon name="error" className="!text-[18px] text-error shrink-0" />
-                <p className="text-sm font-semibold text-error">{error}</p>
+                <MaterialIcon name="error" className="!text-[16px] text-error shrink-0" />
+                <p className="text-xs font-semibold text-error">{error}</p>
               </motion.div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-primary text-white font-bold rounded-2xl shadow-lg shadow-primary/20 hover:bg-primary/90 active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3.5 bg-sidebar text-on-sidebar font-bold rounded-xl hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
             >
               {loading ? (
                 <>
@@ -112,20 +167,20 @@ export function LoginPage() {
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                   >
-                    <MaterialIcon name="refresh" className="!text-[20px]" />
+                    <MaterialIcon name="refresh" className="!text-[18px]" />
                   </motion.span>
                   Signing in…
                 </>
               ) : (
                 <>
-                  <MaterialIcon name="login" className="!text-[20px]" />
+                  <MaterialIcon name="login" className="!text-[18px]" />
                   Sign In
                 </>
               )}
             </button>
           </form>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   )
 }
