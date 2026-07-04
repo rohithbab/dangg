@@ -9,7 +9,15 @@ function SidebarNavItem({ to, icon, label, id }) {
   const isActive = currentItem?.id === id;
 
   return (
-    <Link to={to} className="block px-3">
+    <Link to={to} className="relative block px-3">
+      {/* Active left bar — on the Link so it sits flush at the outer left edge */}
+      {isActive && (
+        <motion.div
+          layoutId="activeBar"
+          className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-on-sidebar-active"
+          transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+        />
+      )}
       <div
         className={
           isActive
@@ -17,14 +25,6 @@ function SidebarNavItem({ to, icon, label, id }) {
             : 'relative flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors duration-150 hover:bg-sidebar-hover'
         }
       >
-        {/* Active left bar */}
-        {isActive && (
-          <motion.div
-            layoutId="activeBar"
-            className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-on-sidebar-active"
-            transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-          />
-        )}
 
         <MaterialIcon
           name={icon}
