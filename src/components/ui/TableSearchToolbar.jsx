@@ -9,10 +9,11 @@ export function TableSearchToolbar({
   onFilterClick,
   onReset,
   showReset,
+  hideLegacyFilter = false,
 }) {
   return (
     <div className="flex flex-wrap gap-2 items-center">
-      <motion.div 
+      <motion.div
         initial={false}
         className="relative w-full sm:w-auto min-w-[200px]"
       >
@@ -30,16 +31,18 @@ export function TableSearchToolbar({
           onChange={(e) => onSearchChange?.(e.target.value)}
         />
       </motion.div>
-      <motion.button 
+      {!hideLegacyFilter && (
+      <motion.button
         whileHover={{ backgroundColor: 'var(--surface-container-highest)' }}
         whileTap={{ scale: 0.95 }}
-        type="button" 
+        type="button"
         className="btn-toolbar"
         onClick={onFilterClick}
       >
         <MaterialIcon name="filter_list" className="text-[18px]" />
         <span className="type-body-md normal-case text-on-surface">{filterLabel}</span>
       </motion.button>
+      )}
       
       {showReset && (
         <motion.button

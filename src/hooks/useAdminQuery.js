@@ -13,7 +13,7 @@ export function useAdminQuery(queryFn, deps = []) {
     setError(null)
 
     const timeout = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Query timeout')), 8000)
+      setTimeout(() => reject(new Error('Query timeout')), 3000)
     )
 
     Promise.race([fnRef.current(), timeout])

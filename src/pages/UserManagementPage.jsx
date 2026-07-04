@@ -98,34 +98,36 @@ export function UserManagementPage() {
 
   return (
     <PageContainer>
-      <div className="max-w-7xl mx-auto space-y-8">
-        <div className="flex flex-col md:flex-row items-center gap-4">
-          <div className="relative flex-1 w-full max-w-2xl mx-auto md:mx-0">
-            <MaterialIcon name="search" className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 !text-[24px]" />
-            <input
-              type="text"
-              className="w-full pl-12 pr-4 py-4 bg-white border border-outline-variant rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all shadow-sm text-body-lg"
-              placeholder="Search users by name, phone, ID..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="bg-surface rounded-2xl shadow-card px-6 py-5 space-y-4">
+          <div className="flex flex-col md:flex-row items-center gap-4">
+            <div className="relative flex-1 w-full">
+              <MaterialIcon name="search" className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 !text-[22px]" />
+              <input
+                type="text"
+                className="w-full pl-12 pr-4 py-3.5 bg-surface-container-low border border-outline-variant rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all"
+                placeholder="Search users by name, phone, ID..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2 px-6 py-3.5 rounded-2xl font-bold transition-all bg-primary text-on-primary shadow-lg shadow-accent-glow hover:bg-primary/90 shrink-0"
+            >
+              <MaterialIcon name="tune" className="!text-[20px]" />
+              <span>Filter</span>
+              {hasActiveFilters && <span className="w-2.5 h-2.5 rounded-full bg-error animate-pulse border-2 border-white" />}
+            </button>
           </div>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-6 py-4 rounded-2xl font-bold transition-all bg-primary text-on-primary shadow-lg shadow-accent-glow hover:bg-primary/90"
-          >
-            <MaterialIcon name="tune" className="!text-[20px]" />
-            <span>Filter</span>
-            {hasActiveFilters && <span className="w-2.5 h-2.5 rounded-full bg-error animate-pulse border-2 border-white" />}
-          </button>
-        </div>
 
-        <FilterPanel isOpen={showFilters} onReset={() => setFilters({ gender: '', ageRange: '' })}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <SearchableSelect label="Gender" options={options.genders} value={filters.gender} onChange={val => setFilters(f => ({ ...f, gender: val }))} placeholder="Both Genders" icon="wc" />
-            <SearchableSelect label="Age Range" options={options.ageRanges} value={filters.ageRange} onChange={val => setFilters(f => ({ ...f, ageRange: val }))} placeholder="All Ages" icon="cake" />
-          </div>
-        </FilterPanel>
+          <FilterPanel isOpen={showFilters} onReset={() => setFilters({ gender: '', ageRange: '' })}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <SearchableSelect label="Gender" options={options.genders} value={filters.gender} onChange={val => setFilters(f => ({ ...f, gender: val }))} placeholder="Both Genders" icon="wc" />
+              <SearchableSelect label="Age Range" options={options.ageRanges} value={filters.ageRange} onChange={val => setFilters(f => ({ ...f, ageRange: val }))} placeholder="All Ages" icon="cake" />
+            </div>
+          </FilterPanel>
+        </div>
 
         {loading ? (
           <div className="h-64 bg-surface rounded-2xl shadow-card animate-pulse" />
