@@ -26,7 +26,7 @@ export function useAdminQuery(queryFn, deps = []) {
       .catch(err => {
         if (!cancelled) {
           setError(err)
-          setData({})
+          setData(null)
           setLoading(false)
         }
       })
