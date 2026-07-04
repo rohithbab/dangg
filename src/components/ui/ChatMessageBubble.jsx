@@ -30,7 +30,7 @@ export function ChatMessageBubble({
           </div>
         ) : (
           <div className={bubbleClass}>
-            <p className={`type-body-md normal-case ${outgoing ? 'text-on-primary' : 'text-on-surface font-medium'}`}>{message}</p>
+            <p className={`type-body-md normal-case ${outgoing ? 'text-on-sidebar' : 'text-on-surface font-medium'}`}>{message}</p>
           </div>
         )}
         <span className={`chat-bubble-time ${timeClass}`}>{time}</span>

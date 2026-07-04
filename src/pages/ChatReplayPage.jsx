@@ -83,7 +83,7 @@ export function ChatReplayPage() {
                   key={msg.id}
                   className={`chat-bubble-outgoing ${index > 0 ? 'mt-2' : ''}`}
                 >
-                  <p className="type-body-md normal-case text-on-primary font-medium">{msg.message}</p>
+                  <p className="type-body-md normal-case text-on-sidebar font-medium">{msg.message}</p>
                 </div>
               ))}
               <span className="chat-bubble-time chat-bubble-time-outgoing">09:45 AM</span>
