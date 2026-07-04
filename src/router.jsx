@@ -1,31 +1,39 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { DashboardLayout } from './layouts/DashboardLayout';
-import { AnalyticsDashboardPage } from './pages/AnalyticsDashboardPage';
-import { RevenueOverviewPage } from './pages/RevenueOverviewPage';
-import { PayoutManagementPage } from './pages/PayoutManagementPage';
-import { PendingVerificationPage } from './pages/PendingVerificationPage';
-import { UserManagementPage } from './pages/UserManagementPage';
-import { UserProfilePage } from './pages/UserProfilePage';
-import { MaleUserProfilePage } from './pages/MaleUserProfilePage';
-import { FemaleUserProfilePage } from './pages/FemaleUserProfilePage';
-import { ChatStatisticsPage } from './pages/ChatStatisticsPage';
-import { ChatTranscriptPage } from './pages/ChatTranscriptPage';
-import { ChatReplayPage } from './pages/ChatReplayPage';
-import { ChatDetailPage } from './pages/ChatDetailPage';
-import { PlaceholderPage } from './pages/PlaceholderPage';
 import { LoginPage } from './pages/LoginPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { DASHBOARD_NAV_ITEMS } from './routes/dashboardRoutes';
 
+const AnalyticsDashboardPage = lazy(() => import('./pages/AnalyticsDashboardPage').then(m => ({ default: m.AnalyticsDashboardPage })));
+const RevenueOverviewPage = lazy(() => import('./pages/RevenueOverviewPage').then(m => ({ default: m.RevenueOverviewPage })));
+const PayoutManagementPage = lazy(() => import('./pages/PayoutManagementPage').then(m => ({ default: m.PayoutManagementPage })));
+const PendingVerificationPage = lazy(() => import('./pages/PendingVerificationPage').then(m => ({ default: m.PendingVerificationPage })));
+const UserManagementPage = lazy(() => import('./pages/UserManagementPage').then(m => ({ default: m.UserManagementPage })));
+const UserProfilePage = lazy(() => import('./pages/UserProfilePage').then(m => ({ default: m.UserProfilePage })));
+const MaleUserProfilePage = lazy(() => import('./pages/MaleUserProfilePage').then(m => ({ default: m.MaleUserProfilePage })));
+const FemaleUserProfilePage = lazy(() => import('./pages/FemaleUserProfilePage').then(m => ({ default: m.FemaleUserProfilePage })));
+const ChatStatisticsPage = lazy(() => import('./pages/ChatStatisticsPage').then(m => ({ default: m.ChatStatisticsPage })));
+const ChatTranscriptPage = lazy(() => import('./pages/ChatTranscriptPage').then(m => ({ default: m.ChatTranscriptPage })));
+const ChatReplayPage = lazy(() => import('./pages/ChatReplayPage').then(m => ({ default: m.ChatReplayPage })));
+const ChatDetailPage = lazy(() => import('./pages/ChatDetailPage').then(m => ({ default: m.ChatDetailPage })));
+const PlaceholderPage = lazy(() => import('./pages/PlaceholderPage').then(m => ({ default: m.PlaceholderPage })));
+
+function PageLoader() {
+  return (
+    <div className="flex h-full flex-1 items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-outline-variant border-t-primary" />
+    </div>
+  );
+}
+
+function Lazy({ children }) {
+  return <Suspense fallback={<PageLoader />}>{children}</Suspense>;
+}
+
 const IMPLEMENTED_ROUTES = new Set([
-  'analytics',
-  'revenue',
-  'payout',
-  'verification',
-  'users',
-  'chats',
-  'chat-detail',
-  'transcript',
+  'analytics', 'revenue', 'payout', 'verification',
+  'users', 'chats', 'chat-detail', 'transcript',
 ]);
 
 const placeholderRoutes = DASHBOARD_NAV_ITEMS.filter(
@@ -33,10 +41,12 @@ const placeholderRoutes = DASHBOARD_NAV_ITEMS.filter(
 ).map((item) => ({
   path: item.path.slice(1),
   element: (
-    <PlaceholderPage
-      title={item.title}
-      description={`${item.label} workspace — aligned with the admin design system.`}
-    />
+    <Lazy>
+      <PlaceholderPage
+        title={item.title}
+        description={`${item.label} workspace — aligned with the admin design system.`}
+      />
+    </Lazy>
   ),
 }));
 
@@ -54,18 +64,18 @@ export const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <Navigate to="/analytics" replace /> },
-      { path: 'analytics', element: <AnalyticsDashboardPage /> },
-      { path: 'revenue', element: <RevenueOverviewPage /> },
-      { path: 'payout', element: <PayoutManagementPage /> },
-      { path: 'verification', element: <PendingVerificationPage /> },
-      { path: 'users', element: <UserManagementPage /> },
-      { path: 'users/:userId', element: <UserProfilePage /> },
-      { path: 'users/male/:userId', element: <MaleUserProfilePage /> },
-      { path: 'users/female/:userId', element: <FemaleUserProfilePage /> },
-      { path: 'chats', element: <ChatStatisticsPage /> },
-      { path: 'chats/detail', element: <ChatDetailPage /> },
-      { path: 'transcript', element: <ChatTranscriptPage /> },
-      { path: 'transcript/:chatId', element: <ChatReplayPage /> },
+      { path: 'analytics', element: <Lazy><AnalyticsDashboardPage /></Lazy> },
+      { path: 'revenue', element: <Lazy><RevenueOverviewPage /></Lazy> },
+      { path: 'payout', element: <Lazy><PayoutManagementPage /></Lazy> },
+      { path: 'verification', element: <Lazy><PendingVerificationPage /></Lazy> },
+      { path: 'users', element: <Lazy><UserManagementPage /></Lazy> },
+      { path: 'users/:userId', element: <Lazy><UserProfilePage /></Lazy> },
+      { path: 'users/male/:userId', element: <Lazy><MaleUserProfilePage /></Lazy> },
+      { path: 'users/female/:userId', element: <Lazy><FemaleUserProfilePage /></Lazy> },
+      { path: 'chats', element: <Lazy><ChatStatisticsPage /></Lazy> },
+      { path: 'chats/detail', element: <Lazy><ChatDetailPage /></Lazy> },
+      { path: 'transcript', element: <Lazy><ChatTranscriptPage /></Lazy> },
+      { path: 'transcript/:chatId', element: <Lazy><ChatReplayPage /></Lazy> },
       ...placeholderRoutes,
       { path: '*', element: <Navigate to="/analytics" replace /> },
     ],
