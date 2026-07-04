@@ -20,7 +20,7 @@ export function TopBar({ title, subtitle, actions, leading, user }) {
             <motion.h2
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
-              className="font-display text-base font-black tracking-tight text-on-surface leading-none"
+              className="font-display text-lg font-bold tracking-tight text-on-surface leading-none"
             >
               {title}
             </motion.h2>
@@ -30,7 +30,7 @@ export function TopBar({ title, subtitle, actions, leading, user }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.1 }}
-              className="mt-0.5 text-xs font-medium text-on-surface-variant leading-none"
+              className="mt-0.5 text-xs text-on-surface-variant leading-none"
             >
               {subtitle}
             </motion.p>

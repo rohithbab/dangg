@@ -1,0 +1,93 @@
+- generic [ref=f11e3]:
+  - complementary [ref=f11e4]:
+    - generic [ref=f11e6]:
+      - generic [ref=f11e8]: D
+      - generic [ref=f11e9]:
+        - heading "DANGG" [level=1] [ref=f11e10]
+        - paragraph [ref=f11e11]: Admin Console
+    - paragraph [ref=f11e14]: Menu
+    - navigation [ref=f11e15]:
+      - link "Analytics" [ref=f11e16] [cursor=pointer]:
+        - /url: /analytics
+        - generic [ref=f11e17]:
+          - generic [ref=f11e18]: monitoring
+          - generic [ref=f11e19]: Analytics
+      - link "Revenue" [ref=f11e20] [cursor=pointer]:
+        - /url: /revenue
+        - generic [ref=f11e21]:
+          - generic [ref=f11e22]: payments
+          - generic [ref=f11e23]: Revenue
+      - link "Payout" [ref=f11e24] [cursor=pointer]:
+        - /url: /payout
+        - generic [ref=f11e25]:
+          - generic [ref=f11e26]: account_balance_wallet
+          - generic [ref=f11e27]: Payout
+      - link "Verification" [ref=f11e28] [cursor=pointer]:
+        - /url: /verification
+        - generic [ref=f11e29]:
+          - generic [ref=f11e30]: verified_user
+          - generic [ref=f11e31]: Verification
+      - link "Users" [ref=f11e32] [cursor=pointer]:
+        - /url: /users
+        - generic [ref=f11e33]:
+          - generic [ref=f11e34]: group
+          - generic [ref=f11e35]: Users
+      - link "Chats" [ref=f11e36] [cursor=pointer]:
+        - /url: /chats
+        - generic [ref=f11e37]:
+          - generic [ref=f11e38]: chat
+          - generic [ref=f11e39]: Chats
+      - link "Chat Transcript" [ref=f11e40] [cursor=pointer]:
+        - /url: /transcript
+        - generic [ref=f11e41]:
+          - generic [ref=f11e43]: history_edu
+          - generic [ref=f11e44]: Chat Transcript
+      - link "Chat Details" [ref=f11e46] [cursor=pointer]:
+        - /url: /chats/detail
+        - generic [ref=f11e47]:
+          - generic [ref=f11e48]: forum
+          - generic [ref=f11e49]: Chat Details
+    - paragraph [ref=f11e52]: v1.0 · Admin Panel
+  - banner [ref=f11e53]:
+    - generic [ref=f11e54]:
+      - button "Back" [ref=f11e55] [cursor=pointer]:
+        - generic [ref=f11e56]: arrow_back
+      - 'heading "Chat ID #abc123" [level=2] [ref=f11e58]'
+    - generic [ref=f11e59]:
+      - button "Delete" [ref=f11e62] [cursor=pointer]
+      - button "Refresh" [ref=f11e63] [cursor=pointer]:
+        - generic [ref=f11e64]: refresh
+      - button "Logout" [ref=f11e65] [cursor=pointer]:
+        - generic [ref=f11e66]: logout
+        - generic [ref=f11e67]: Logout
+      - generic "Admin User" [ref=f11e68] [cursor=pointer]:
+        - img "Admin User" [ref=f11e69]
+  - main [ref=f11e70]:
+    - generic [ref=f11e72]:
+      - generic [ref=f11e73]:
+        - generic [ref=f11e75]: Monday, October 24
+        - generic [ref=f11e77]:
+          - paragraph [ref=f11e79]: Hello! I'm having an issue with my recent subscription renewal. It seems I was charged twice for the Professional Plan.
+          - text: 09:41 AM
+        - generic [ref=f11e81]:
+          - paragraph [ref=f11e83]: Hello, Mr. Henderson. I can certainly help you with that! Let me pull up your transaction records right now. Could you please confirm the last 4 digits of the card used?
+          - generic [ref=f11e84]: 09:42 AM
+        - generic [ref=f11e86]:
+          - paragraph [ref=f11e88]: Sure, here is a screenshot of the banking notification I received this morning.
+          - text: 09:43 AM
+        - generic [ref=f11e93]: Agent Sarah is verifying the transaction...
+        - generic [ref=f11e95]:
+          - paragraph [ref=f11e97]: I've located the duplicate entry. It appears there was a latency spike in the payment gateway during your first attempt. I have initiated a refund for the second transaction.
+          - paragraph [ref=f11e99]: The funds should appear back in your account within 3-5 business days. Is there anything else I can assist you with today?
+          - generic [ref=f11e100]: 09:45 AM
+        - generic [ref=f11e102]:
+          - paragraph [ref=f11e104]: That was very fast, thank you Sarah! That's all for now.
+          - text: 09:46 AM
+      - generic [ref=f11e105]:
+        - generic [ref=f11e106]:
+          - generic [ref=f11e107]: This is a replay of a closed conversation...
+          - generic [ref=f11e108]: lock
+        - generic [ref=f11e109]:
+          - button "Print" [ref=f11e110] [cursor=pointer]:
+            - generic [ref=f11e111]: print
+          - button "Reopen Chat" [disabled] [ref=f11e112]

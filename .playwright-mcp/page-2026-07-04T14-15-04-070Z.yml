@@ -1,0 +1,48 @@
+- generic [ref=f1e3]:
+  - generic [ref=f1e4]:
+    - generic [ref=f1e5]:
+      - generic [ref=f1e7]: D
+      - generic [ref=f1e8]:
+        - text: DANGG
+        - paragraph [ref=f1e9]: Admin Console
+    - generic [ref=f1e10]:
+      - paragraph [ref=f1e11]: Secure Access
+      - heading "Manage your platform confidently." [level=2] [ref=f1e12]:
+        - text: Manage
+        - text: your
+        - text: platform
+        - text: confidently.
+      - paragraph [ref=f1e13]: Full oversight of users, revenue, chats and payouts — all in one place.
+      - generic [ref=f1e14]:
+        - generic [ref=f1e15]:
+          - generic [ref=f1e16]: "8"
+          - generic [ref=f1e17]: Modules
+        - generic [ref=f1e18]:
+          - generic [ref=f1e19]: ∞
+          - generic [ref=f1e20]: Users
+        - generic [ref=f1e21]:
+          - generic [ref=f1e22]: 24/7
+          - generic [ref=f1e23]: Live
+    - paragraph [ref=f1e24]: v1.0 · Protected · Admin only
+  - generic [ref=f1e28]:
+    - generic [ref=f1e29]:
+      - generic [ref=f1e32]: Secure Sign In
+      - heading "Welcome back." [level=1] [ref=f1e33]:
+        - text: Welcome
+        - text: back.
+    - generic [ref=f1e34]:
+      - generic [ref=f1e35]:
+        - generic [ref=f1e36]: Username
+        - generic [ref=f1e37]:
+          - generic: person
+          - textbox "admin@danggapp" [ref=f1e38]
+      - generic [ref=f1e39]:
+        - generic [ref=f1e40]: Password
+        - generic [ref=f1e41]:
+          - generic: lock
+          - textbox "••••••••" [ref=f1e42]
+          - button [ref=f1e43] [cursor=pointer]:
+            - generic [ref=f1e44]: visibility
+      - button "Sign In" [ref=f1e45] [cursor=pointer]:
+        - text: Sign In
+        - generic [ref=f1e46]: arrow_forward

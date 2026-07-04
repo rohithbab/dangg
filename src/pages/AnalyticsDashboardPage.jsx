@@ -128,9 +128,9 @@ export function AnalyticsDashboardPage() {
   ]
 
   const demographics = [
-    { icon: 'group', label: 'Total Users', value: String(d.totalUsers), accent: 'primary', total: d.totalUsers },
-    { icon: 'male', label: 'Male Users', value: String(d.maleUsers), accent: 'secondary', total: d.totalUsers },
-    { icon: 'female', label: 'Female Users', value: String(d.femaleUsers), accent: 'tertiary', total: d.totalUsers },
+    { icon: 'group', label: 'Total Users', value: String(d.totalUsers ?? 0), accent: 'primary', total: d.totalUsers ?? 0 },
+    { icon: 'male', label: 'Male Users', value: String(d.maleUsers ?? 0), accent: 'secondary', total: d.totalUsers ?? 0 },
+    { icon: 'female', label: 'Female Users', value: String(d.femaleUsers ?? 0), accent: 'tertiary', total: d.totalUsers ?? 0 },
   ]
 
   const completionRate = d.totalChats > 0
@@ -159,12 +159,12 @@ export function AnalyticsDashboardPage() {
             <AnimatedCardEntrance delay={0.35} className="flex flex-1 flex-col">
               <EngagementCard
                 title="Chat Engagement"
-                value={d.totalChats.toLocaleString('en-IN')}
+                value={(d.totalChats ?? 0).toLocaleString('en-IN')}
                 description="Active chat sessions initiated across the platform."
                 metrics={[
-                  { label: 'Completed Chats', value: d.completedChats.toLocaleString('en-IN'), progress: completionRate },
-                  { label: 'Total Messages', value: d.totalMessages.toLocaleString('en-IN'), progress: Math.min(100, d.totalMessages) },
-                  { label: 'Male Users', value: String(d.maleUsers), progress: d.totalUsers > 0 ? Math.round((d.maleUsers / d.totalUsers) * 100) : 0 },
+                  { label: 'Completed Chats', value: (d.completedChats ?? 0).toLocaleString('en-IN'), progress: completionRate },
+                  { label: 'Total Messages', value: (d.totalMessages ?? 0).toLocaleString('en-IN'), progress: Math.min(100, d.totalMessages ?? 0) },
+                  { label: 'Male Users', value: String(d.maleUsers ?? 0), progress: (d.totalUsers ?? 0) > 0 ? Math.round(((d.maleUsers ?? 0) / d.totalUsers) * 100) : 0 },
                 ]}
                 footerAction="View Detailed Engagement"
               />
@@ -189,7 +189,7 @@ export function AnalyticsDashboardPage() {
             <FeatureCard
               icon="bolt"
               title="Growth Forecast"
-              description={`Currently ${d.totalUsers} users registered (${d.maleUsers} male, ${d.femaleUsers} female). Revenue: ${formatRupees(d.totalRevenuePaisa)} from coin purchases.`}
+              description={`Currently ${d.totalUsers ?? 0} users registered (${d.maleUsers ?? 0} male, ${d.femaleUsers ?? 0} female). Revenue: ${formatRupees(d.totalRevenuePaisa ?? 0)} from coin purchases.`}
               actionLabel="Export Full Report"
             />
           </AnimatedCardEntrance>

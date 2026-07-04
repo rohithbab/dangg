@@ -18,6 +18,18 @@
   .type-label-md {
     @apply font-label-md text-label-md uppercase tracking-wider text-on-surface-variant;
   }
+  /* Section heading with lime left-border accent */
+  .section-heading {
+    font-family: 'Syne', ui-sans-serif, system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #0e0e0d;
+    border-left: 3px solid #c8f500;
+    padding-left: 0.5rem;
+    line-height: 1.4;
+  }
 
   /* ─── Shell ────────────────────────────────────────────────── */
   .shell-sidebar {
@@ -25,6 +37,7 @@
   }
   .shell-header {
     @apply fixed top-0 right-0 left-[248px] z-40 flex h-14 items-center justify-between border-b-2 border-outline-variant bg-surface-container-low px-6;
+    box-shadow: 0 2px 12px 0 rgb(14 14 13 / 0.14), 0 1px 3px 0 rgb(14 14 13 / 0.10);
   }
   .shell-main {
     @apply ml-[248px] bg-background pb-12 pt-14;
@@ -44,10 +57,16 @@
 
   /* ─── Cards ────────────────────────────────────────────────── */
   .card-base {
-    @apply rounded-2xl border border-outline-variant bg-surface shadow-card;
+    @apply rounded-2xl border border-outline-variant bg-surface;
+    box-shadow: 0 4px 16px 0 rgb(14 14 13 / 0.10), 0 1px 3px 0 rgb(14 14 13 / 0.08);
   }
   .card-interactive {
-    @apply rounded-2xl border border-outline-variant bg-surface shadow-card transition-all duration-200 hover:shadow-card-hover hover:-translate-y-0.5;
+    @apply rounded-2xl border border-outline-variant bg-surface transition-all duration-200;
+    box-shadow: 0 4px 16px 0 rgb(14 14 13 / 0.10), 0 1px 3px 0 rgb(14 14 13 / 0.08);
+  }
+  .card-interactive:hover {
+    box-shadow: 0 16px 40px -8px rgb(14 14 13 / 0.24);
+    transform: translateY(-2px);
   }
   .card-pad {
     @apply p-6;
@@ -693,6 +712,8 @@
 
   body {
     @apply min-h-screen bg-background font-sans text-on-surface;
+    background-image: radial-gradient(circle, rgb(14 14 13 / 0.07) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
 
   #root {

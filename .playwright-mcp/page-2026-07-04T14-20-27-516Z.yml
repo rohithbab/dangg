@@ -1,0 +1,82 @@
+- generic [ref=f13e3]:
+  - complementary [ref=f13e4]:
+    - generic [ref=f13e6]:
+      - generic [ref=f13e8]: D
+      - generic [ref=f13e9]:
+        - heading "DANGG" [level=1] [ref=f13e10]
+        - paragraph [ref=f13e11]: Admin Console
+    - paragraph [ref=f13e14]: Menu
+    - navigation [ref=f13e15]:
+      - link "Analytics" [ref=f13e16] [cursor=pointer]:
+        - /url: /analytics
+        - generic [ref=f13e17]:
+          - generic [ref=f13e18]: monitoring
+          - generic [ref=f13e19]: Analytics
+      - link "Revenue" [ref=f13e20] [cursor=pointer]:
+        - /url: /revenue
+        - generic [ref=f13e21]:
+          - generic [ref=f13e22]: payments
+          - generic [ref=f13e23]: Revenue
+      - link "Payout" [ref=f13e24] [cursor=pointer]:
+        - /url: /payout
+        - generic [ref=f13e25]:
+          - generic [ref=f13e26]: account_balance_wallet
+          - generic [ref=f13e27]: Payout
+      - link "Verification" [ref=f13e28] [cursor=pointer]:
+        - /url: /verification
+        - generic [ref=f13e29]:
+          - generic [ref=f13e31]: verified_user
+          - generic [ref=f13e32]: Verification
+      - link "Users" [ref=f13e34] [cursor=pointer]:
+        - /url: /users
+        - generic [ref=f13e35]:
+          - generic [ref=f13e36]: group
+          - generic [ref=f13e37]: Users
+      - link "Chats" [ref=f13e38] [cursor=pointer]:
+        - /url: /chats
+        - generic [ref=f13e39]:
+          - generic [ref=f13e40]: chat
+          - generic [ref=f13e41]: Chats
+      - link "Chat Transcript" [ref=f13e42] [cursor=pointer]:
+        - /url: /transcript
+        - generic [ref=f13e43]:
+          - generic [ref=f13e44]: history_edu
+          - generic [ref=f13e45]: Chat Transcript
+      - link "Chat Details" [ref=f13e46] [cursor=pointer]:
+        - /url: /chats/detail
+        - generic [ref=f13e47]:
+          - generic [ref=f13e48]: forum
+          - generic [ref=f13e49]: Chat Details
+    - paragraph [ref=f13e52]: v1.0 · Admin Panel
+  - banner [ref=f13e53]:
+    - heading "Verification Queue" [level=2] [ref=f13e56]
+    - generic [ref=f13e57]:
+      - button "Refresh" [ref=f13e58] [cursor=pointer]:
+        - generic [ref=f13e59]: refresh
+      - button "Logout" [ref=f13e60] [cursor=pointer]:
+        - generic [ref=f13e61]: logout
+        - generic [ref=f13e62]: Logout
+      - generic "Admin User" [ref=f13e63] [cursor=pointer]:
+        - img "Admin User" [ref=f13e64]
+  - main [ref=f13e65]:
+    - generic [ref=f13e67]:
+      - paragraph [ref=f13e69]: Female accounts awaiting manual identity review
+      - generic [ref=f13e70]:
+        - generic [ref=f13e71]:
+          - generic [ref=f13e73]: pending
+          - generic [ref=f13e74]:
+            - paragraph [ref=f13e75]: Pending Review
+            - paragraph [ref=f13e76]: —
+        - generic [ref=f13e77]:
+          - generic [ref=f13e79]: check_circle
+          - generic [ref=f13e80]:
+            - paragraph [ref=f13e81]: Reviewed Today
+            - paragraph [ref=f13e82]: —
+        - generic [ref=f13e83]:
+          - generic [ref=f13e85]: schedule
+          - generic [ref=f13e86]:
+            - paragraph [ref=f13e87]: Avg. Wait Time
+            - paragraph [ref=f13e88]: —
+      - generic [ref=f13e89]:
+        - generic [ref=f13e90]: search
+        - textbox "Search by name, ID or phone..." [ref=f13e91]

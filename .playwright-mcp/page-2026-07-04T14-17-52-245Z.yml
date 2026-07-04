@@ -1,0 +1,137 @@
+- generic [ref=f9e3]:
+  - complementary [ref=f9e4]:
+    - generic [ref=f9e6]:
+      - generic [ref=f9e8]: D
+      - generic [ref=f9e9]:
+        - heading "DANGG" [level=1] [ref=f9e10]
+        - paragraph [ref=f9e11]: Admin Console
+    - paragraph [ref=f9e14]: Menu
+    - navigation [ref=f9e15]:
+      - link "Analytics" [ref=f9e16] [cursor=pointer]:
+        - /url: /analytics
+        - generic [ref=f9e17]:
+          - generic [ref=f9e18]: monitoring
+          - generic [ref=f9e19]: Analytics
+      - link "Revenue" [ref=f9e20] [cursor=pointer]:
+        - /url: /revenue
+        - generic [ref=f9e21]:
+          - generic [ref=f9e22]: payments
+          - generic [ref=f9e23]: Revenue
+      - link "Payout" [ref=f9e24] [cursor=pointer]:
+        - /url: /payout
+        - generic [ref=f9e25]:
+          - generic [ref=f9e26]: account_balance_wallet
+          - generic [ref=f9e27]: Payout
+      - link "Verification" [ref=f9e28] [cursor=pointer]:
+        - /url: /verification
+        - generic [ref=f9e29]:
+          - generic [ref=f9e30]: verified_user
+          - generic [ref=f9e31]: Verification
+      - link "Users" [ref=f9e32] [cursor=pointer]:
+        - /url: /users
+        - generic [ref=f9e33]:
+          - generic [ref=f9e34]: group
+          - generic [ref=f9e35]: Users
+      - link "Chats" [ref=f9e36] [cursor=pointer]:
+        - /url: /chats
+        - generic [ref=f9e37]:
+          - generic [ref=f9e38]: chat
+          - generic [ref=f9e39]: Chats
+      - link "Chat Transcript" [ref=f9e40] [cursor=pointer]:
+        - /url: /transcript
+        - generic [ref=f9e41]:
+          - generic [ref=f9e43]: history_edu
+          - generic [ref=f9e44]: Chat Transcript
+      - link "Chat Details" [ref=f9e46] [cursor=pointer]:
+        - /url: /chats/detail
+        - generic [ref=f9e47]:
+          - generic [ref=f9e48]: forum
+          - generic [ref=f9e49]: Chat Details
+    - paragraph [ref=f9e52]: v1.0 · Admin Panel
+  - banner [ref=f9e53]:
+    - generic [ref=f9e55]:
+      - heading "Chat Transcript" [level=2] [ref=f9e56]
+      - paragraph [ref=f9e57]: Transcript list
+    - generic [ref=f9e58]:
+      - button "Refresh" [ref=f9e59] [cursor=pointer]:
+        - generic [ref=f9e60]: refresh
+      - button "Logout" [ref=f9e61] [cursor=pointer]:
+        - generic [ref=f9e62]: logout
+        - generic [ref=f9e63]: Logout
+      - generic "Admin User" [ref=f9e64] [cursor=pointer]:
+        - img "Admin User" [ref=f9e65]
+  - main [ref=f9e66]:
+    - generic [ref=f9e68]:
+      - generic [ref=f9e69]:
+        - generic [ref=f9e70]:
+          - generic [ref=f9e71]: search
+          - textbox "Search by Chat ID, participant name or ID..." [ref=f9e72]
+        - button "Filter" [ref=f9e73] [cursor=pointer]:
+          - generic [ref=f9e74]: tune
+          - generic [ref=f9e75]: Filter
+      - generic [ref=f9e76]:
+        - generic [ref=f9e78] [cursor=pointer]:
+          - generic [ref=f9e79]:
+            - generic [ref=f9e81]: chat_bubble
+            - generic [ref=f9e82]:
+              - generic [ref=f9e83]:
+                - generic [ref=f9e84]: "#CHT-482"
+                - generic [ref=f9e85]: Resolved
+              - paragraph [ref=f9e86]: Alexander Grant & Elena Vance
+          - generic [ref=f9e87]:
+            - generic [ref=f9e88]:
+              - paragraph [ref=f9e89]: Oct 24, 2023
+              - paragraph [ref=f9e90]: 14:22 PM
+            - generic [ref=f9e91]: chevron_right
+        - generic [ref=f9e93] [cursor=pointer]:
+          - generic [ref=f9e94]:
+            - generic [ref=f9e96]: chat_bubble
+            - generic [ref=f9e97]:
+              - generic [ref=f9e98]:
+                - generic [ref=f9e99]: "#CHT-481"
+                - generic [ref=f9e100]: Escalated
+              - paragraph [ref=f9e101]: Jameson Miller & Sarah Connor
+          - generic [ref=f9e102]:
+            - generic [ref=f9e103]:
+              - paragraph [ref=f9e104]: Oct 24, 2023
+              - paragraph [ref=f9e105]: 11:05 AM
+            - generic [ref=f9e106]: chevron_right
+        - generic [ref=f9e108] [cursor=pointer]:
+          - generic [ref=f9e109]:
+            - generic [ref=f9e111]: chat_bubble
+            - generic [ref=f9e112]:
+              - generic [ref=f9e113]:
+                - generic [ref=f9e114]: "#CHT-480"
+                - generic [ref=f9e115]: Resolved
+              - paragraph [ref=f9e116]: Daniel Ricciardo & Maya Lin
+          - generic [ref=f9e117]:
+            - generic [ref=f9e118]:
+              - paragraph [ref=f9e119]: Oct 23, 2023
+              - paragraph [ref=f9e120]: 09:15 AM
+            - generic [ref=f9e121]: chevron_right
+        - generic [ref=f9e123] [cursor=pointer]:
+          - generic [ref=f9e124]:
+            - generic [ref=f9e126]: chat_bubble
+            - generic [ref=f9e127]:
+              - generic [ref=f9e128]:
+                - generic [ref=f9e129]: "#CHT-479"
+                - generic [ref=f9e130]: Archived
+              - paragraph [ref=f9e131]: Robert Lewis & Patricia Bright
+          - generic [ref=f9e132]:
+            - generic [ref=f9e133]:
+              - paragraph [ref=f9e134]: Oct 23, 2023
+              - paragraph [ref=f9e135]: 17:40 PM
+            - generic [ref=f9e136]: chevron_right
+        - generic [ref=f9e138] [cursor=pointer]:
+          - generic [ref=f9e139]:
+            - generic [ref=f9e141]: chat_bubble
+            - generic [ref=f9e142]:
+              - generic [ref=f9e143]:
+                - generic [ref=f9e144]: "#CHT-478"
+                - generic [ref=f9e145]: Resolved
+              - paragraph [ref=f9e146]: Ethan Hunt & Ilsa Faust
+          - generic [ref=f9e147]:
+            - generic [ref=f9e148]:
+              - paragraph [ref=f9e149]: Oct 22, 2023
+              - paragraph [ref=f9e150]: 13:10 PM
+            - generic [ref=f9e151]: chevron_right

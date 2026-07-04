@@ -4,7 +4,7 @@ import { AnimatedCounter } from '../animation';
 
 const VARIANTS = {
   primary: {
-    card: 'bg-surface border border-outline-variant shadow-card',
+    card: 'bg-surface border border-outline-variant shadow-card border-l-4 border-l-on-surface-variant',
     icon: 'bg-outline-variant/60 text-on-surface',
     bar: 'bg-on-surface',
     track: 'bg-outline-variant',
@@ -13,7 +13,7 @@ const VARIANTS = {
     pct: 'text-on-surface-variant/50',
   },
   secondary: {
-    card: 'bg-surface border border-outline-variant shadow-card',
+    card: 'bg-surface border border-outline-variant shadow-card border-l-4 border-l-secondary',
     icon: 'bg-secondary/10 text-secondary',
     bar: 'bg-secondary',
     track: 'bg-outline-variant',
@@ -22,7 +22,7 @@ const VARIANTS = {
     pct: 'text-on-surface-variant/50',
   },
   tertiary: {
-    card: 'bg-surface border border-outline-variant shadow-card',
+    card: 'bg-surface border border-outline-variant shadow-card border-l-4 border-l-tertiary',
     icon: 'bg-tertiary/15 text-tertiary',
     bar: 'bg-tertiary',
     track: 'bg-outline-variant',
@@ -58,7 +58,7 @@ export function StatCard({ label, value, icon, trend, trendDirection = 'up', acc
     <motion.article
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
-      className={`rounded-2xl p-5 relative overflow-hidden ${v.card}`}
+      className={`rounded-2xl p-6 relative overflow-hidden ${v.card}`}
     >
       {/* Top row: icon + trend badge */}
       <div className="mb-4 flex items-start justify-between">

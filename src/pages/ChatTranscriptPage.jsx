@@ -127,6 +127,12 @@ export function ChatTranscriptPage() {
     navigate(`/transcript/${id.replace('#', '')}`);
   };
 
+  const STATUS_BORDER = {
+    Resolved: 'border-l-4 border-l-emerald-500',
+    Escalated: 'border-l-4 border-l-amber-500',
+    Archived: 'border-l-4 border-l-gray-400',
+  };
+
   return (
     <PageContainer>
       <div className="max-w-6xl mx-auto space-y-8">
@@ -261,7 +267,7 @@ export function ChatTranscriptPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   onClick={() => handleRowClick(row.id)}
-                  className="bg-white border border-outline-variant rounded-2xl p-5 hover:border-primary hover:shadow-md transition-all cursor-pointer group"
+                  className={`bg-white border border-outline-variant rounded-2xl p-5 hover:border-primary hover:shadow-md hover:bg-surface-container-low transition-all cursor-pointer group ${STATUS_BORDER[row.status] ?? ''}`}
                 >
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">

@@ -128,6 +128,7 @@ module.exports = {
       boxShadow: {
         /* Strong shadows — cards pop against dark canvas */
         card: '0 2px 8px 0 rgb(14 14 13 / 0.12), 0 1px 2px 0 rgb(14 14 13 / 0.08)',
+        'card-rich': '0 4px 16px 0 rgb(14 14 13 / 0.10), 0 1px 3px 0 rgb(14 14 13 / 0.08)',
         'card-hover': '0 12px 32px -4px rgb(14 14 13 / 0.20), 0 4px 12px -2px rgb(14 14 13 / 0.12)',
         'card-lift': '0 16px 40px -8px rgb(14 14 13 / 0.24)',
         header: '0 1px 0 0 rgb(14 14 13 / 0.10)',

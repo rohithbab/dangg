@@ -10,6 +10,13 @@ const ICON_WELLS = {
   error: 'stat-icon-well-lg-error',
 };
 
+const CARD_TINTS = {
+  primary: 'bg-primary/5',
+  secondary: 'bg-blue-50/60',
+  tertiary: 'bg-amber-50/40',
+  error: 'bg-rose-50/60',
+};
+
 const BADGE_CLASSES = {
   'trend-up': 'badge-trend-up',
   'trend-down': 'badge-trend-down',
@@ -91,12 +98,13 @@ export function ChatStatCard({
 }) {
   const well = ICON_WELLS[accent] ?? ICON_WELLS.primary;
   const badgeClass = BADGE_CLASSES[badgeVariant] ?? BADGE_CLASSES['trend-up'];
+  const tint = CARD_TINTS[accent] ?? '';
 
   return (
-    <motion.article 
+    <motion.article
       whileHover={{ y: -4, boxShadow: '0 12px 24px -8px rgba(0,0,0,0.1)' }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="chat-stat-card"
+      className={`chat-stat-card ${tint}`}
     >
       <div className="mb-4 flex items-start justify-between">
         <div className={well}>
@@ -110,7 +118,7 @@ export function ChatStatCard({
           ))}
       </div>
       <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">{label}</p>
-      <h4 className="text-2xl font-black tracking-tight text-on-surface leading-tight">{value}</h4>
+      <h4 className="text-3xl font-black tracking-tight text-on-surface leading-tight">{value}</h4>
       <ChatStatFooter footer={footer} />
     </motion.article>
   );
