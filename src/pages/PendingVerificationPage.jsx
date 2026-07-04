@@ -70,7 +70,7 @@ export function PendingVerificationPage() {
       {loading ? (
         <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 lg:grid-cols-3 animate-pulse">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-64 bg-surface-container rounded-3xl" />
+            <div key={i} className="h-64 bg-surface rounded-2xl shadow-card" />
           ))}
         </div>
       ) : (

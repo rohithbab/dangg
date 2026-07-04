@@ -112,7 +112,7 @@ export function UserManagementPage() {
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-6 py-4 rounded-2xl font-bold transition-all bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary/90"
+            className="flex items-center gap-2 px-6 py-4 rounded-2xl font-bold transition-all bg-primary text-on-primary shadow-lg shadow-accent-glow hover:bg-primary/90"
           >
             <MaterialIcon name="tune" className="!text-[20px]" />
             <span>Filter</span>
@@ -128,7 +128,7 @@ export function UserManagementPage() {
         </FilterPanel>
 
         {loading ? (
-          <div className="h-64 bg-surface-container rounded-3xl animate-pulse" />
+          <div className="h-64 bg-surface rounded-2xl shadow-card animate-pulse" />
         ) : (
           <div className="bg-white border border-outline-variant rounded-3xl overflow-hidden shadow-sm">
             <div className="overflow-x-auto">

@@ -151,7 +151,7 @@ export function ChatDetailPage() {
 
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-6 py-4 rounded-2xl font-bold transition-all bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary/90"
+            className="flex items-center gap-2 px-6 py-4 rounded-2xl font-bold transition-all bg-primary text-on-primary shadow-lg shadow-accent-glow hover:bg-primary/90"
           >
             <MaterialIcon name="tune" className="!text-[20px]" />
             <span>Filter</span>
@@ -319,7 +319,7 @@ export function ChatDetailPage() {
                       </button>
                       <button 
                         onClick={handleViewChat}
-                        className="flex-1 py-2.5 rounded-xl font-bold text-sm bg-primary text-white shadow-md hover:shadow-lg hover:bg-primary/90 transition-all"
+                        className="flex-1 py-2.5 rounded-xl font-bold text-sm bg-primary text-on-primary shadow-md hover:shadow-lg hover:bg-primary/90 transition-all"
                       >
                         Replay
                       </button>
@@ -389,7 +389,7 @@ export function ChatDetailPage() {
               </div>
 
               <div className="flex gap-4 justify-center">
-                <button onClick={handleViewChat} className="bg-primary text-white px-10 py-4 rounded-2xl font-bold flex items-center gap-3 shadow-lg shadow-primary/20 hover:scale-105 transition-transform active:scale-95">
+                <button onClick={handleViewChat} className="bg-primary text-on-primary px-10 py-4 rounded-2xl font-bold flex items-center gap-3 shadow-lg shadow-accent-glow hover:scale-105 transition-transform active:scale-95">
                   <MaterialIcon name="visibility" />
                   <span>View Transcript</span>
                 </button>

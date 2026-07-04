@@ -4,9 +4,9 @@ import { formatCurrency } from '../../utils/formatters';
 export function ActivityFeed({ title = 'Live Revenue Feed', items = [] }) {
   return (
     <section className="activity-panel">
-      <div className="mb-6 flex items-center gap-4">
-        <div className="h-10 w-1 rounded-full bg-primary" />
-        <h5 className="type-headline-md">{title}</h5>
+      <div className="mb-6 flex items-center gap-3">
+        <div className="h-6 w-1 rounded-full bg-on-surface" />
+        <h5 className="text-sm font-bold text-on-surface">{title}</h5>
       </div>
       <div className="space-y-4">
         {items.map((item) => {

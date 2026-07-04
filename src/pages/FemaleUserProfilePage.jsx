@@ -119,7 +119,7 @@ export function FemaleUserProfilePage() {
                       <tr key={row.id} className="table-row">
                         <td className="table-cell-mono px-6 py-4 text-on-surface-variant">#{row.id}</td>
                         <td className="type-body-md px-6 py-4 normal-case text-on-surface">{row.item}</td>
-                        <td className="type-body-md px-6 py-4 font-semibold normal-case text-primary">
+                        <td className="type-body-md px-6 py-4 font-semibold normal-case text-on-surface">
                           {typeof row.amount === 'number' ? formatCurrency(row.amount) : row.amount}
                         </td>
                         <td className="type-body-md px-6 py-4 normal-case text-on-surface-variant">{row.date}</td>

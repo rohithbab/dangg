@@ -31,7 +31,7 @@ export function UserProfileHeader({
           </div>
           <p className="mt-1 text-body-lg normal-case text-on-surface-variant">
             Age: {age} • ID:{' '}
-            <span className="font-mono font-bold text-primary">#{userId}</span>
+            <span className="font-mono font-bold text-on-surface">#{userId}</span>
           </p>
         </div>
         <div className="flex flex-wrap justify-center gap-2 md:justify-start">

@@ -5,7 +5,7 @@ export function DataTableCard({ title, badge, columns, rows }) {
   return (
     <article className="table-shell">
       <div className="flex items-center justify-between border-b border-outline-variant px-6 py-4">
-        <h3 className="type-headline-md text-on-surface">{title}</h3>
+        <h3 className="text-sm font-bold text-on-surface">{title}</h3>
         {badge && (
           <div className="flex gap-2">
             <StatusBadge variant="health" icon={<MaterialIcon name="check_circle" fill size="sm" />}>

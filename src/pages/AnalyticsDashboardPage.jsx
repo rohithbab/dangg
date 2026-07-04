@@ -10,54 +10,66 @@ import { supabase } from '../lib/supabase';
 import { formatRupees } from '../lib/utils';
 
 async function fetchAnalytics() {
-  const [
-    { count: totalUsers },
-    { count: maleUsers },
-    { count: femaleUsers },
-    { data: payments },
-    { data: pendingPayouts },
-    { count: totalChats },
-    { count: completedChats },
-    { count: totalMessages },
-  ] = await Promise.all([
-    supabase.from('users').select('*', { count: 'exact', head: true }),
-    supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'male'),
-    supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'female'),
-    supabase.from('payments').select('amount_paisa').eq('status', 'captured'),
-    supabase.from('payouts').select('payout_amount_paisa').in('status', ['pending', 'processing']),
-    supabase.from('chat_sessions').select('*', { count: 'exact', head: true }),
-    supabase.from('chat_sessions').select('*', { count: 'exact', head: true }).eq('status', 'completed'),
-    supabase.from('chat_messages').select('*', { count: 'exact', head: true }),
+  const zero = { count: 0, data: [] }
+  const t = (ms) => new Promise(r => setTimeout(() => r(zero), ms))
+  const safeQuery = (q) => Promise.race([
+    q.then(r => r).catch(() => zero),
+    t(5000),
   ])
 
-  const totalRevenuePaisa = (payments || []).reduce((s, p) => s + (p.amount_paisa || 0), 0)
-  const pendingPayoutsPaisa = (pendingPayouts || []).reduce((s, p) => s + (p.payout_amount_paisa || 0), 0)
+  const [r0, r1, r2, r3, r4, r5, r6, r7] = await Promise.all([
+    safeQuery(supabase.from('users').select('*', { count: 'exact', head: true })),
+    safeQuery(supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'male')),
+    safeQuery(supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'female')),
+    safeQuery(supabase.from('payments').select('amount_paisa').eq('status', 'captured')),
+    safeQuery(supabase.from('payouts').select('payout_amount_paisa').in('status', ['pending', 'processing'])),
+    safeQuery(supabase.from('chat_sessions').select('*', { count: 'exact', head: true })),
+    safeQuery(supabase.from('chat_sessions').select('*', { count: 'exact', head: true }).eq('status', 'completed')),
+    safeQuery(supabase.from('chat_messages').select('*', { count: 'exact', head: true })),
+  ])
+
+  const payments = r3.data || []
+  const pendingPayouts = r4.data || []
 
   return {
-    totalUsers: totalUsers || 0,
-    maleUsers: maleUsers || 0,
-    femaleUsers: femaleUsers || 0,
-    totalRevenuePaisa,
-    pendingPayoutsPaisa,
-    totalChats: totalChats || 0,
-    completedChats: completedChats || 0,
-    totalMessages: totalMessages || 0,
+    totalUsers: r0.count ?? 0,
+    maleUsers: r1.count ?? 0,
+    femaleUsers: r2.count ?? 0,
+    totalRevenuePaisa: payments.reduce((s, p) => s + (p.amount_paisa || 0), 0),
+    pendingPayoutsPaisa: pendingPayouts.reduce((s, p) => s + (p.payout_amount_paisa || 0), 0),
+    totalChats: r5.count ?? 0,
+    completedChats: r6.count ?? 0,
+    totalMessages: r7.count ?? 0,
   }
+}
+
+const shimmerStyle = {
+  background: 'linear-gradient(90deg, #f8f6f1 0%, #ede9e0 40%, #f8f6f1 80%)',
+  backgroundSize: '200% 100%',
+  animation: 'shimmer 1.8s infinite linear',
+}
+
+function SkeletonCard({ className = '' }) {
+  return (
+    <div
+      className={`rounded-2xl border border-outline-variant shadow-card ${className}`}
+      style={shimmerStyle}
+    />
+  )
 }
 
 function PageSkeleton() {
   return (
     <PageContainer>
-      <div className="space-y-10 animate-pulse">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-36 bg-surface-container rounded-3xl" />
-          ))}
+      <style>{`@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }`}</style>
+      <div className="space-y-8">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => <SkeletonCard key={i} className="h-40" />)}
         </div>
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
-          <div className="h-48 bg-surface-container rounded-3xl lg:col-span-8" />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <SkeletonCard className="h-56 lg:col-span-8" />
           <div className="flex flex-col gap-4 lg:col-span-4">
-            {[...Array(3)].map((_, i) => <div key={i} className="h-14 bg-surface-container rounded-2xl" />)}
+            {[...Array(3)].map((_, i) => <SkeletonCard key={i} className="h-16" />)}
           </div>
         </div>
       </div>
@@ -79,8 +91,9 @@ export function AnalyticsDashboardPage() {
       icon: 'payments',
       trend: null,
       trendDirection: 'up',
-      accent: 'primary',
+      accent: 'dark',
       progress: 75,
+      isCurrency: true,
     },
     {
       label: 'Total Chats',
@@ -90,6 +103,7 @@ export function AnalyticsDashboardPage() {
       trendDirection: 'up',
       accent: 'secondary',
       progress: d.totalChats > 0 ? Math.min(100, Math.round((d.completedChats / d.totalChats) * 100)) : 0,
+      isCurrency: false,
     },
     {
       label: 'Pending Payouts',
@@ -99,6 +113,7 @@ export function AnalyticsDashboardPage() {
       trendDirection: 'down',
       accent: 'tertiary',
       progress: 33,
+      isCurrency: true,
     },
     {
       label: 'Total Messages',
@@ -108,13 +123,14 @@ export function AnalyticsDashboardPage() {
       trendDirection: 'up',
       accent: 'primary',
       progress: 66,
+      isCurrency: false,
     },
   ]
 
   const demographics = [
-    { icon: 'group', label: 'Total Users', value: String(d.totalUsers), accent: 'primary' },
-    { icon: 'male', label: 'Male Users', value: String(d.maleUsers), accent: 'secondary' },
-    { icon: 'female', label: 'Female Users', value: String(d.femaleUsers), accent: 'tertiary' },
+    { icon: 'group', label: 'Total Users', value: String(d.totalUsers), accent: 'primary', total: d.totalUsers },
+    { icon: 'male', label: 'Male Users', value: String(d.maleUsers), accent: 'secondary', total: d.totalUsers },
+    { icon: 'female', label: 'Female Users', value: String(d.femaleUsers), accent: 'tertiary', total: d.totalUsers },
   ]
 
   const completionRate = d.totalChats > 0
@@ -123,22 +139,24 @@ export function AnalyticsDashboardPage() {
 
   return (
     <PageContainer>
-      <AnimatedStaggerGroup className="space-y-10">
+      <AnimatedStaggerGroup className="space-y-6">
+        {/* Stat cards row */}
         <section>
           <SectionTitle title="Revenue Velocity" />
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
             {revenueStats.map((stat, i) => (
-              <AnimatedCardEntrance key={stat.label} delay={i * 0.1}>
+              <AnimatedCardEntrance key={stat.label} delay={i * 0.08}>
                 <StatCard {...stat} />
               </AnimatedCardEntrance>
             ))}
           </div>
         </section>
 
-        <section className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+        {/* Engagement + Demographics bento row */}
+        <section className="grid grid-cols-1 gap-4 lg:grid-cols-12">
           <div className="flex flex-col lg:col-span-8">
             <SectionTitle title="Engagement Pulse" />
-            <AnimatedCardEntrance delay={0.4} className="flex flex-1 flex-col">
+            <AnimatedCardEntrance delay={0.35} className="flex flex-1 flex-col">
               <EngagementCard
                 title="Chat Engagement"
                 value={d.totalChats.toLocaleString('en-IN')}
@@ -155,9 +173,9 @@ export function AnalyticsDashboardPage() {
 
           <div className="flex flex-col lg:col-span-4">
             <SectionTitle title="User Distribution" />
-            <div className="flex flex-1 flex-col justify-between gap-4">
+            <div className="flex flex-1 flex-col gap-3">
               {demographics.map((item, i) => (
-                <AnimatedCardEntrance key={item.label} delay={0.5 + i * 0.1} className="flex-1">
+                <AnimatedCardEntrance key={item.label} delay={0.45 + i * 0.08}>
                   <DemographicCard {...item} />
                 </AnimatedCardEntrance>
               ))}
@@ -165,17 +183,16 @@ export function AnalyticsDashboardPage() {
           </div>
         </section>
 
-        <section className="grid grid-cols-1 gap-10 lg:grid-cols-12">
-          <div className="lg:col-span-12">
-            <AnimatedCardEntrance delay={0.8}>
-              <FeatureCard
-                icon="bolt"
-                title="Growth Forecast"
-                description={`Currently ${d.totalUsers} users registered (${d.maleUsers} male, ${d.femaleUsers} female). Revenue: ${formatRupees(d.totalRevenuePaisa)} from coin purchases.`}
-                actionLabel="Export Full Report"
-              />
-            </AnimatedCardEntrance>
-          </div>
+        {/* Feature/summary card */}
+        <section>
+          <AnimatedCardEntrance delay={0.7}>
+            <FeatureCard
+              icon="bolt"
+              title="Growth Forecast"
+              description={`Currently ${d.totalUsers} users registered (${d.maleUsers} male, ${d.femaleUsers} female). Revenue: ${formatRupees(d.totalRevenuePaisa)} from coin purchases.`}
+              actionLabel="Export Full Report"
+            />
+          </AnimatedCardEntrance>
         </section>
       </AnimatedStaggerGroup>
     </PageContainer>
