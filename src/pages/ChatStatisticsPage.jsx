@@ -8,15 +8,24 @@ import { supabase } from '../lib/supabase';
 
 async function fetchChatStats() {
   const [
-    { count: total },
-    { count: completed },
-    { count: rejected },
+    { count: totalRequests },
+    { count: accepted },
+    { count: declined },
+    { count: cancelled },
+    { count: expired },
+    { count: activeSessions },
+    { count: completedSessions },
     { count: totalMessages },
     { data: durations },
   ] = await Promise.all([
-    supabase.from('chat_sessions').select('*', { count: 'exact', head: true }),
+    // Total intent: every request ever sent
+    supabase.from('chat_requests').select('*', { count: 'exact', head: true }),
+    supabase.from('chat_requests').select('*', { count: 'exact', head: true }).eq('status', 'accepted'),
+    supabase.from('chat_requests').select('*', { count: 'exact', head: true }).eq('status', 'declined'),
+    supabase.from('chat_requests').select('*', { count: 'exact', head: true }).eq('status', 'cancelled'),
+    supabase.from('chat_requests').select('*', { count: 'exact', head: true }).eq('status', 'expired'),
+    supabase.from('chat_sessions').select('*', { count: 'exact', head: true }).eq('status', 'active'),
     supabase.from('chat_sessions').select('*', { count: 'exact', head: true }).eq('status', 'ended'),
-    supabase.from('chat_requests').select('*', { count: 'exact', head: true }).in('status', ['declined', 'cancelled', 'expired']),
     supabase.from('chat_messages').select('*', { count: 'exact', head: true }),
     supabase.from('chat_sessions').select('started_at, ended_at').eq('status', 'ended').not('ended_at', 'is', null),
   ])
@@ -39,16 +48,35 @@ async function fetchChatStats() {
   const avgSec = avgDurationSec % 60
   const avgDurationLabel = avgDurationSec > 0 ? `${avgMin}m ${avgSec}s` : '0m'
 
-  const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0
+  const totalReq = totalRequests || 0
+  const acceptedCount = accepted || 0
+  const declinedCount = declined || 0
+  const cancelledCount = cancelled || 0
+  const expiredCount = expired || 0
+  const activeCount = activeSessions || 0
+  const completedCount = completedSessions || 0
+
+  // Acceptance rate: % of all sent requests that were accepted
+  const acceptanceRate = totalReq > 0 ? Math.round((acceptedCount / totalReq) * 100) : 0
+  // Completion rate: % of accepted sessions that ended (vs still active)
+  const completionRate = acceptedCount > 0 ? Math.round((completedCount / acceptedCount) * 100) : 0
+  // Drop-off: requests that never became sessions
+  const dropOff = declinedCount + cancelledCount + expiredCount
 
   return {
-    total: total || 0,
-    completed: completed || 0,
-    rejected: rejected || 0,
+    totalRequests: totalReq,
+    accepted: acceptedCount,
+    declined: declinedCount,
+    cancelled: cancelledCount,
+    expired: expiredCount,
+    activeSessions: activeCount,
+    completedSessions: completedCount,
     totalMessages: totalMessages || 0,
     totalDurationLabel,
     avgDurationLabel,
+    acceptanceRate,
     completionRate,
+    dropOff,
   }
 }
 
@@ -59,41 +87,59 @@ export function ChatStatisticsPage() {
 
   const chatStats = [
     {
-      label: 'Total Chat Initiated',
-      value: loading ? '…' : d.total?.toLocaleString('en-IN') ?? '0',
-      icon: 'chat_bubble',
+      label: 'Total Requests Sent',
+      value: loading ? '…' : d.totalRequests?.toLocaleString('en-IN') ?? '0',
+      icon: 'send',
       iconFill: true,
       accent: 'primary',
       badge: null,
       badgeVariant: 'neutral',
-      footer: { type: 'progress', percent: 75, color: 'primary' },
+      footer: { type: 'text', text: 'All requests sent by males' },
     },
     {
-      label: 'Completed Chat Count',
-      value: loading ? '…' : d.completed?.toLocaleString('en-IN') ?? '0',
+      label: 'Acceptance Rate',
+      value: loading ? '…' : `${d.acceptanceRate ?? 0}%`,
+      icon: 'thumb_up',
+      accent: 'secondary',
+      badge: loading ? null : `${d.accepted?.toLocaleString('en-IN') ?? 0} accepted`,
+      badgeVariant: 'trend-up',
+      footer: { type: 'progressLabeled', percent: d.acceptanceRate || 0, label: `${d.acceptanceRate || 0}% females responded yes`, color: 'secondary' },
+    },
+    {
+      label: 'Completed Sessions',
+      value: loading ? '…' : d.completedSessions?.toLocaleString('en-IN') ?? '0',
       icon: 'task_alt',
       accent: 'secondary',
-      badge: d.completionRate ? `${d.completionRate}%` : null,
+      badge: loading ? null : `${d.completionRate ?? 0}% of accepted`,
       badgeVariant: 'trend-up',
-      footer: { type: 'progressLabeled', percent: d.completionRate || 0, label: `${d.completionRate || 0}%`, color: 'secondary' },
+      footer: { type: 'progressLabeled', percent: d.completionRate || 0, label: `${d.completionRate || 0}% completion`, color: 'secondary' },
     },
     {
-      label: 'Rejected / Cancelled',
-      value: loading ? '…' : d.rejected?.toLocaleString('en-IN') ?? '0',
+      label: 'Active Now',
+      value: loading ? '…' : d.activeSessions?.toLocaleString('en-IN') ?? '0',
+      icon: 'record_voice_over',
+      accent: 'primary',
+      badge: 'Live',
+      badgeVariant: 'trend-up',
+      footer: { type: 'text', text: 'Sessions currently in progress' },
+    },
+    {
+      label: 'Drop-offs (Declined + Cancelled + Expired)',
+      value: loading ? '…' : d.dropOff?.toLocaleString('en-IN') ?? '0',
       icon: 'cancel',
       accent: 'error',
-      badge: null,
-      badgeVariant: 'error',
-      footer: { type: 'text', text: 'Dropped by system or timeout' },
+      badge: loading ? null : d.totalRequests ? `${Math.round(((d.dropOff || 0) / d.totalRequests) * 100)}% of requests` : null,
+      badgeVariant: 'trend-down',
+      footer: { type: 'text', text: 'Requests that never became sessions' },
     },
     {
-      label: 'Total Chat Duration',
-      value: loading ? '…' : d.totalDurationLabel || '0m',
-      icon: 'schedule',
-      accent: 'tertiary',
-      badge: 'Lifetime',
+      label: 'Total Messages',
+      value: loading ? '…' : d.totalMessages?.toLocaleString('en-IN') ?? '0',
+      icon: 'forum',
+      accent: 'secondary',
+      badge: null,
       badgeVariant: 'neutral',
-      footer: { type: 'segments', segments: [true, true, true, false, false] },
+      footer: { type: 'text', text: 'Across all completed sessions' },
     },
     {
       label: 'Average Chat Duration',
@@ -105,40 +151,49 @@ export function ChatStatisticsPage() {
       footer: { type: 'text', text: 'Per completed session' },
     },
     {
-      label: 'Total Messages',
-      value: loading ? '…' : d.totalMessages?.toLocaleString('en-IN') ?? '0',
-      icon: 'forum',
-      accent: 'secondary',
-      badge: null,
+      label: 'Total Chat Time',
+      value: loading ? '…' : d.totalDurationLabel || '0m',
+      icon: 'schedule',
+      accent: 'tertiary',
+      badge: 'Lifetime',
       badgeVariant: 'neutral',
-      footer: { type: 'text', text: 'Across all chat sessions' },
+      footer: { type: 'segments', segments: [true, true, true, false, false] },
     },
   ]
 
   const operatorItems = [
-    { status: 'online', label: `${d.completed || 0} Completed Chats` },
-    { status: 'break', label: `${d.rejected || 0} Rejected / Cancelled` },
-    { status: 'offline', label: `${(d.total || 0) - (d.completed || 0) - (d.rejected || 0)} In Progress` },
+    { status: 'online', label: `${d.declined || 0} Declined by female` },
+    { status: 'break', label: `${d.cancelled || 0} Cancelled by male` },
+    { status: 'offline', label: `${d.expired || 0} Expired (no response)` },
   ]
 
   return (
     <PageContainer>
-      <PageHeader description="Real-time engagement and operational efficiency metrics." />
+      <PageHeader description="Request funnel, session outcomes, and engagement depth." />
       <AnimatedStaggerGroup className="space-y-8">
         <section>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {chatStats.map((stat, i) => (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {chatStats.slice(0, 4).map((stat, i) => (
               <AnimatedCardEntrance key={stat.label} delay={i * 0.05}>
                 <ChatStatCard {...stat} />
               </AnimatedCardEntrance>
             ))}
           </div>
         </section>
+        <section>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {chatStats.slice(4).map((stat, i) => (
+              <AnimatedCardEntrance key={stat.label} delay={0.2 + i * 0.05}>
+                <ChatStatCard {...stat} />
+              </AnimatedCardEntrance>
+            ))}
+          </div>
+        </section>
         <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <AnimatedCardEntrance delay={0.4} className="lg:col-span-2">
+          <AnimatedCardEntrance delay={0.5} className="lg:col-span-2">
             <EngagementMapCard />
           </AnimatedCardEntrance>
-          <AnimatedCardEntrance delay={0.5}>
+          <AnimatedCardEntrance delay={0.6}>
             <OperatorPulseCard items={operatorItems} />
           </AnimatedCardEntrance>
         </section>
