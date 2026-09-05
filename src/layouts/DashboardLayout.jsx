@@ -5,6 +5,7 @@ import { Dock } from '../components/nav/Dock';
 import { Palette } from '../components/nav/Palette';
 import { usePaletteHotkey } from '../components/nav/usePaletteHotkey';
 import { MaterialIcon } from '../components/ui/MaterialIcon';
+import { DanggLogo } from '../components/brand/Logo';
 import { ProfileTopBarActions } from '../components/layout/ProfileTopBarActions';
 import { ChatReplayTopBarActions } from '../components/layout/ChatReplayTopBarActions';
 import { getNavItemByPath } from '../routes/dashboardRoutes';
@@ -70,6 +71,12 @@ export function DashboardLayout() {
             <MaterialIcon name="arrow_back" size="sm" />
           </button>
         )}
+
+        {/* Brand mark — small, ink-toned so it sits quietly beside the page
+            title rather than competing with it. Hidden on the narrowest
+            screens where the title needs the width. */}
+        <DanggLogo height={17} tone="ink" className="hidden shrink-0 opacity-80 sm:block" />
+        <span className="hidden h-5 w-px shrink-0 bg-hairline sm:block" />
 
         <div className="min-w-0 flex-1">
           {route.title && (

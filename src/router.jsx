@@ -4,6 +4,7 @@ import { DashboardLayout } from './layouts/DashboardLayout';
 import { LoginPage } from './pages/LoginPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { DASHBOARD_NAV_ITEMS } from './routes/dashboardRoutes';
+import { BrandPageLoader } from './components/brand/BrandLoader';
 
 const AnalyticsDashboardPage = lazy(() => import('./pages/AnalyticsDashboardPage').then(m => ({ default: m.AnalyticsDashboardPage })));
 const RevenueOverviewPage = lazy(() => import('./pages/RevenueOverviewPage').then(m => ({ default: m.RevenueOverviewPage })));
@@ -20,11 +21,7 @@ const ChatDetailPage = lazy(() => import('./pages/ChatDetailPage').then(m => ({ 
 const PlaceholderPage = lazy(() => import('./pages/PlaceholderPage').then(m => ({ default: m.PlaceholderPage })));
 
 function PageLoader() {
-  return (
-    <div className="flex h-full flex-1 items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-outline-variant border-t-primary" />
-    </div>
-  );
+  return <BrandPageLoader />;
 }
 
 function Lazy({ children }) {

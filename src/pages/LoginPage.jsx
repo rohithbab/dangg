@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { login } from '../lib/auth'
 import { MaterialIcon } from '../components/ui/MaterialIcon'
+import { DanggLogo, PlaneMark } from '../components/brand/Logo'
 
 /**
  * LOGIN — Warm Signal
@@ -86,14 +87,12 @@ export function LoginPage() {
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="relative flex items-center gap-3"
         >
-          <div className="dock-ball grid h-11 w-11 place-items-center rounded-2xl">
-            <span className="font-display text-lg font-semibold leading-none text-white">D</span>
+          <div className="brand-ball grid h-11 w-11 place-items-center rounded-2xl">
+            <PlaneMark size={22} />
           </div>
           <div>
-            <span className="font-display text-sm font-semibold uppercase tracking-[0.18em] text-[#FBFAF6]">
-              Dangg
-            </span>
-            <p className="mt-0.5 text-label-xs uppercase tracking-widest text-[#8C887A]">
+            <DanggLogo height={22} />
+            <p className="mt-1 text-label-xs uppercase tracking-widest text-[#8C887A]">
               Admin Console
             </p>
           </div>
@@ -167,12 +166,10 @@ export function LoginPage() {
         >
           {/* Compact brand for small screens, where the left panel is hidden */}
           <div className="mb-7 flex items-center gap-3 lg:hidden">
-            <div className="dock-ball grid h-10 w-10 place-items-center rounded-xl">
-              <span className="font-display text-base font-semibold leading-none text-white">D</span>
+            <div className="brand-ball grid h-10 w-10 place-items-center rounded-xl">
+              <PlaneMark size={20} />
             </div>
-            <span className="font-display text-sm font-semibold uppercase tracking-[0.18em] text-ink">
-              Dangg
-            </span>
+            <DanggLogo height={20} tone="ink" />
           </div>
 
           <div className="card overflow-hidden">

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence, useReducedMotion, useMotionValue, useDragControls } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { MaterialIcon } from '../ui/MaterialIcon';
+import { PlaneMark } from '../brand/Logo';
 import { DASHBOARD_NAV_ITEMS, getNavItemByPath } from '../../routes/dashboardRoutes';
 
 /**
@@ -242,7 +243,7 @@ export function Dock({ onOpenPalette }) {
             >
               {open
                 ? <MaterialIcon name="search" size="sm" />
-                : <span className="font-display text-[17px] font-semibold leading-none">D</span>}
+                : <PlaneMark size={22} />}
             </motion.span>
           </AnimatePresence>
 
