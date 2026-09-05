@@ -13,22 +13,22 @@ function SidebarNavItem({ to, icon, label, id }) {
       <div
         className={
           isActive
-            ? 'relative flex items-center gap-3 rounded-xl px-3 py-2.5 bg-sidebar-active'
-            : 'relative flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors duration-150 hover:bg-sidebar-hover'
+            ? 'relative flex items-center gap-3 rounded-xl px-3 py-2.5 bg-canvas-sunk-active'
+            : 'relative flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors duration-150 hover:bg-canvas-sunk-hover'
         }
       >
         <MaterialIcon
           name={icon}
           fill={isActive}
           size="sm"
-          className={isActive ? 'text-on-sidebar-active' : 'text-on-sidebar-muted'}
+          className={isActive ? 'text-ink-active' : 'text-ink-3'}
         />
 
         <span
           className={
             isActive
-              ? 'text-[13px] font-semibold tracking-normal text-on-sidebar-active'
-              : 'text-[13px] font-medium tracking-normal text-on-sidebar-muted'
+              ? 'text-[13px] font-semibold tracking-normal text-ink-active'
+              : 'text-[13px] font-medium tracking-normal text-ink-3'
           }
         >
           {label}
@@ -62,14 +62,14 @@ export function Sidebar({ brandTitle = 'DANGG', brandSubtitle = 'Admin Console' 
       {/* Brand */}
       <div className="px-6 pb-6 pt-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary">
-            <span className="font-display text-base font-black text-on-primary leading-none">D</span>
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ember">
+            <span className="font-display text-base font-black text-white leading-none">D</span>
           </div>
           <div>
-            <h1 className="font-display text-sm font-black tracking-widest text-on-sidebar uppercase leading-none">
+            <h1 className="font-display text-sm font-black tracking-widest text-ink uppercase leading-none">
               {brandTitle}
             </h1>
-            <p className="mt-0.5 text-[10px] font-medium uppercase tracking-widest text-on-sidebar-muted/60 leading-none">
+            <p className="mt-0.5 text-[10px] font-medium uppercase tracking-widest text-ink-3/60 leading-none">
               {brandSubtitle}
             </p>
           </div>
@@ -77,11 +77,11 @@ export function Sidebar({ brandTitle = 'DANGG', brandSubtitle = 'Admin Console' 
       </div>
 
       {/* Divider */}
-      <div className="mx-5 mb-4 h-px bg-sidebar-border" />
+      <div className="mx-5 mb-4 h-px bg-hairline" />
 
       {/* Nav label */}
       <div className="mb-1.5 px-6">
-        <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-on-sidebar-muted/40">
+        <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-ink-3/40">
           Menu
         </p>
       </div>
@@ -100,11 +100,11 @@ export function Sidebar({ brandTitle = 'DANGG', brandSubtitle = 'Admin Console' 
       </nav>
 
       {/* Divider */}
-      <div className="mx-5 mb-4 h-px bg-sidebar-border" />
+      <div className="mx-5 mb-4 h-px bg-hairline" />
 
       {/* Footer */}
       <div className="px-6 pb-5">
-        <p className="text-[10px] font-medium text-on-sidebar-muted/30 leading-none">
+        <p className="text-[10px] font-medium text-ink-3/30 leading-none">
           v1.0 · Admin Panel
         </p>
       </div>

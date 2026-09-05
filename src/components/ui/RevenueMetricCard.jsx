@@ -1,41 +1,43 @@
-import { motion } from 'framer-motion';
 import { MaterialIcon } from './MaterialIcon';
-import { AnimatedCounter } from '../animation';
-import { formatCurrency } from '../../utils/formatters';
+import { Lift } from '../motion/primitives';
+import { Metric, RupeeMetric } from '../motion/Metric';
 
-const ICON_WELLS = {
-  primary: 'metric-icon-well-primary',
-  secondary: 'metric-icon-well-secondary',
-  tertiary: 'metric-icon-well-tertiary',
-  error: 'icon-well-alert',
+/**
+ * Compact stat card used by the payout/revenue stat rows.
+ *
+ * `accent` tints only the icon well — the figure itself stays ink, so a row of
+ * five of these does not turn into five competing colours.
+ */
+const WELLS = {
+  primary: 'bg-ember-soft text-ember',
+  secondary: 'bg-info-soft text-info',
+  tertiary: 'bg-warn-soft text-warn',
+  error: 'bg-critical-soft text-critical',
+  good: 'bg-good-soft text-good',
 };
 
-export function RevenueMetricCard({ label, value, icon, accent = 'primary', badge }) {
-  const well = ICON_WELLS[accent] ?? ICON_WELLS.primary;
+export function RevenueMetricCard({ label, value, icon, accent = 'primary', badge, isCount = false }) {
+  const well = WELLS[accent] ?? WELLS.primary;
 
   return (
-    <motion.article
-      whileHover={{ y: -3 }}
-      transition={{ duration: 0.2, ease: 'easeOut' }}
-      className="card-base card-pad group flex h-full flex-col justify-between overflow-hidden relative"
-    >
-      {/* Corner glow */}
-      <div className="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-primary/5 transition-all group-hover:scale-150 group-hover:bg-primary/8" />
-
-      <div className="relative">
-        <div className="mb-5 flex items-start justify-between gap-2">
-          <div className={`${well} shrink-0`}>
+    <Lift className="h-full">
+      <article className="card card-pad flex h-full flex-col justify-between">
+        <div className="mb-4 flex items-start justify-between gap-2">
+          <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-well ${well}`}>
             <MaterialIcon name={icon} size="sm" />
-          </div>
+          </span>
           {badge && <div className="min-w-0 shrink">{badge}</div>}
         </div>
-        <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant truncate">
-          {label}
-        </p>
-      </div>
-      <h4 className="text-2xl font-black tracking-tight text-on-surface leading-none mt-2">
-        <AnimatedCounter value={value} formatter={formatCurrency} />
-      </h4>
-    </motion.article>
+
+        <div>
+          <p className="metric-label mb-1.5 truncate">{label}</p>
+          {isCount ? (
+            <Metric value={Number(value) || 0} size="metric-sm" />
+          ) : (
+            <RupeeMetric paisa={Number(value) || 0} size="metric-sm" />
+          )}
+        </div>
+      </article>
+    </Lift>
   );
 }

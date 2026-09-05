@@ -26,7 +26,7 @@ export function ProfileStatCard({ label, value, icon, accent = 'neutral', trend 
       </div>
       <div className="mt-4">
         <p className="type-label-md normal-case">{label}</p>
-        <p className="type-headline-lg text-on-surface">{formattedValue}</p>
+        <p className="type-headline-lg text-ink">{formattedValue}</p>
       </div>
     </article>
   );

@@ -1,139 +1,193 @@
-const path = require('path');
-
+/**
+ * DANGG ADMIN — "WARM SIGNAL" DESIGN SYSTEM
+ *
+ * Canvas is warm cream, never sterile white. Cards float on it as near-white
+ * planes with almost no border — separation comes from tone + soft shadow.
+ * ONE hot accent (ember) carries emphasis; everything else stays quiet so the
+ * accent actually means something.
+ *
+ * Chart hues are NOT decorative — they are the validated categorical ramp from
+ * scripts/validate_palette.js (all six checks pass, light + dark). Do not
+ * substitute them by eye.
+ */
 module.exports = {
   darkMode: 'class',
+  /* POSIX-style relative globs only.
+     These were previously built with path.join(__dirname, …), which on Windows
+     produces backslash paths (src\**\*.jsx). Tailwind's glob matcher requires
+     forward slashes, so NOTHING under src/ was ever scanned — utilities only
+     survived if they also appeared in an @apply rule in the CSS. Do not
+     reintroduce path.join here. */
   content: [
-    path.join(__dirname, 'index.html'),
-    path.join(__dirname, 'src/**/*.{js,ts,jsx,tsx}'),
-    path.join(__dirname, 'src/**/*.css'),
+    './index.html',
+    './src/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
       colors: {
-        /* Brand — acid green accent */
-        primary: '#c8f500',
-        'on-primary': '#0e0e0d',
-        'primary-container': '#a8d000',
-        'on-primary-container': '#0e0e0d',
-        'primary-fixed': '#e8ff90',
-        'primary-fixed-dim': '#c8f500',
-        'on-primary-fixed': '#0e0e0d',
-        'on-primary-fixed-variant': '#1e2e00',
-        'inverse-primary': '#3a4a00',
-        'surface-tint': '#c8f500',
+        /* ── Canvas & planes ─────────────────────────────────────────────── */
+        canvas: '#F7F5EE',          // warm cream app background
+        'canvas-sunk': '#F1EEE4',   // wells, tracks, inset areas
+        card: '#FCFBF7',            // card plane — near-white, still warm
+        'card-raised': '#FFFFFF',   // hover / popover / modal
+        hairline: '#E7E2D4',        // whisper border (use sparingly)
+        'hairline-strong': '#D8D1BE',
 
-        /* Secondary — electric blue */
-        secondary: '#3b82f6',
-        'on-secondary': '#ffffff',
-        'secondary-container': '#1d4ed8',
-        'on-secondary-container': '#ffffff',
-        'secondary-fixed': '#dbeafe',
-        'secondary-fixed-dim': '#bfdbfe',
-        'on-secondary-fixed': '#1e3a8a',
-        'on-secondary-fixed-variant': '#1d4ed8',
+        /* ── Ink ─────────────────────────────────────────────────────────── */
+        ink: '#14140F',             // primary text, near-black warm
+        'ink-2': '#5C594C',         // secondary text
+        'ink-3': '#8C887A',         // muted labels, axis text
+        'ink-inverse': '#FBFAF6',
 
-        /* Tertiary — warm amber */
-        tertiary: '#f59e0b',
-        'on-tertiary': '#0e0e0d',
-        'tertiary-container': '#d97706',
-        'on-tertiary-container': '#ffffff',
-        'tertiary-fixed': '#fef3c7',
-        'tertiary-fixed-dim': '#fde68a',
-        'on-tertiary-fixed': '#78350f',
-        'on-tertiary-fixed-variant': '#92400e',
+        /* ── Accent — ember. Use sparingly: one per view. ────────────────── */
+        ember: '#E8511F',
+        'ember-hover': '#CF4517',
+        'ember-soft': '#FBE4DA',    // tint fills
+        'ember-glow': '#F9D2C4',
+        'on-ember': '#FFFFFF',
 
-        /* Canvas — much darker warm gray for card contrast */
-        background: '#d6d2c8',
-        'on-background': '#0e0e0d',
-        surface: '#f8f6f1',
-        'surface-bright': '#ffffff',
-        'surface-dim': '#c8c4ba',
-        'surface-container-lowest': '#f8f6f1',
-        'surface-container-low': '#ede9e0',
-        'surface-container': '#e0dbd0',
-        'surface-container-high': '#ccc7bc',
-        'surface-container-highest': '#b8b3a8',
-        'surface-variant': '#dedad0',
+        /* ── Validated categorical ramp (charts only) ────────────────────── */
+        'cat-1': '#E8511F',         // ember
+        'cat-2': '#2F6FA8',         // blue
+        'cat-3': '#3E9B72',         // green
+        'cat-4': '#B8891B',         // gold
+        'cat-5': '#8C5BC4',         // violet
 
-        /* Sidebar — near-black warm */
-        sidebar: '#0e0e0d',
-        'sidebar-surface': '#181816',
-        'sidebar-hover': '#222220',
-        'sidebar-active': '#2a2a28',
-        'sidebar-border': '#282826',
-        'on-sidebar': '#f0ede6',
-        'on-sidebar-muted': '#7a7870',
-        'on-sidebar-active': '#c8f500',
+        /* ── Status — reserved, never reused as a series color ───────────── */
+        good: '#2E7D5B',
+        'good-soft': '#DCEFE5',
+        warn: '#9A6B12',
+        'warn-soft': '#F6EBD2',
+        critical: '#B3341A',
+        'critical-soft': '#F9DED7',
+        info: '#2F6FA8',
+        'info-soft': '#DCE8F4',
 
-        /* Typography */
-        'on-surface': '#0e0e0d',
-        'on-surface-variant': '#5c5a54',
+        /* ── Soft support tints (from the inspo micro-viz) ───────────────── */
+        mint: '#CFE8D2',
+        peri: '#C3CEF2',
+        peach: '#F7D6B0',
+        sand: '#EDE7D6',
 
-        /* Borders */
-        outline: '#7a7870',
-        'outline-variant': '#ccc8be',
-
-        /* Inverse */
-        'inverse-surface': '#0e0e0d',
-        'inverse-on-surface': '#f0ede6',
-
-        /* Error */
-        error: '#dc2626',
-        'on-error': '#ffffff',
-        'error-container': '#fee2e2',
-        'on-error-container': '#991b1b',
+        /* ── Legacy token aliases ─────────────────────────────────────────
+           The 12 not-yet-migrated pages reference the previous system's token
+           names. Mapping them onto Warm Signal values means those pages pick
+           up the new palette instead of rendering with missing colours.
+           DELETE each alias as its consumers are migrated. */
+        background: '#F7F5EE',
+        surface: '#FCFBF7',
+        'surface-container-lowest': '#FFFFFF',
+        'surface-container-low': '#F7F5EE',
+        'surface-container': '#F1EEE4',
+        'surface-container-high': '#E7E2D4',
+        'on-surface': '#14140F',
+        'on-surface-variant': '#5C594C',
+        outline: '#8C887A',
+        'outline-variant': '#E7E2D4',
+        sidebar: '#F1EEE4',
+        'text-on-sidebar': '#14140F',
+        primary: '#E8511F',
+        'on-primary': '#FFFFFF',
+        'primary-container': '#CF4517',
+        'on-primary-container': '#FFFFFF',
+        secondary: '#2F6FA8',
+        'on-secondary': '#FFFFFF',
+        tertiary: '#B8891B',
+        'on-tertiary': '#FFFFFF',
+        error: '#B3341A',
+        'on-error': '#FFFFFF',
       },
-      borderRadius: {
-        DEFAULT: '0.375rem',
-        sm: '0.25rem',
-        md: '0.5rem',
-        lg: '0.75rem',
-        xl: '1rem',
-        '2xl': '1.25rem',
-        '3xl': '1.75rem',
-        full: '9999px',
-      },
-      spacing: {
-        stack_md: '1rem',
-        sidebar_width: '248px',
-        container_padding: '2rem',
-        stack_sm: '0.5rem',
-        stack_lg: '1.5rem',
-        gutter: '1.5rem',
-      },
+
       fontFamily: {
-        /* Display — Syne for punchy headers */
-        display: ['Syne', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        'headline-lg': ['Syne', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        'headline-md': ['Syne', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        /* Body — DM Sans for clean readability */
-        sans: ['DM Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        'body-lg': ['DM Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        'body-md': ['DM Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        'label-md': ['DM Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        'label-sm': ['DM Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        /* Display — Fraunces: a variable serif with SOFT and WONK axes. The
+           wonk axis gives the italic-ish splayed terminals that stop headings
+           reading as default-sans. Editorial, not corporate. */
+        display: ['Fraunces', 'ui-serif', 'Georgia', 'serif'],
+        /* Body/UI — Schibsted Grotesk: Norwegian grotesk, slightly warm, open
+           apertures, genuinely good tabular figures. */
+        sans: ['"Schibsted Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'monospace'],
       },
+
+      /* Fluid type — every step scales with the viewport between a phone-safe
+         minimum and a desktop maximum, so nothing has to be re-specified per
+         breakpoint. clamp() means no layout jumps at breakpoint boundaries. */
       fontSize: {
-        'headline-lg': ['26px', { lineHeight: '32px', letterSpacing: '-0.02em', fontWeight: '800' }],
-        'label-md': ['11px', { lineHeight: '16px', letterSpacing: '0.08em', fontWeight: '600' }],
-        display: ['40px', { lineHeight: '46px', letterSpacing: '-0.03em', fontWeight: '800' }],
-        'label-sm': ['10px', { lineHeight: '14px', fontWeight: '600' }],
-        'headline-md': ['18px', { lineHeight: '24px', letterSpacing: '-0.01em', fontWeight: '700' }],
-        'body-lg': ['16px', { lineHeight: '24px', fontWeight: '400' }],
-        'body-md': ['14px', { lineHeight: '20px', fontWeight: '400' }],
+        'metric-xl':  ['clamp(30px, 1.6vw + 22px, 46px)', { lineHeight: '1',    letterSpacing: '-0.035em', fontWeight: '600' }],
+        metric:       ['clamp(25px, 1.1vw + 19px, 36px)', { lineHeight: '1.05', letterSpacing: '-0.03em',  fontWeight: '600' }],
+        'metric-sm':  ['clamp(19px, 0.5vw + 16px, 24px)', { lineHeight: '1.1',  letterSpacing: '-0.02em',  fontWeight: '600' }],
+        'display-lg': ['clamp(23px, 1.2vw + 17px, 34px)', { lineHeight: '1.12', letterSpacing: '-0.02em',  fontWeight: '600' }],
+        'display-md': ['clamp(17px, 0.4vw + 15px, 21px)', { lineHeight: '1.25', letterSpacing: '-0.012em', fontWeight: '600' }],
+        title:        ['clamp(14px, 0.2vw + 13px, 15.5px)', { lineHeight: '1.35', letterSpacing: '-0.008em', fontWeight: '600' }],
+        body:         ['clamp(13px, 0.15vw + 12.4px, 14px)', { lineHeight: '1.5',  fontWeight: '400' }],
+        'body-sm':    ['clamp(12px, 0.1vw + 11.6px, 12.8px)', { lineHeight: '1.45', fontWeight: '400' }],
+        label:        ['clamp(10.5px, 0.06vw + 10.2px, 11px)', { lineHeight: '1.3', letterSpacing: '0.05em', fontWeight: '500' }],
+        'label-xs':   ['clamp(9.5px, 0.05vw + 9.3px, 10px)',  { lineHeight: '1.3', letterSpacing: '0.07em', fontWeight: '500' }],
       },
-      maxWidth: {
-        shell: '80rem',
+
+      screens: {
+        xs: '420px',
+        '3xl': '1800px',
       },
+
+      borderRadius: {
+        card: '22px',      // the signature generous card radius
+        'card-lg': '26px',
+        well: '16px',
+        pill: '999px',
+      },
+
       boxShadow: {
-        /* Strong shadows — cards pop against dark canvas */
-        card: '0 2px 8px 0 rgb(14 14 13 / 0.12), 0 1px 2px 0 rgb(14 14 13 / 0.08)',
-        'card-rich': '0 4px 16px 0 rgb(14 14 13 / 0.10), 0 1px 3px 0 rgb(14 14 13 / 0.08)',
-        'card-hover': '0 12px 32px -4px rgb(14 14 13 / 0.20), 0 4px 12px -2px rgb(14 14 13 / 0.12)',
-        'card-lift': '0 16px 40px -8px rgb(14 14 13 / 0.24)',
-        header: '0 1px 0 0 rgb(14 14 13 / 0.10)',
-        'accent-glow': '0 0 24px 0 rgb(200 245 0 / 0.35)',
-        'sidebar-active': 'inset 0 0 0 1px rgb(200 245 0 / 0.15)',
+        /* Warm-tinted shadows — a neutral gray shadow on cream looks dirty */
+        card: '0 1px 2px rgba(60,50,25,0.04), 0 4px 14px -4px rgba(60,50,25,0.06)',
+        'card-hover': '0 2px 6px rgba(60,50,25,0.06), 0 16px 34px -10px rgba(60,50,25,0.13)',
+        pop: '0 10px 40px -8px rgba(60,50,25,0.18)',
+        ember: '0 6px 20px -6px rgba(232,81,31,0.45)',
+        inset: 'inset 0 1px 2px rgba(60,50,25,0.05)',
+      },
+
+      transitionDuration: {
+        250: '250ms',
+        400: '400ms',
+      },
+
+      transitionTimingFunction: {
+        /* The motion signature — a confident overshoot-free ease-out */
+        smooth: 'cubic-bezier(0.16, 1, 0.3, 1)',
+        entrance: 'cubic-bezier(0.22, 1, 0.36, 1)',
+      },
+
+      keyframes: {
+        shimmer: {
+          '0%': { backgroundPosition: '200% 0' },
+          '100%': { backgroundPosition: '-200% 0' },
+        },
+        'rise-in': {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'draw-in': {
+          '0%': { strokeDashoffset: '1000' },
+          '100%': { strokeDashoffset: '0' },
+        },
+        breathe: {
+          '0%, 100%': { opacity: '0.5', transform: 'scale(1)' },
+          '50%': { opacity: '0.85', transform: 'scale(1.06)' },
+        },
+        'pulse-ring': {
+          '0%': { transform: 'scale(0.8)', opacity: '0.7' },
+          '100%': { transform: 'scale(2.2)', opacity: '0' },
+        },
+      },
+      animation: {
+        shimmer: 'shimmer 1.8s infinite linear',
+        'rise-in': 'rise-in 0.5s cubic-bezier(0.22,1,0.36,1) both',
+        breathe: 'breathe 3.5s ease-in-out infinite',
+        'pulse-ring': 'pulse-ring 2s cubic-bezier(0.22,1,0.36,1) infinite',
+      },
+
+      maxWidth: {
+        shell: '1560px',
       },
     },
   },

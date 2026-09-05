@@ -29,9 +29,9 @@ export function UserProfileHeader({
               </span>
             )}
           </div>
-          <p className="mt-1 text-body-lg normal-case text-on-surface-variant">
+          <p className="mt-1 text-body-lg normal-case text-ink-2">
             Age: {age} • ID:{' '}
-            <span className="font-mono font-bold text-on-surface">#{userId}</span>
+            <span className="font-mono font-bold text-ink">#{userId}</span>
           </p>
         </div>
         <div className="flex flex-wrap justify-center gap-2 md:justify-start">
@@ -43,7 +43,7 @@ export function UserProfileHeader({
 
       <div className="self-center md:self-start">
         <div className="profile-stat-box">
-          <p className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
+          <p className="font-label-sm text-label-sm uppercase tracking-wider text-ink-2">
             Status
           </p>
           <p className={`type-headline-md font-bold ${statusTone}`}>{status}</p>

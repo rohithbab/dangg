@@ -19,7 +19,7 @@ export function TableSearchToolbar({
       >
         <MaterialIcon
           name="search"
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-2"
           size="sm"
         />
         <input
@@ -40,7 +40,7 @@ export function TableSearchToolbar({
         onClick={onFilterClick}
       >
         <MaterialIcon name="filter_list" className="text-[18px]" />
-        <span className="type-body-md normal-case text-on-surface">{filterLabel}</span>
+        <span className="type-body-md normal-case text-ink">{filterLabel}</span>
       </motion.button>
       )}
       
@@ -51,7 +51,7 @@ export function TableSearchToolbar({
           whileHover={{ backgroundColor: 'var(--error-container)' }}
           whileTap={{ scale: 0.95 }}
           onClick={onReset}
-          className="btn-toolbar text-error border-error/20"
+          className="btn-toolbar text-critical border-critical/20"
         >
           <MaterialIcon name="restart_alt" className="!text-[18px]" />
           <span>Reset</span>

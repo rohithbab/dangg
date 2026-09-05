@@ -7,8 +7,8 @@ export function ChatReplayFooter({
   return (
     <footer className="chat-replay-footer">
       <div className="chat-replay-input">
-        <span className="text-sm text-on-surface-variant">{placeholder}</span>
-        <MaterialIcon name="lock" className="text-on-surface-variant" />
+        <span className="text-sm text-ink-2">{placeholder}</span>
+        <MaterialIcon name="lock" className="text-ink-2" />
       </div>
       <div className="flex gap-2">
         <button type="button" className="btn-replay-icon" title="Print" onClick={onPrint}>

@@ -9,6 +9,8 @@ import { SearchableSelect, FilterPanel } from '../components/ui';
 import { useAdminQuery } from '../hooks/useAdminQuery';
 import { supabase } from '../lib/supabase';
 import { formatDate, getInitials, shortId } from '../lib/utils';
+import { Reveal } from '../components/motion/primitives';
+import { LoadingBar } from '../components/motion/Placeholder';
 
 async function fetchUsers() {
   const { data, error } = await supabase
@@ -98,26 +100,53 @@ export function UserManagementPage() {
 
   return (
     <PageContainer>
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="bg-surface rounded-2xl shadow-card px-6 py-5 space-y-4">
-          <div className="flex flex-col md:flex-row items-center gap-4">
-            <div className="relative flex-1 w-full">
-              <MaterialIcon name="search" className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 !text-[22px]" />
+      <div className="mx-auto max-w-shell space-y-5 above-grain">
+        <LoadingBar active={loading} />
+
+        <Reveal>
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div className="min-w-0">
+              <h1 className="font-display text-display-lg text-ink">Users</h1>
+              <p className="mt-1 text-body text-ink-2">
+                Every registered account across both roles
+              </p>
+            </div>
+            {!loading && (
+              <span className="pill pill-neutral">
+                <span className="material-symbols-outlined text-[13px]">group</span>
+                {filtered.length} shown
+              </span>
+            )}
+          </div>
+        </Reveal>
+
+        <div className="card card-pad space-y-4">
+          <div className="flex flex-col items-center gap-3 md:flex-row">
+            <div className="relative w-full flex-1">
+              <MaterialIcon
+                name="search"
+                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 !text-[20px] text-ink-3"
+              />
               <input
                 type="text"
-                className="w-full pl-12 pr-4 py-3.5 bg-surface-container-low border border-outline-variant rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all"
-                placeholder="Search users by name, phone, ID..."
+                aria-label="Search users"
+                className="w-full rounded-well border border-hairline bg-canvas-sunk py-3 pl-12 pr-4 text-body
+                           text-ink outline-none transition-all placeholder:text-ink-3
+                           focus:border-ember focus:bg-card focus:ring-2 focus:ring-ember-soft"
+                placeholder="Search users by name, phone, ID…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-6 py-3.5 rounded-2xl font-bold transition-all bg-primary text-on-primary shadow-lg shadow-accent-glow hover:bg-primary/90 shrink-0"
+              className="btn btn-primary relative shrink-0 py-3"
             >
-              <MaterialIcon name="tune" className="!text-[20px]" />
+              <MaterialIcon name="tune" className="!text-[18px]" />
               <span>Filter</span>
-              {hasActiveFilters && <span className="w-2.5 h-2.5 rounded-full bg-error animate-pulse border-2 border-white" />}
+              {hasActiveFilters && (
+                <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-ember ring-2 ring-card" />
+              )}
             </button>
           </div>
 
@@ -130,21 +159,36 @@ export function UserManagementPage() {
         </div>
 
         {loading ? (
-          <div className="h-64 bg-surface rounded-2xl shadow-card animate-pulse" />
+          <div className="card overflow-hidden">
+            <div className="flex items-center gap-4 bg-canvas-sunk px-5 py-3.5">
+              <div className="h-3 w-24 rounded shimmer-bar" />
+              <div className="ml-auto h-3 w-16 rounded shimmer-bar" />
+            </div>
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="flex items-center gap-4 border-t border-hairline px-5 py-4">
+                <div className="h-9 w-9 shrink-0 rounded-full shimmer-bar" />
+                <div className="space-y-1.5">
+                  <div className="h-3 w-32 rounded shimmer-bar" />
+                  <div className="h-2.5 w-20 rounded shimmer-bar" />
+                </div>
+                <div className="ml-auto h-3 w-24 rounded shimmer-bar" />
+              </div>
+            ))}
+          </div>
         ) : (
-          <div className="bg-white border border-outline-variant rounded-3xl overflow-hidden shadow-sm">
+          <div className="card overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-surface-container-lowest border-b border-outline-variant">
+                  <tr className="bg-card border-b border-hairline">
                     {TABLE_COLUMNS.map((col) => (
-                      <th key={col} className={`px-8 py-5 text-xs font-black uppercase tracking-widest text-on-surface-variant ${col === 'View' ? 'text-center' : ''}`}>
+                      <th key={col} className={`px-8 py-5 text-xs font-black uppercase tracking-widest text-ink-2 ${col === 'View' ? 'text-center' : ''}`}>
                         {col}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-outline-variant/40">
+                <tbody className="divide-y divide-hairline/40">
                   <AnimatePresence>
                     {filtered.length > 0 ? (
                       filtered.map((user) => {
@@ -158,7 +202,7 @@ export function UserManagementPage() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.98 }}
                             transition={{ duration: 0.2, ease: 'easeOut' }}
-                            className="hover:bg-surface-container-low transition-colors group"
+                            className="hover:bg-canvas-sunk transition-colors group"
                           >
                             <td className="px-8 py-5">
                               <Link to={profilePath} className="block w-max hover:opacity-70 transition-opacity">
@@ -176,15 +220,15 @@ export function UserManagementPage() {
                                 {user.gender === 'male' ? 'Male' : 'Female'}
                               </StatusBadge>
                             </td>
-                            <td className="px-8 py-5 text-sm text-on-surface-variant font-medium">{user.joinDate}</td>
-                            <td className="px-8 py-5 text-sm font-black text-on-surface">{user.age}</td>
+                            <td className="px-8 py-5 text-sm text-ink-2 font-medium">{user.joinDate}</td>
+                            <td className="px-8 py-5 text-sm font-black text-ink">{user.age}</td>
                             <td className="px-8 py-5">
                               <StatusBadge variant={status.variant}>{status.label}</StatusBadge>
                             </td>
                             <td className="px-8 py-5 text-center">
                               <Link
                                 to={profilePath}
-                                className="inline-flex items-center justify-center w-10 h-10 rounded-full text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all"
+                                className="inline-flex items-center justify-center w-10 h-10 rounded-full text-ink-2 hover:bg-ember/10 hover:text-ember transition-all"
                               >
                                 <MaterialIcon name="visibility" className="!text-[20px]" />
                               </Link>
@@ -196,12 +240,12 @@ export function UserManagementPage() {
                       <motion.tr key="no-results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                         <td colSpan={TABLE_COLUMNS.length} className="py-32 text-center">
                           <div className="flex flex-col items-center gap-4">
-                            <div className="w-20 h-20 bg-surface-container rounded-full flex items-center justify-center">
-                              <MaterialIcon name="person_off" className="!text-[40px] text-on-surface-variant/20" />
+                            <div className="w-20 h-20 bg-canvas-sunk rounded-full flex items-center justify-center">
+                              <MaterialIcon name="person_off" className="!text-[40px] text-ink-2/20" />
                             </div>
                             <div>
-                              <p className="text-xl font-black text-on-surface">No users found</p>
-                              <p className="text-sm text-on-surface-variant">Try a different search term or clear filters</p>
+                              <p className="text-xl font-black text-ink">No users found</p>
+                              <p className="text-sm text-ink-2">Try a different search term or clear filters</p>
                             </div>
                           </div>
                         </td>

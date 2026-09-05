@@ -4,40 +4,40 @@ import { AnimatedCounter } from '../animation';
 
 const VARIANTS = {
   primary: {
-    card: 'bg-surface border border-outline-variant shadow-card border-l-4 border-l-on-surface-variant',
-    icon: 'bg-outline-variant/60 text-on-surface',
-    bar: 'bg-on-surface',
-    track: 'bg-outline-variant',
-    label: 'text-on-surface-variant',
-    value: 'text-on-surface',
-    pct: 'text-on-surface-variant/50',
+    card: 'bg-card border border-hairline shadow-card border-l-4 border-l-on-surface-variant',
+    icon: 'bg-hairline/60 text-ink',
+    bar: 'bg-ink',
+    track: 'bg-hairline',
+    label: 'text-ink-2',
+    value: 'text-ink',
+    pct: 'text-ink-2/50',
   },
   secondary: {
-    card: 'bg-surface border border-outline-variant shadow-card border-l-4 border-l-secondary',
-    icon: 'bg-secondary/10 text-secondary',
-    bar: 'bg-secondary',
-    track: 'bg-outline-variant',
-    label: 'text-on-surface-variant',
-    value: 'text-on-surface',
-    pct: 'text-on-surface-variant/50',
+    card: 'bg-card border border-hairline shadow-card border-l-4 border-l-secondary',
+    icon: 'bg-info/10 text-info',
+    bar: 'bg-info',
+    track: 'bg-hairline',
+    label: 'text-ink-2',
+    value: 'text-ink',
+    pct: 'text-ink-2/50',
   },
   tertiary: {
-    card: 'bg-surface border border-outline-variant shadow-card border-l-4 border-l-tertiary',
-    icon: 'bg-tertiary/15 text-tertiary',
-    bar: 'bg-tertiary',
-    track: 'bg-outline-variant',
-    label: 'text-on-surface-variant',
-    value: 'text-on-surface',
-    pct: 'text-on-surface-variant/50',
+    card: 'bg-card border border-hairline shadow-card border-l-4 border-l-tertiary',
+    icon: 'bg-warn/15 text-warn',
+    bar: 'bg-warn',
+    track: 'bg-hairline',
+    label: 'text-ink-2',
+    value: 'text-ink',
+    pct: 'text-ink-2/50',
   },
   dark: {
-    card: 'bg-sidebar border border-sidebar-border shadow-card-lift',
-    icon: 'bg-primary/20 text-primary',
-    bar: 'bg-primary',
+    card: 'bg-canvas-sunk border border-sidebar-border shadow-card-lift',
+    icon: 'bg-ember/20 text-ember',
+    bar: 'bg-ember',
     track: 'bg-white/10',
-    label: 'text-on-sidebar-muted',
-    value: 'text-on-sidebar',
-    pct: 'text-on-sidebar-muted/50',
+    label: 'text-ink-3',
+    value: 'text-ink',
+    pct: 'text-ink-3/50',
   },
 };
 
@@ -67,7 +67,7 @@ export function StatCard({ label, value, icon, trend, trendDirection = 'up', acc
         </div>
         {trend != null && (
           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-            trendDirection === 'down' ? 'bg-error/10 text-error' : 'bg-primary/15 text-on-surface'
+            trendDirection === 'down' ? 'bg-critical/10 text-critical' : 'bg-ember/15 text-ink'
           }`}>
             {trendDirection === 'up' ? '+' : ''}{trend}
           </span>

@@ -57,17 +57,17 @@ function PageSkeleton() {
   return (
     <PageContainer>
       <div className="space-y-10 animate-pulse">
-        <div className="h-36 bg-surface rounded-2xl shadow-card" />
+        <div className="h-36 card" />
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="grid grid-cols-3 gap-4 lg:col-span-2">
-            {[...Array(3)].map((_, i) => <div key={i} className="h-32 bg-surface rounded-2xl shadow-card" />)}
+            {[...Array(3)].map((_, i) => <div key={i} className="h-32 card" />)}
           </div>
           <div className="space-y-4">
-            <div className="h-32 bg-surface rounded-2xl shadow-card" />
-            <div className="h-32 bg-surface rounded-2xl shadow-card" />
+            <div className="h-32 card" />
+            <div className="h-32 card" />
           </div>
         </div>
-        <div className="h-48 bg-surface rounded-2xl shadow-card" />
+        <div className="h-48 card" />
       </div>
     </PageContainer>
   )
@@ -83,15 +83,15 @@ export function MaleUserProfilePage() {
     return (
       <PageContainer className="flex flex-col items-center justify-center min-h-[50vh] text-center">
         <div className="bento-card rounded-xl p-8 max-w-md mx-auto space-y-6">
-          <div className="w-16 h-16 bg-error/10 text-error rounded-full flex items-center justify-center mx-auto">
+          <div className="w-16 h-16 bg-critical/10 text-critical rounded-full flex items-center justify-center mx-auto">
             <MaterialIcon name="error_outline" className="text-4xl" />
           </div>
-          <h3 className="type-headline-lg text-on-surface">User Profile Not Found</h3>
-          <p className="type-body-md text-on-surface-variant">
+          <h3 className="type-headline-lg text-ink">User Profile Not Found</h3>
+          <p className="type-body-md text-ink-2">
             This male user profile does not exist or could not be loaded.
           </p>
           <Link to="/users" className="btn-primary inline-flex items-center gap-2 px-6 py-2.5 rounded-lg justify-center w-full">
-            <MaterialIcon name="arrow_back" className="text-on-primary" />
+            <MaterialIcon name="arrow_back" className="text-white" />
             Back to User Directory
           </Link>
         </div>
@@ -167,30 +167,30 @@ export function MaleUserProfilePage() {
         {payments.length > 0 && (
           <AnimatedCardEntrance delay={0.7}>
             <section className="table-shell">
-              <div className="flex items-center justify-between border-b border-outline-variant px-6 py-4">
-                <h4 className="type-headline-md text-on-surface">Payment History</h4>
-                <span className="text-sm text-on-surface-variant">{payments.length} transactions</span>
+              <div className="flex items-center justify-between border-b border-hairline px-6 py-4">
+                <h4 className="type-headline-md text-ink">Payment History</h4>
+                <span className="text-sm text-ink-2">{payments.length} transactions</span>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                  <thead className="bg-surface-container-low">
+                  <thead className="bg-canvas-sunk">
                     <tr className="table-head">
                       {['Transaction ID', 'Coins', 'Amount', 'Date', 'Status'].map((col) => (
                         <th key={col} className="px-6 py-3 uppercase">{col}</th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-outline-variant">
+                  <tbody className="divide-y divide-hairline">
                     {payments.map((p) => (
                       <tr key={p.id} className="table-row">
-                        <td className="table-cell-mono px-6 py-4 text-on-surface-variant">#{shortId(p.id)}</td>
-                        <td className="type-body-md px-6 py-4 font-semibold text-on-surface">
+                        <td className="table-cell-mono px-6 py-4 text-ink-2">#{shortId(p.id)}</td>
+                        <td className="type-body-md px-6 py-4 font-semibold text-ink">
                           +{p.coins_to_credit?.toLocaleString('en-IN')} coins
                         </td>
-                        <td className="type-body-md px-6 py-4 font-semibold text-on-surface">
+                        <td className="type-body-md px-6 py-4 font-semibold text-ink">
                           {formatRupees(p.amount_paisa)}
                         </td>
-                        <td className="type-body-md px-6 py-4 text-on-surface-variant">{formatDate(p.created_at)}</td>
+                        <td className="type-body-md px-6 py-4 text-ink-2">{formatDate(p.created_at)}</td>
                         <td className="px-6 py-4">
                           <span className="badge-transaction-success">Captured</span>
                         </td>

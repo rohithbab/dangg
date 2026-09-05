@@ -1,7 +1,7 @@
 const BAR_COLORS = {
-  primary: 'bg-primary',
-  secondary: 'bg-secondary',
-  tertiary: 'bg-tertiary',
+  primary: 'bg-ember',
+  secondary: 'bg-info',
+  tertiary: 'bg-warn',
 };
 
 export function ProgressBar({ value, max = 100, size = 'sm', color = 'primary', className = '' }) {

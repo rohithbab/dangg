@@ -4,9 +4,9 @@ export function TableUserCell({ name, avatarUrl, avatarAlt = '' }) {
       <img
         src={avatarUrl}
         alt={avatarAlt}
-        className="h-8 w-8 rounded-full border border-outline-variant bg-surface-container object-cover"
+        className="h-8 w-8 rounded-full border border-hairline bg-canvas-sunk object-cover"
       />
-      <span className="font-semibold text-on-surface">{name}</span>
+      <span className="font-semibold text-ink">{name}</span>
     </div>
   );
 }

@@ -14,7 +14,7 @@ export function OperatorPulseCard({
 }) {
   return (
     <article className="operator-pulse-card">
-      <h5 className="type-headline-md mb-4 text-on-surface">{title}</h5>
+      <h5 className="type-headline-md mb-4 text-ink">{title}</h5>
       <div className="space-y-4">
         {items.map((item, i) => (
           <motion.div 
@@ -25,7 +25,7 @@ export function OperatorPulseCard({
             className="flex items-center gap-3"
           >
             <div className={STATUS_DOT_CLASSES[item.status] ?? STATUS_DOT_CLASSES.offline} />
-            <p className="type-body-md normal-case text-on-surface-variant">{item.label}</p>
+            <p className="type-body-md normal-case text-ink-2">{item.label}</p>
           </motion.div>
         ))}
       </div>

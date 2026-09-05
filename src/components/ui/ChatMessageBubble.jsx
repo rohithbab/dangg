@@ -24,9 +24,9 @@ export function ChatMessageBubble({
         {videoUrl ? (
           <div className={`${bubbleClass} space-y-3 !p-2`}>
             {videoCaption && (
-              <p className="type-body-md px-2 pt-2 normal-case text-on-surface font-medium">{videoCaption}</p>
+              <p className="type-body-md px-2 pt-2 normal-case text-ink font-medium">{videoCaption}</p>
             )}
-            <div className="overflow-hidden rounded-xl border border-outline-variant/60 shadow-inner">
+            <div className="overflow-hidden rounded-xl border border-hairline/60 shadow-inner">
               <video
                 src={videoUrl}
                 controls
@@ -38,9 +38,9 @@ export function ChatMessageBubble({
         ) : imageUrl ? (
           <div className={`${bubbleClass} space-y-3 !p-2`}>
             {imageCaption && (
-              <p className="type-body-md px-2 pt-2 normal-case text-on-surface font-medium">{imageCaption}</p>
+              <p className="type-body-md px-2 pt-2 normal-case text-ink font-medium">{imageCaption}</p>
             )}
-            <div className="overflow-hidden rounded-xl border border-outline-variant/60 shadow-inner">
+            <div className="overflow-hidden rounded-xl border border-hairline/60 shadow-inner">
               <a href={imageUrl} target="_blank" rel="noopener noreferrer">
                 <img src={imageUrl} alt={imageAlt} className="h-auto w-full object-cover cursor-pointer hover:opacity-90 transition-opacity" />
               </a>
@@ -48,7 +48,7 @@ export function ChatMessageBubble({
           </div>
         ) : (
           <div className={bubbleClass}>
-            <p className={`type-body-md normal-case ${outgoing ? 'text-on-sidebar' : 'text-on-surface font-medium'}`}>{message}</p>
+            <p className={`type-body-md normal-case ${outgoing ? 'text-ink' : 'text-ink font-medium'}`}>{message}</p>
           </div>
         )}
         <span className={`chat-bubble-time ${timeClass}`}>{time}</span>

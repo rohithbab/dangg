@@ -1,0 +1,217 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LEGACY BRIDGE — TEMPORARY
+   ═══════════════════════════════════════════════════════════════════════════
+
+   The Warm Signal system (index.css) replaced the old component layer, but 12
+   pages beyond /analytics still reference the previous class names. This file
+   re-implements those names ON TOP of the new tokens so nothing renders broken
+   mid-migration — the old pages inherit the new palette and radii for free.
+
+   This is scaffolding, not system. Each rule here should be DELETED as its
+   page is converted to the new components. When this file is empty, the
+   migration is done.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* ── Shell ─────────────────────────────────────────────────────────────────
+     The sidebar is gone — navigation is the floating Dock + ⌘K palette, and
+     DashboardLayout owns the chrome. These remain only because AppShell.jsx
+     and a few unmigrated pages still reference the class names; they now
+     resolve to plain full-width flow with no fixed offsets. */
+  .shell-sidebar { @apply hidden; }
+  .shell-header  { @apply hidden; }
+  .shell-main,
+  .shell-main-compact  { @apply min-h-0 bg-transparent; }
+  .shell-content       { @apply mx-auto w-full max-w-shell px-4 py-5 sm:px-5 md:px-6 md:py-6; }
+  .shell-content-flush { @apply mx-auto w-full max-w-none p-0; }
+
+  /* ── Cards ─────────────────────────────────────────────────────────────── */
+  .card-base      { @apply card; }
+  .card-lift      { @apply card card-interactive; }
+  .card-accent    { @apply card border-l-2 border-l-ember; }
+  .card-highlight { @apply card ring-1 ring-ember/25; }
+  .card-wallet    { @apply card-ember card-pad; }
+
+  /* ── Typography ────────────────────────────────────────────────────────── */
+  .type-display     { @apply font-display text-display-lg text-ink; }
+  .type-headline-lg { @apply font-display text-display-md text-ink; }
+  .type-headline-md { @apply font-display text-title text-ink; }
+  .type-body-md     { @apply text-body text-ink-2; }
+  .type-label-md    { @apply text-label uppercase text-ink-3; }
+
+  /* ── Buttons ───────────────────────────────────────────────────────────── */
+  .btn-icon {
+    @apply grid h-9 w-9 place-items-center rounded-pill bg-canvas-sunk text-ink-2
+           transition-colors duration-200 hover:bg-hairline hover:text-ink;
+  }
+  .btn-back-labeled {
+    @apply inline-flex items-center gap-2 rounded-pill bg-canvas-sunk px-3 py-2
+           text-ink-2 transition-colors duration-200 hover:bg-hairline hover:text-ink;
+  }
+
+  /* ── Tables ────────────────────────────────────────────────────────────── */
+  .table-shell   { @apply card overflow-hidden; }
+  .table-toolbar { @apply flex flex-wrap items-center gap-3 px-5 py-4; }
+  .table-head    { @apply bg-canvas-sunk text-label uppercase text-ink-3; }
+  .table-row     { @apply border-t border-hairline transition-colors duration-200 hover:bg-canvas-sunk/60; }
+  .table-footer  { @apply flex items-center justify-between px-5 py-4 text-body-sm text-ink-2; }
+
+  /* ── Badges ────────────────────────────────────────────────────────────── */
+  .badge-trend-up       { @apply pill pill-good; }
+  .badge-trend-down     { @apply pill pill-critical; }
+  .badge-active,
+  .badge-status-active,
+  .badge-status-stable,
+  .badge-status-growing { @apply pill pill-good; }
+  .badge-idle,
+  .badge-status-offline,
+  .badge-neutral        { @apply pill pill-neutral; }
+  .badge-status-busy    { @apply pill pill-warn; }
+  .badge-error,
+  .badge-status-suspended { @apply pill pill-critical; }
+
+  .badge-payout-pending    { @apply pill pill-warn; }
+  .badge-payout-processing { @apply pill pill-info; }
+  .badge-payout-approved   { @apply pill pill-info; }
+  .badge-payout-completed  { @apply pill pill-good; }
+  .badge-payout-rejected   { @apply pill pill-critical; }
+
+  .badge-transcript-resolved  { @apply pill pill-good; }
+  .badge-transcript-archived  { @apply pill pill-neutral; }
+  .badge-transcript-escalated { @apply pill pill-critical; }
+
+  .badge-gender-male,
+  .badge-gender-chip-male   { @apply pill; background: theme('colors.info-soft'); color: theme('colors.info'); }
+  .badge-gender-female,
+  .badge-gender-chip-female { @apply pill pill-ember; }
+  .badge-age-pill           { @apply pill pill-neutral; }
+
+  /* Engagement map card badges (chat statistics page). */
+  .map-badge-active { @apply pill pill-good; }
+  .map-badge-idle   { @apply pill pill-neutral; }
+
+  /* Icon wells still referenced by unmigrated cards. */
+  .metric-icon-well-primary   { @apply grid h-9 w-9 place-items-center rounded-well bg-ember-soft text-ember; }
+  .metric-icon-well-secondary { @apply grid h-9 w-9 place-items-center rounded-well bg-info-soft text-info; }
+  .metric-icon-well-tertiary  { @apply grid h-9 w-9 place-items-center rounded-well bg-warn-soft text-warn; }
+  .icon-well-alert            { @apply grid h-9 w-9 place-items-center rounded-well bg-critical-soft text-critical; }
+  .icon-well                  { @apply grid h-9 w-9 place-items-center rounded-well bg-canvas-sunk text-ink-2; }
+
+  /* Small action buttons used in table rows. */
+  .btn-sm-primary        { @apply btn btn-ember px-3 py-1.5 text-label; }
+  .btn-sm-success        { @apply btn px-3 py-1.5 text-label text-white; background: theme('colors.good'); }
+  .btn-sm-danger-outline { @apply btn border border-critical bg-transparent px-3 py-1.5 text-label text-critical hover:bg-critical-soft; }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     ORPHANED COMPONENT CLASSES
+     ═══════════════════════════════════════════════════════════════════════
+     These class names are referenced by shared UI components but were never
+     defined in any stylesheet — they were lost when the previous design
+     system was replaced, which left profile/chat cards rendering with no
+     surface at all. Re-implemented here on Warm Signal tokens.
+
+     Like everything else in this file they are scaffolding: as each component
+     is rewritten to compose `card`/`pill`/`btn` directly, delete its rule.
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  /* ── Cards ─────────────────────────────────────────────────────────────── */
+  .bento-card,
+  .chat-stat-card,
+  .chat-metric-card,
+  .chat-engagement-card,
+  .rating-stat-card,
+  .profile-stat-card,
+  .operator-pulse-card,
+  .activity-panel,
+  .verification-card,
+  .account-info-panel   { @apply card card-pad; }
+
+  .profile-header-card  { @apply card card-pad-lg relative overflow-hidden; }
+  .profile-header-accent {
+    @apply pointer-events-none absolute right-0 top-0 h-32 w-32 rounded-full;
+    background: radial-gradient(circle, rgba(232, 81, 31, 0.10), transparent 70%);
+  }
+
+  .profile-stat-box     { @apply well p-4; }
+  .account-info-row     { @apply flex items-center justify-between gap-3 border-t border-hairline py-2.5 text-body-sm; }
+  .account-info-icon-well { @apply grid h-9 w-9 place-items-center rounded-well bg-canvas-sunk text-ink-2; }
+  .activity-item        { @apply flex items-start gap-3 border-t border-hairline py-3; }
+
+  /* ── Avatars ───────────────────────────────────────────────────────────── */
+  .profile-avatar-wrap  { @apply relative shrink-0; }
+  .profile-avatar       { @apply h-24 w-24 rounded-card object-cover ring-1 ring-hairline; }
+  .profile-avatar-round { @apply h-24 w-24 rounded-full object-cover ring-1 ring-hairline; }
+  .chat-message-avatar  { @apply h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-hairline; }
+
+  /* ── Status dots ───────────────────────────────────────────────────────── */
+  .profile-status-dot,
+  .status-dot-online         { @apply h-2.5 w-2.5 rounded-full bg-good; }
+  .status-dot-amber          { @apply h-2.5 w-2.5 rounded-full bg-warn; }
+  .status-dot-red            { @apply h-2.5 w-2.5 rounded-full bg-critical; }
+  .status-dot-gray           { @apply h-2.5 w-2.5 rounded-full bg-hairline-strong; }
+  .status-dot-pulse-emerald  { @apply h-2.5 w-2.5 rounded-full bg-good; animation: breathe 2.4s ease-in-out infinite; }
+  .status-online-label       { @apply inline-flex items-center gap-1.5 text-label-xs uppercase text-ink-3; }
+
+  /* ── Buttons ───────────────────────────────────────────────────────────── */
+  .btn-secondary,
+  .btn-toolbar,
+  .btn-edit-profile,
+  .btn-operator-logs,
+  .btn-reopen-chat,
+  .btn-verification-photo { @apply btn btn-ghost; }
+
+  .btn-verify-approve     { @apply btn text-white; background: theme('colors.good'); }
+  .btn-verify-approve:hover { opacity: 0.9; }
+  .btn-verify-reject,
+  .btn-block-user,
+  .btn-delete-transcript  { @apply btn border border-critical bg-transparent text-critical hover:bg-critical-soft; }
+  .btn-replay-icon        { @apply grid h-9 w-9 place-items-center rounded-pill bg-canvas-sunk text-ink-2 transition-colors hover:bg-ember hover:text-white; }
+
+  /* ── Pagination ────────────────────────────────────────────────────────── */
+  .pagination-btn,
+  .pagination-page          { @apply grid h-9 min-w-9 place-items-center rounded-well px-2 text-body-sm font-medium text-ink-2 transition-colors hover:bg-canvas-sunk hover:text-ink; }
+  .pagination-btn-sm        { @apply h-8 min-w-8 text-label; }
+  .pagination-btn-ghost     { @apply bg-transparent; }
+  .pagination-btn-active,
+  .pagination-page-active   { @apply bg-ink text-ink-inverse hover:bg-ink hover:text-ink-inverse; }
+  .btn-pagination-primary   { @apply btn btn-primary px-3 py-1.5 text-label; }
+  .btn-pagination-secondary { @apply btn btn-ghost px-3 py-1.5 text-label; }
+
+  /* ── Filter tabs ───────────────────────────────────────────────────────── */
+  .filter-tabs      { @apply flex flex-wrap items-center gap-1.5; }
+  .filter-tab-count { @apply ml-1.5 rounded-pill bg-canvas-sunk px-1.5 py-0.5 text-label-xs text-ink-2 tabular; }
+
+  /* ── Inputs ────────────────────────────────────────────────────────────── */
+  .input-search {
+    @apply w-full rounded-well border border-hairline bg-canvas-sunk py-2.5 pl-10 pr-4 text-body
+           text-ink outline-none transition-all placeholder:text-ink-3
+           focus:border-ember focus:bg-card focus:ring-2 focus:ring-ember-soft;
+  }
+
+  /* ── Chat replay ───────────────────────────────────────────────────────── */
+  .chat-replay-layout  { @apply flex h-[calc(100vh-140px)] flex-col; }
+  .chat-replay-scroll  { @apply flex-1 space-y-3 overflow-y-auto px-4 py-5 sm:px-6; }
+  .chat-replay-footer  { @apply border-t border-hairline px-4 py-3 sm:px-6; }
+  .chat-replay-input   { @apply w-full rounded-pill border border-hairline bg-canvas-sunk px-4 py-2.5 text-body text-ink-3; }
+  .chat-status-banner  { @apply flex items-center gap-2 border-b border-hairline px-4 py-2.5 text-body-sm text-ink-2 sm:px-6; }
+  .chat-status-pill    { @apply pill pill-neutral; }
+  .chat-date-separator { @apply my-4 flex items-center gap-3; }
+  .chat-date-label     { @apply shrink-0 rounded-pill bg-canvas-sunk px-3 py-1 text-label-xs uppercase text-ink-3; }
+  .chat-bubble-time    { @apply mt-1 block text-label-xs opacity-60; }
+
+  /* ── Misc ──────────────────────────────────────────────────────────────── */
+  .badge-transaction-success { @apply pill pill-good; }
+  .earnings-highlight-badge  { @apply pill pill-ember; }
+  .verification-id-badge     { @apply pill pill-neutral font-mono; }
+  .verification-photo-wrap   { @apply relative overflow-hidden rounded-card bg-canvas-sunk; }
+  .verification-photo        { @apply h-full w-full object-cover; }
+  .progress-track,
+  .distribution-track        { @apply track; }
+  .segment-bar-row           { @apply flex items-center gap-2; }
+  .table-cell-mono           { @apply font-mono text-body-sm; }
+  .table-cell-actions        { @apply flex items-center justify-end gap-2 px-6 py-4; }
+  .type-title-lg             { @apply font-display text-display-md text-ink; }
+  .type-title-md             { @apply font-display text-title text-ink; }
+  .custom-scrollbar          { @apply overflow-y-auto; }
+
+}

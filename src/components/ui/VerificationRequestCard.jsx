@@ -30,8 +30,8 @@ export function VerificationRequestCard({
             </div>
           </>
         ) : (
-          <div className="verification-photo flex items-center justify-center bg-surface-container">
-            <MaterialIcon name="person" className="!text-6xl text-on-surface-variant/30" />
+          <div className="verification-photo flex items-center justify-center bg-canvas-sunk">
+            <MaterialIcon name="person" className="!text-6xl text-ink-2/30" />
           </div>
         )}
         <span className="verification-id-badge">ID: #{id}</span>
@@ -42,8 +42,8 @@ export function VerificationRequestCard({
         )}
       </div>
       <div className="mb-6 space-y-1">
-        <h3 className="type-headline-md text-on-surface">{name}</h3>
-        <div className="flex items-center gap-2 text-on-surface-variant">
+        <h3 className="type-headline-md text-ink">{name}</h3>
+        <div className="flex items-center gap-2 text-ink-2">
           <MaterialIcon name="phone" className="text-[18px]" />
           <p className="type-body-md normal-case">{phone}</p>
         </div>

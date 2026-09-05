@@ -75,7 +75,7 @@ export function ChatReplayPage() {
     return (
       <PageContainer flush>
         <div className="flex h-full items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-outline-variant border-t-primary" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-hairline border-t-primary" />
         </div>
       </PageContainer>
     )
@@ -84,14 +84,14 @@ export function ChatReplayPage() {
   if (error || !data?.session) {
     return (
       <PageContainer className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-        <div className="bg-surface rounded-xl p-8 max-w-md mx-auto space-y-6 shadow-card">
-          <div className="w-16 h-16 bg-error/10 text-error rounded-full flex items-center justify-center mx-auto">
+        <div className="bg-card rounded-xl p-8 max-w-md mx-auto space-y-6 shadow-card">
+          <div className="w-16 h-16 bg-critical/10 text-critical rounded-full flex items-center justify-center mx-auto">
             <MaterialIcon name="error_outline" className="text-4xl" />
           </div>
-          <h3 className="text-xl font-black text-on-surface">Session Not Found</h3>
-          <p className="text-sm text-on-surface-variant">This chat session could not be loaded.</p>
+          <h3 className="text-xl font-black text-ink">Session Not Found</h3>
+          <p className="text-sm text-ink-2">This chat session could not be loaded.</p>
           <Link to="/transcript" className="btn-primary inline-flex items-center gap-2 px-6 py-2.5 rounded-lg justify-center w-full">
-            <MaterialIcon name="arrow_back" className="text-on-primary" />
+            <MaterialIcon name="arrow_back" className="text-white" />
             Back to Transcripts
           </Link>
         </div>
@@ -110,8 +110,8 @@ export function ChatReplayPage() {
         <div ref={scrollRef} className="chat-replay-scroll">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
-              <MaterialIcon name="chat_bubble_outline" className="!text-[48px] text-on-surface-variant/30" />
-              <p className="text-on-surface-variant font-medium">No messages in this session.</p>
+              <MaterialIcon name="chat_bubble_outline" className="!text-[48px] text-ink-2/30" />
+              <p className="text-ink-2 font-medium">No messages in this session.</p>
             </div>
           ) : (
             items.map((item) => {

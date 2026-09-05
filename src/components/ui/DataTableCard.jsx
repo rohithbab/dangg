@@ -4,8 +4,8 @@ import { StatusBadge } from './StatusBadge';
 export function DataTableCard({ title, badge, columns, rows }) {
   return (
     <article className="table-shell">
-      <div className="flex items-center justify-between border-b border-outline-variant px-6 py-4">
-        <h3 className="text-sm font-bold text-on-surface">{title}</h3>
+      <div className="flex items-center justify-between border-b border-hairline px-6 py-4">
+        <h3 className="text-sm font-bold text-ink">{title}</h3>
         {badge && (
           <div className="flex gap-2">
             <StatusBadge variant="health" icon={<MaterialIcon name="check_circle" fill size="sm" />}>
@@ -19,13 +19,13 @@ export function DataTableCard({ title, badge, columns, rows }) {
           <thead>
             <tr className="table-head">
               {columns.map((col) => (
-                <th key={col} className="border-b border-outline-variant px-6 py-3">
+                <th key={col} className="border-b border-hairline px-6 py-3">
                   {col}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="type-body-md divide-y divide-outline-variant">
+          <tbody className="type-body-md divide-y divide-hairline">
             {rows.map((row) => (
               <tr key={row.id ?? row.region} className="table-row">
                 {row.cells.map((cell, i) => (

@@ -8,7 +8,7 @@ export function ListPageFooter({
 }) {
   return (
     <div className="list-page-footer">
-      <span className="type-label-md normal-case tracking-normal text-on-surface-variant">
+      <span className="type-label-md normal-case tracking-normal text-ink-2">
         {summary}
       </span>
       <div className="flex gap-2">

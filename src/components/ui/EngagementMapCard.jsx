@@ -6,7 +6,7 @@ const MAP_IMAGE =
 function NetworkMapGraphic() {
   return (
     <svg
-      className="fill-current text-primary opacity-20"
+      className="fill-current text-ember opacity-20"
       height="400"
       width="400"
       viewBox="0 0 100 100"
@@ -65,9 +65,9 @@ export function EngagementMapCard({
   idleLabel = 'Idle: 12 Nodes',
 }) {
   return (
-    <article className="engagement-map-card">
+    <article className="card card-pad-lg relative overflow-hidden">
       <div className="relative z-10">
-        <h5 className="type-headline-md mb-2 text-on-surface">{title}</h5>
+        <h5 className="type-headline-md mb-2 text-ink">{title}</h5>
         <p className="type-body-md mb-6 normal-case">{description}</p>
         <div className="flex flex-wrap gap-4">
           <span className="map-badge-active">{activeLabel}</span>

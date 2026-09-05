@@ -13,8 +13,8 @@ export function UserIdentityCell({ initials, name, email, avatarVariant = 'secon
     <div className="flex items-center gap-4">
       <div className={avatarClass}>{initials}</div>
       <div>
-        <p className="type-body-md font-bold normal-case text-on-surface">{name}</p>
-        <p className="font-label-sm text-label-sm normal-case text-on-surface-variant">{email}</p>
+        <p className="type-body-md font-bold normal-case text-ink">{name}</p>
+        <p className="font-label-sm text-label-sm normal-case text-ink-2">{email}</p>
       </div>
     </div>
   );

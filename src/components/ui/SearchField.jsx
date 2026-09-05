@@ -13,7 +13,7 @@ export function SearchField({
     <div className={`group relative ${className}`.trim()}>
       <MaterialIcon
         name="search"
-        className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant transition-colors group-focus-within:text-primary"
+        className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-2 transition-colors group-focus-within:text-ember"
       />
       <input
         type="search"

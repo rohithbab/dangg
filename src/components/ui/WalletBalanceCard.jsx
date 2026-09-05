@@ -20,33 +20,33 @@ export function WalletBalanceCard({
       className="card-wallet lg:col-span-7 relative overflow-hidden"
     >
       {/* Background blobs */}
-      <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary/6 blur-2xl" />
-      <div className="pointer-events-none absolute -left-8 bottom-8 h-32 w-32 rounded-full bg-primary/4 blur-xl" />
+      <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ember/6 blur-2xl" />
+      <div className="pointer-events-none absolute -left-8 bottom-8 h-32 w-32 rounded-full bg-ember/4 blur-xl" />
 
       <div className="relative z-10 w-full p-8">
         {/* Header */}
         <div className="mb-10 flex items-start justify-between">
           <div>
             <div className="mb-1.5 flex items-center gap-2">
-              <MaterialIcon name="female" className="text-on-sidebar-muted" size="sm" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-on-sidebar-muted">
+              <MaterialIcon name="female" className="text-ink-3" size="sm" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-ink-3">
                 {label}
               </span>
             </div>
-            <h5 className="text-base font-bold text-on-sidebar">{title}</h5>
+            <h5 className="text-base font-bold text-ink">{title}</h5>
           </div>
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-sidebar-border bg-sidebar-surface">
-            <MaterialIcon name="account_balance_wallet" className="text-on-sidebar-muted" size="sm" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-sidebar-border bg-canvas-sunk-surface">
+            <MaterialIcon name="account_balance_wallet" className="text-ink-3" size="sm" />
           </div>
         </div>
 
         {/* Amount + status */}
         <div className="flex items-end justify-between">
           <div>
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-on-sidebar-muted/60">
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-ink-3/60">
               Available Funds
             </p>
-            <h4 className="text-4xl font-black tracking-tight text-on-sidebar leading-none">
+            <h4 className="text-4xl font-black tracking-tight text-ink leading-none">
               <AnimatedCounter value={amount} formatter={formatCurrency} />
             </h4>
           </div>
@@ -61,13 +61,13 @@ export function WalletBalanceCard({
                 />
               ))}
               {avatarCount > visibleAvatars.length && (
-                <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-sidebar bg-sidebar-surface text-[10px] font-bold text-on-sidebar-muted">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-sidebar bg-canvas-sunk-surface text-[10px] font-bold text-ink-3">
                   +{avatarCount - visibleAvatars.length}
                 </div>
               )}
             </div>
-            <span className="flex items-center gap-1.5 rounded-full bg-primary/15 px-3 py-1 text-[11px] font-bold text-primary">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
+            <span className="flex items-center gap-1.5 rounded-full bg-ember/15 px-3 py-1 text-[11px] font-bold text-ember">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-ember" />
               {status}
             </span>
           </div>

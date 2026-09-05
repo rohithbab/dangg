@@ -43,7 +43,7 @@ export function SearchableSelect({
   return (
     <div className={`space-y-1.5 ${className}`} ref={containerRef}>
       {label && (
-        <label className="text-[11px] font-black uppercase tracking-widest text-on-surface-variant/70 ml-1">
+        <label className="text-[11px] font-black uppercase tracking-widest text-ink-2/70 ml-1">
           {label}
         </label>
       )}
@@ -53,14 +53,14 @@ export function SearchableSelect({
           type="button"
           onClick={() => setIsOpen(!isOpen)}
           className={`w-full flex items-center gap-3 px-4 py-3.5 bg-white border rounded-2xl transition-all text-left ${
-            isOpen ? 'border-primary ring-4 ring-primary/10 shadow-sm' : 'border-outline-variant hover:border-outline'
-          } ${value ? 'text-on-surface font-bold' : 'text-on-surface-variant'}`}
+            isOpen ? 'border-ember ring-4 ring-primary/10 shadow-sm' : 'border-hairline hover:border-outline'
+          } ${value ? 'text-ink font-bold' : 'text-ink-2'}`}
         >
-          {icon && <MaterialIcon name={icon} className={`!text-[20px] ${value ? 'text-primary' : 'text-outline'}`} />}
+          {icon && <MaterialIcon name={icon} className={`!text-[20px] ${value ? 'text-ember' : 'text-ink-3'}`} />}
           <span className="flex-1 truncate">{value || placeholder}</span>
           <MaterialIcon 
             name={isOpen ? 'expand_less' : 'expand_more'} 
-            className={`transition-transform duration-300 ${isOpen ? 'text-primary' : 'text-outline'}`} 
+            className={`transition-transform duration-300 ${isOpen ? 'text-ember' : 'text-ink-3'}`} 
           />
         </button>
 
@@ -70,15 +70,15 @@ export function SearchableSelect({
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="absolute z-[100] left-0 right-0 mt-2 bg-white border border-outline-variant rounded-2xl shadow-2xl overflow-hidden min-w-[200px]"
+              className="absolute z-[100] left-0 right-0 mt-2 bg-white border border-hairline rounded-2xl shadow-2xl overflow-hidden min-w-[200px]"
             >
-              <div className="p-3 border-b border-outline-variant bg-surface-container-lowest">
+              <div className="p-3 border-b border-hairline bg-card">
                 <div className="relative">
-                  <MaterialIcon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-outline !text-[18px]" />
+                  <MaterialIcon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3 !text-[18px]" />
                   <input
                     type="text"
                     autoFocus
-                    className="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-xl focus:outline-none focus:border-primary text-sm font-medium"
+                    className="w-full pl-10 pr-4 py-2 bg-canvas-sunk border border-hairline rounded-xl focus:outline-none focus:border-ember text-sm font-medium"
                     placeholder="Search options..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -95,21 +95,21 @@ export function SearchableSelect({
                       onClick={() => handleSelect(option)}
                       className={`w-full px-4 py-2.5 text-sm font-bold text-left transition-colors flex items-center justify-between group ${
                         option === value 
-                          ? 'bg-primary/10 text-primary' 
-                          : 'text-on-surface hover:bg-surface-container-low'
+                          ? 'bg-ember/10 text-ember' 
+                          : 'text-ink hover:bg-canvas-sunk'
                       }`}
                     >
                       <span className="capitalize">{option}</span>
                       {option === value && <MaterialIcon name="check" className="!text-[18px]" />}
                       {option !== value && (
-                        <MaterialIcon name="chevron_right" className="!text-[16px] opacity-0 group-hover:opacity-100 transition-opacity text-outline" />
+                        <MaterialIcon name="chevron_right" className="!text-[16px] opacity-0 group-hover:opacity-100 transition-opacity text-ink-3" />
                       )}
                     </button>
                   ))
                 ) : (
                   <div className="px-4 py-8 text-center">
-                    <MaterialIcon name="search_off" className="text-outline/30 !text-[32px] mb-2" />
-                    <p className="text-xs font-bold text-on-surface-variant uppercase tracking-tighter">No options found</p>
+                    <MaterialIcon name="search_off" className="text-ink-3/30 !text-[32px] mb-2" />
+                    <p className="text-xs font-bold text-ink-2 uppercase tracking-tighter">No options found</p>
                   </div>
                 )}
               </div>

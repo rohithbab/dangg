@@ -1,12 +1,18 @@
-import { motion } from 'framer-motion';
-import { AnimatedCounter } from '../animation';
-import { formatCurrency } from '../../utils/formatters';
+import { Lift } from '../motion/primitives';
 
+/**
+ * Small stat tile used on the profile pages.
+ *
+ * `value` is passed in ALREADY FORMATTED by the caller (rupees, coins, a
+ * rating, a coin price…). It is rendered verbatim — the previous version ran
+ * every value through a currency formatter, which turned a 4.6 rating into
+ * "₹5" and a coin price into "₹0".
+ */
 const VALUE_TONES = {
-  default: 'text-on-surface',
-  primary: 'text-primary',
-  tertiary: 'text-tertiary',
-  muted: 'text-on-surface-variant',
+  default: 'text-ink',
+  primary: 'text-ember',
+  tertiary: 'text-warn',
+  muted: 'text-ink-2',
 };
 
 export function EarningsStatCard({
@@ -16,36 +22,26 @@ export function EarningsStatCard({
   valueTone = 'default',
   badge,
 }) {
-  const className =
-    variant === 'highlight'
-      ? 'earnings-card-highlight'
-      : variant === 'accent'
-        ? 'earnings-card earnings-card-accent'
-        : 'earnings-card';
-
-  const valueClass =
-    variant === 'accent' ? 'text-primary' : variant === 'highlight' ? '' : VALUE_TONES[valueTone];
+  const isHighlight = variant === 'highlight';
+  const valueClass = isHighlight
+    ? 'text-white'
+    : variant === 'accent'
+      ? 'text-ember'
+      : VALUE_TONES[valueTone] ?? VALUE_TONES.default;
 
   return (
-    <motion.article 
-      whileHover={{ scale: 1.02, boxShadow: '0 8px 16px -4px rgba(0,0,0,0.1)' }}
-      transition={{ duration: 0.2 }}
-      className={className}
-    >
-      <p
-        className={`mb-1 font-label-sm text-label-sm normal-case ${
-          variant === 'highlight' ? 'opacity-80' : 'text-on-surface-variant'
+    <Lift className="h-full">
+      <article
+        className={`card card-pad flex h-full flex-col justify-between ${
+          isHighlight ? 'card-ember' : ''
         }`}
       >
-        {label}
-      </p>
-      <p className={`type-headline-lg ${valueClass}`}>
-        <AnimatedCounter 
-          value={value} 
-          formatter={formatCurrency} 
-        />
-      </p>
-      {badge && <span className="earnings-highlight-badge">{badge}</span>}
-    </motion.article>
+        <p className={`mb-1.5 text-label uppercase ${isHighlight ? 'text-white/70' : 'text-ink-3'}`}>
+          {label}
+        </p>
+        <p className={`font-display text-metric-sm tabular ${valueClass}`}>{value}</p>
+        {badge && <span className="earnings-highlight-badge mt-2 self-start">{badge}</span>}
+      </article>
+    </Lift>
   );
 }

@@ -6,6 +6,8 @@ import { MaterialIcon } from '../components/ui/MaterialIcon';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { SearchableSelect, FilterPanel } from '../components/ui';
 import { useFilteredData } from '../hooks/useFilteredData';
+import { Reveal } from '../components/motion/primitives';
+import { LoadingBar } from '../components/motion/Placeholder';
 import { useAdminQuery } from '../hooks/useAdminQuery';
 import { supabase } from '../lib/supabase';
 import { shortId } from '../lib/utils';
@@ -92,20 +94,33 @@ export function ChatTranscriptPage() {
   };
 
   const STATUS_BORDER = {
-    ended: 'border-l-4 border-l-emerald-500',
-    active: 'border-l-4 border-l-blue-500',
+    ended: 'border-l-4 border-l-good',
+    active: 'border-l-4 border-l-info',
   };
 
   return (
     <PageContainer>
-      <div className="max-w-6xl mx-auto space-y-8">
+      <div className="mx-auto max-w-shell space-y-5 above-grain">
+        <LoadingBar active={loading} />
+
+        <Reveal>
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div className="min-w-0">
+              <h1 className="font-display text-display-lg text-ink">Chat Transcripts</h1>
+              <p className="mt-1 text-body text-ink-2">
+                Completed sessions available for moderation review
+              </p>
+            </div>
+          </div>
+        </Reveal>
+
         {/* Header & Search Section */}
-        <div className="flex flex-col md:flex-row items-center gap-4">
+        <div className="flex flex-col items-center gap-3 md:flex-row">
           <div className="relative flex-1 w-full max-w-2xl mx-auto md:mx-0">
-            <MaterialIcon name="search" className="absolute left-4 top-1/2 -translate-y-1/2 text-outline !text-[24px]" />
+            <MaterialIcon name="search" className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-3 !text-[24px]" />
             <input
               type="text"
-              className="w-full pl-12 pr-4 py-4 bg-white border border-outline-variant rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all text-body-lg shadow-sm"
+              className="w-full rounded-well border border-hairline bg-card py-3.5 pl-12 pr-4 text-body text-ink shadow-card outline-none transition-all placeholder:text-ink-3 focus:border-ember focus:ring-2 focus:ring-ember-soft"
               placeholder="Search by Chat ID, participant name or ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -114,12 +129,12 @@ export function ChatTranscriptPage() {
 
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-6 py-4 rounded-2xl font-bold transition-all bg-primary text-on-primary shadow-lg shadow-accent-glow hover:bg-primary/90"
+            className="btn btn-primary relative shrink-0 px-5 py-3"
           >
             <MaterialIcon name="tune" className="!text-[20px]" />
             <span>Filter</span>
             {hasActiveFilters && (
-              <span className="w-2.5 h-2.5 rounded-full bg-error animate-pulse border-2 border-white" />
+              <span className="h-2.5 w-2.5 rounded-full bg-ember ring-2 ring-card" />
             )}
           </button>
         </div>
@@ -183,31 +198,31 @@ export function ChatTranscriptPage() {
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-outline-variant/50 mt-6"
+                className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-hairline/50 mt-6"
               >
                 <div className="space-y-2">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-on-surface-variant/70 ml-1">
+                  <label className="text-[11px] font-black uppercase tracking-widest text-ink-2/70 ml-1">
                     Start Date
                   </label>
                   <div className="relative">
-                    <MaterialIcon name="event" className="absolute left-4 top-1/2 -translate-y-1/2 text-outline !text-[20px]" />
+                    <MaterialIcon name="event" className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-3 !text-[20px]" />
                     <input
                       type="date"
-                      className="w-full pl-12 pr-4 py-3.5 bg-white border border-outline-variant rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all font-bold text-on-surface"
+                      className="w-full rounded-well border border-hairline bg-canvas-sunk py-3 pl-12 pr-4 text-body font-medium text-ink outline-none transition-all placeholder:text-ink-3 focus:border-ember focus:bg-card focus:ring-2 focus:ring-ember-soft"
                       value={filters.startDate}
                       onChange={(e) => updateFilter('startDate', e.target.value)}
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-on-surface-variant/70 ml-1">
+                  <label className="text-[11px] font-black uppercase tracking-widest text-ink-2/70 ml-1">
                     End Date
                   </label>
                   <div className="relative">
-                    <MaterialIcon name="event" className="absolute left-4 top-1/2 -translate-y-1/2 text-outline !text-[20px]" />
+                    <MaterialIcon name="event" className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-3 !text-[20px]" />
                     <input
                       type="date"
-                      className="w-full pl-12 pr-4 py-3.5 bg-white border border-outline-variant rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all font-bold text-on-surface"
+                      className="w-full rounded-well border border-hairline bg-canvas-sunk py-3 pl-12 pr-4 text-body font-medium text-ink outline-none transition-all placeholder:text-ink-3 focus:border-ember focus:bg-card focus:ring-2 focus:ring-ember-soft"
                       value={filters.endDate}
                       onChange={(e) => updateFilter('endDate', e.target.value)}
                     />
@@ -223,7 +238,7 @@ export function ChatTranscriptPage() {
           {loading ? (
             <div className="flex flex-col gap-4 animate-pulse">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-20 bg-surface rounded-2xl border border-outline-variant" />
+                <div key={i} className="card h-20 shimmer-bar" />
               ))}
             </div>
           ) : (
@@ -237,19 +252,19 @@ export function ChatTranscriptPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     onClick={() => handleRowClick(row.id)}
-                    className={`bg-white border border-outline-variant rounded-2xl p-5 hover:border-primary hover:shadow-md hover:bg-surface-container-low transition-all cursor-pointer group ${STATUS_BORDER[row.status] ?? ''}`}
+                    className={`card card-interactive group p-5 ${STATUS_BORDER[row.status] ?? ''}`}
                   >
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                        <div className="w-12 h-12 rounded-xl bg-ember/10 flex items-center justify-center text-ember">
                           <MaterialIcon name="chat_bubble" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-black text-on-surface">#{row.shortId}</span>
+                            <span className="font-black text-ink">#{row.shortId}</span>
                             <StatusBadge variant={row.status}>{row.status}</StatusBadge>
                           </div>
-                          <p className="text-sm text-on-surface-variant font-medium">
+                          <p className="text-sm text-ink-2 font-medium">
                             {row.host} &amp; {row.guest}
                           </p>
                         </div>
@@ -257,12 +272,12 @@ export function ChatTranscriptPage() {
 
                       <div className="flex items-center gap-6">
                         <div className="text-right hidden sm:block">
-                          <p className="text-xs font-black text-on-surface-variant uppercase tracking-widest">
+                          <p className="text-xs font-black text-ink-2 uppercase tracking-widest">
                             {row.startedAt ? new Date(row.startedAt).toLocaleDateString('en-IN') : '—'}
                           </p>
-                          <p className="text-sm font-bold text-on-surface">{row.duration}</p>
+                          <p className="text-sm font-bold text-ink">{row.duration}</p>
                         </div>
-                        <MaterialIcon name="chevron_right" className="text-outline group-hover:text-primary transition-colors" />
+                        <MaterialIcon name="chevron_right" className="text-ink-3 group-hover:text-ember transition-colors" />
                       </div>
                     </div>
                   </motion.div>
@@ -273,11 +288,11 @@ export function ChatTranscriptPage() {
                   animate={{ opacity: 1 }}
                   className="flex flex-col items-center justify-center py-20 text-center"
                 >
-                  <div className="w-16 h-16 bg-surface-container rounded-full flex items-center justify-center mb-4">
-                    <MaterialIcon name="search_off" className="text-on-surface-variant/40 !text-[32px]" />
+                  <div className="w-16 h-16 bg-canvas-sunk rounded-full flex items-center justify-center mb-4">
+                    <MaterialIcon name="search_off" className="text-ink-2/40 !text-[32px]" />
                   </div>
-                  <h3 className="text-xl font-black text-on-surface">No results found</h3>
-                  <p className="text-on-surface-variant">Try searching for a different ID or participant</p>
+                  <h3 className="text-xl font-black text-ink">No results found</h3>
+                  <p className="text-ink-2">Try searching for a different ID or participant</p>
                 </motion.div>
               )}
             </AnimatePresence>

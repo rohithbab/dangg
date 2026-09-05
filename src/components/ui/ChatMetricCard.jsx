@@ -14,7 +14,7 @@ export function ChatMetricCard({ icon, label, value, accent = 'primary' }) {
         <MaterialIcon name={icon} className="text-3xl" />
       </div>
       <div>
-        <p className="font-label-sm text-label-sm normal-case text-on-surface-variant">{label}</p>
+        <p className="font-label-sm text-label-sm normal-case text-ink-2">{label}</p>
         <p className="type-display">{value}</p>
       </div>
     </article>

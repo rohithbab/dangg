@@ -6,6 +6,8 @@ import { MaterialIcon } from '../components/ui/MaterialIcon';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { SearchableSelect, FilterPanel } from '../components/ui';
 import { useFilteredData } from '../hooks/useFilteredData';
+import { Reveal } from '../components/motion/primitives';
+import { LoadingBar } from '../components/motion/Placeholder';
 import { useAdminQuery } from '../hooks/useAdminQuery';
 import { supabase } from '../lib/supabase';
 import { shortId } from '../lib/utils';
@@ -111,14 +113,27 @@ export function ChatDetailPage() {
 
   return (
     <PageContainer>
-      <div className="max-w-6xl mx-auto space-y-8">
+      <div className="mx-auto max-w-shell space-y-5 above-grain">
+        <LoadingBar active={loading} />
+
+        <Reveal>
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div className="min-w-0">
+              <h1 className="font-display text-display-lg text-ink">Chat Sessions</h1>
+              <p className="mt-1 text-body text-ink-2">
+                Session records with replay and transcript access
+              </p>
+            </div>
+          </div>
+        </Reveal>
+
         {/* Header & Search Section */}
-        <div className="flex flex-col md:flex-row items-center gap-4">
+        <div className="flex flex-col items-center gap-3 md:flex-row">
           <div className="relative flex-1 w-full max-w-2xl mx-auto md:mx-0">
-            <MaterialIcon name="search" className="absolute left-4 top-1/2 -translate-y-1/2 text-outline !text-[24px]" />
+            <MaterialIcon name="search" className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-3 !text-[24px]" />
             <input
               type="text"
-              className="w-full pl-12 pr-4 py-4 bg-white border border-outline-variant rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all text-body-lg shadow-sm"
+              className="w-full rounded-well border border-hairline bg-card py-3.5 pl-12 pr-4 text-body text-ink shadow-card outline-none transition-all placeholder:text-ink-3 focus:border-ember focus:ring-2 focus:ring-ember-soft"
               placeholder="Search by ID, title, host, or user..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -127,12 +142,12 @@ export function ChatDetailPage() {
 
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-6 py-4 rounded-2xl font-bold transition-all bg-primary text-on-primary shadow-lg shadow-accent-glow hover:bg-primary/90"
+            className="btn btn-primary relative shrink-0 px-5 py-3"
           >
             <MaterialIcon name="tune" className="!text-[20px]" />
             <span>Filter</span>
             {hasActiveFilters && (
-              <span className="w-2.5 h-2.5 rounded-full bg-error animate-pulse border-2 border-white" />
+              <span className="h-2.5 w-2.5 rounded-full bg-ember ring-2 ring-card" />
             )}
           </button>
         </div>
@@ -188,31 +203,31 @@ export function ChatDetailPage() {
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-outline-variant/50 mt-6"
+                className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-hairline/50 mt-6"
               >
                 <div className="space-y-2">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-on-surface-variant/70 ml-1">
+                  <label className="text-[11px] font-black uppercase tracking-widest text-ink-2/70 ml-1">
                     Start Date
                   </label>
                   <div className="relative">
-                    <MaterialIcon name="event" className="absolute left-4 top-1/2 -translate-y-1/2 text-outline !text-[20px]" />
+                    <MaterialIcon name="event" className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-3 !text-[20px]" />
                     <input
                       type="date"
-                      className="w-full pl-12 pr-4 py-3.5 bg-white border border-outline-variant rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all font-bold text-on-surface"
+                      className="w-full rounded-well border border-hairline bg-canvas-sunk py-3 pl-12 pr-4 text-body font-medium text-ink outline-none transition-all placeholder:text-ink-3 focus:border-ember focus:bg-card focus:ring-2 focus:ring-ember-soft"
                       value={filters.startDate}
                       onChange={(e) => updateFilter('startDate', e.target.value)}
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-on-surface-variant/70 ml-1">
+                  <label className="text-[11px] font-black uppercase tracking-widest text-ink-2/70 ml-1">
                     End Date
                   </label>
                   <div className="relative">
-                    <MaterialIcon name="event" className="absolute left-4 top-1/2 -translate-y-1/2 text-outline !text-[20px]" />
+                    <MaterialIcon name="event" className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-3 !text-[20px]" />
                     <input
                       type="date"
-                      className="w-full pl-12 pr-4 py-3.5 bg-white border border-outline-variant rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all font-bold text-on-surface"
+                      className="w-full rounded-well border border-hairline bg-canvas-sunk py-3 pl-12 pr-4 text-body font-medium text-ink outline-none transition-all placeholder:text-ink-3 focus:border-ember focus:bg-card focus:ring-2 focus:ring-ember-soft"
                       value={filters.endDate}
                       onChange={(e) => updateFilter('endDate', e.target.value)}
                     />
@@ -228,7 +243,7 @@ export function ChatDetailPage() {
           {loading && (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 animate-pulse">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-52 bg-surface rounded-2xl border border-outline-variant" />
+                <div key={i} className="h-52 bg-card rounded-2xl border border-hairline" />
               ))}
             </div>
           )}
@@ -245,17 +260,17 @@ export function ChatDetailPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.3, ease: "easeInOut" }}
-                    className="bg-white border border-outline-variant rounded-2xl overflow-hidden hover:shadow-lg transition-all group flex flex-col"
+                    className="bg-white border border-hairline rounded-2xl overflow-hidden hover:shadow-lg transition-all group flex flex-col"
                   >
                     {/* Session Header */}
-                    <div className="p-5 border-b border-outline-variant bg-surface-container-lowest flex items-center justify-between">
+                    <div className="p-5 border-b border-hairline bg-canvas-sunkest flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                        <div className="w-10 h-10 rounded-full bg-ember/10 flex items-center justify-center text-ember">
                           <MaterialIcon name="history" />
                         </div>
                         <div>
-                          <p className="text-xs font-black text-on-surface-variant uppercase tracking-widest">#{session.shortId}</p>
-                          <p className="text-sm font-bold text-on-surface line-clamp-1">{session.title}</p>
+                          <p className="text-xs font-black text-ink-2 uppercase tracking-widest">#{session.shortId}</p>
+                          <p className="text-sm font-bold text-ink line-clamp-1">{session.title}</p>
                         </div>
                       </div>
                       <StatusBadge variant={session.status}>{session.status}</StatusBadge>
@@ -267,27 +282,27 @@ export function ChatDetailPage() {
                         <div className="flex items-center gap-3">
                           <img src={session.hostAvatar} className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20" alt="" />
                           <div>
-                            <p className="text-xs font-bold text-on-surface-variant uppercase">Host</p>
-                            <p className="text-sm font-black text-on-surface">{session.host}</p>
+                            <p className="text-xs font-bold text-ink-2 uppercase">Host</p>
+                            <p className="text-sm font-black text-ink">{session.host}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-3 text-right">
                           <div>
-                            <p className="text-xs font-bold text-on-surface-variant uppercase">User</p>
-                            <p className="text-sm font-black text-on-surface">{session.guest}</p>
+                            <p className="text-xs font-bold text-ink-2 uppercase">User</p>
+                            <p className="text-sm font-black text-ink">{session.guest}</p>
                           </div>
                           <img src={session.guestAvatar} className="w-10 h-10 rounded-full object-cover ring-2 ring-secondary/20" alt="" />
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 py-4 border-y border-outline-variant/50">
+                      <div className="grid grid-cols-2 gap-4 py-4 border-y border-hairline/50">
                         <div>
-                          <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-tighter">Duration</p>
-                          <p className="text-sm font-bold text-on-surface">{session.duration}</p>
+                          <p className="text-[10px] font-black text-ink-2 uppercase tracking-tighter">Duration</p>
+                          <p className="text-sm font-bold text-ink">{session.duration}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-tighter">Date</p>
-                          <p className="text-sm font-bold text-on-surface">
+                          <p className="text-[10px] font-black text-ink-2 uppercase tracking-tighter">Date</p>
+                          <p className="text-sm font-bold text-ink">
                             {session.startedAt ? new Date(session.startedAt).toLocaleDateString('en-IN') : '—'}
                           </p>
                         </div>
@@ -295,16 +310,16 @@ export function ChatDetailPage() {
                     </div>
 
                     {/* Action */}
-                    <div className="p-4 bg-surface-container-low flex gap-2">
+                    <div className="p-4 bg-canvas-sunk flex gap-2">
                       <button
                         onClick={() => handleOpenDetails(session)}
-                        className="flex-1 py-2.5 rounded-xl font-bold text-sm bg-white border border-outline-variant text-on-surface hover:bg-surface-container-highest transition-all"
+                        className="flex-1 py-2.5 rounded-xl font-bold text-sm bg-white border border-hairline text-ink hover:bg-canvas-sunk-highest transition-all"
                       >
                         Details
                       </button>
                       <button
                         onClick={() => handleViewChat(session.id)}
-                        className="flex-1 py-2.5 rounded-xl font-bold text-sm bg-primary text-on-primary shadow-md hover:shadow-lg hover:bg-primary/90 transition-all"
+                        className="flex-1 py-2.5 rounded-xl font-bold text-sm bg-ink text-ink-inverse shadow-md hover:shadow-lg hover:bg-ember/90 transition-all"
                       >
                         Replay
                       </button>
@@ -319,11 +334,11 @@ export function ChatDetailPage() {
                 animate={{ opacity: 1 }}
                 className="flex flex-col items-center justify-center py-24 text-center"
               >
-                <div className="w-20 h-20 bg-surface-container rounded-full flex items-center justify-center mb-6">
-                  <MaterialIcon name="history_toggle_off" className="!text-[40px] text-on-surface-variant/30" />
+                <div className="w-20 h-20 bg-canvas-sunk rounded-full flex items-center justify-center mb-6">
+                  <MaterialIcon name="history_toggle_off" className="!text-[40px] text-ink-2/30" />
                 </div>
-                <h3 className="text-2xl font-black text-on-surface">No sessions found</h3>
-                <p className="text-on-surface-variant max-w-xs">We couldn't find any sessions matching your search.</p>
+                <h3 className="text-2xl font-black text-ink">No sessions found</h3>
+                <p className="text-ink-2 max-w-xs">We couldn't find any sessions matching your search.</p>
               </motion.div>
             ) : null}
           </AnimatePresence>
@@ -332,62 +347,62 @@ export function ChatDetailPage() {
 
       {/* Modal Overlay for Detail Display */}
       {isModalOpen && selectedSession && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/10 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/10 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="card-base w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl relative animate-in fade-in zoom-in duration-300">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-6 right-6 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-highest/50 hover:bg-surface-container-highest text-on-surface-variant transition-all hover:rotate-90"
+              className="absolute top-6 right-6 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-canvas-sunk-highest/50 hover:bg-canvas-sunk-highest text-ink-2 transition-all hover:rotate-90"
             >
               <MaterialIcon name="close" />
             </button>
 
             <div className="p-12">
               <div className="text-center mb-12">
-                <span className="text-xs font-bold text-primary bg-primary-container px-4 py-1.5 rounded-full uppercase tracking-widest mb-3 inline-block">
+                <span className="text-xs font-bold text-ember bg-ember-container px-4 py-1.5 rounded-full uppercase tracking-widest mb-3 inline-block">
                   Session Details
                 </span>
-                <h2 className="text-3xl font-black text-on-surface">{selectedSession.title}</h2>
+                <h2 className="text-3xl font-black text-ink">{selectedSession.title}</h2>
               </div>
 
               <div className="flex flex-col md:flex-row items-center justify-between gap-12 mb-12">
                 <div className="flex-1 flex flex-col items-center text-center">
                   <img src={selectedSession.hostAvatar} className="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover mb-4" alt="" />
-                  <h3 className="text-xl font-bold text-on-surface">{selectedSession.host}</h3>
-                  <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Host</p>
+                  <h3 className="text-xl font-bold text-ink">{selectedSession.host}</h3>
+                  <p className="text-xs font-bold text-ink-2 uppercase tracking-widest">Host</p>
                 </div>
 
                 <div className="flex flex-col items-center gap-2">
-                  <div className="h-20 w-px bg-outline-variant"></div>
-                  <div className="bg-surface-container-highest px-6 py-4 rounded-2xl flex flex-col items-center border border-outline-variant/20">
-                    <MaterialIcon name="schedule" className="text-primary mb-1" />
-                    <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Duration</span>
-                    <span className="text-lg font-black text-primary">{selectedSession.duration}</span>
+                  <div className="h-20 w-px bg-hairline"></div>
+                  <div className="bg-canvas-sunk-highest px-6 py-4 rounded-2xl flex flex-col items-center border border-hairline/20">
+                    <MaterialIcon name="schedule" className="text-ember mb-1" />
+                    <span className="text-[10px] font-bold text-ink-2 uppercase tracking-tighter">Duration</span>
+                    <span className="text-lg font-black text-ember">{selectedSession.duration}</span>
                   </div>
-                  <div className="h-20 w-px bg-outline-variant"></div>
+                  <div className="h-20 w-px bg-hairline"></div>
                 </div>
 
                 <div className="flex-1 flex flex-col items-center text-center">
                   <img src={selectedSession.guestAvatar} className="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover mb-4" alt="" />
-                  <h3 className="text-xl font-bold text-on-surface">{selectedSession.guest}</h3>
-                  <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Guest</p>
+                  <h3 className="text-xl font-bold text-ink">{selectedSession.guest}</h3>
+                  <p className="text-xs font-bold text-ink-2 uppercase tracking-widest">Guest</p>
                 </div>
               </div>
 
               <div className="flex gap-4 justify-center">
-                <button onClick={() => handleViewChat(selectedSession.id)} className="bg-primary text-on-primary px-10 py-4 rounded-2xl font-bold flex items-center gap-3 shadow-lg shadow-accent-glow hover:scale-105 transition-transform active:scale-95">
+                <button onClick={() => handleViewChat(selectedSession.id)} className="bg-ink text-ink-inverse px-10 py-4 rounded-2xl font-bold flex items-center gap-3 shadow-lg shadow-ember hover:scale-105 transition-transform active:scale-95">
                   <MaterialIcon name="visibility" />
                   <span>View Transcript</span>
                 </button>
               </div>
             </div>
 
-            <div className="bg-surface-container-low/50 border-t border-outline-variant/10 p-8 flex justify-around">
+            <div className="bg-canvas-sunk/50 border-t border-hairline/10 p-8 flex justify-around">
               <div className="text-center">
-                <p className="text-xs font-bold text-on-surface-variant uppercase tracking-tight mb-1">Duration</p>
-                <p className="text-xl font-black text-on-surface">{selectedSession.duration}</p>
+                <p className="text-xs font-bold text-ink-2 uppercase tracking-tight mb-1">Duration</p>
+                <p className="text-xl font-black text-ink">{selectedSession.duration}</p>
               </div>
               <div className="text-center">
-                <p className="text-xs font-bold text-on-surface-variant uppercase tracking-tight mb-1">Status</p>
+                <p className="text-xs font-bold text-ink-2 uppercase tracking-tight mb-1">Status</p>
                 <p className="text-xl font-black text-emerald-600 capitalize">{selectedSession.status}</p>
               </div>
             </div>

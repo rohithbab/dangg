@@ -11,7 +11,7 @@ const ICON_WELLS = {
 };
 
 const CARD_TINTS = {
-  primary: 'bg-primary/5',
+  primary: 'bg-ember/5',
   secondary: 'bg-blue-50/60',
   tertiary: 'bg-amber-50/40',
   error: 'bg-rose-50/60',
@@ -40,13 +40,13 @@ function ChatStatFooter({ footer }) {
           size="md"
           className="flex-1"
         />
-        <span className="font-label-sm text-label-sm normal-case text-on-surface-variant">{footer.label}</span>
+        <span className="font-label-sm text-label-sm normal-case text-ink-2">{footer.label}</span>
       </div>
     );
   }
 
   if (footer.type === 'text') {
-    return <p className="type-body-md mt-4 normal-case text-on-surface-variant">{footer.text}</p>;
+    return <p className="type-body-md mt-4 normal-case text-ink-2">{footer.text}</p>;
   }
 
   if (footer.type === 'segments') {
@@ -117,8 +117,8 @@ export function ChatStatCard({
             <span className={badgeClass}>{badge}</span>
           ))}
       </div>
-      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">{label}</p>
-      <h4 className="text-3xl font-black tracking-tight text-on-surface leading-tight">{value}</h4>
+      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-ink-2">{label}</p>
+      <h4 className="text-3xl font-black tracking-tight text-ink leading-tight">{value}</h4>
       <ChatStatFooter footer={footer} />
     </motion.article>
   );

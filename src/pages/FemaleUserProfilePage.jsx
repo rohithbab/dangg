@@ -16,7 +16,7 @@ const VERIFICATION_STATUS_TONE = {
   verified: 'text-emerald-600',
   pending: 'text-amber-500',
   rejected: 'text-red-500',
-  unverified: 'text-on-surface-variant',
+  unverified: 'text-ink-2',
 };
 
 function fetchFemaleProfile(userId) {
@@ -61,16 +61,16 @@ function PageSkeleton() {
   return (
     <PageContainer>
       <div className="space-y-10 animate-pulse">
-        <div className="h-36 bg-surface rounded-2xl shadow-card" />
+        <div className="h-36 card" />
         <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-          {[...Array(5)].map((_, i) => <div key={i} className="h-24 bg-surface rounded-2xl shadow-card" />)}
+          {[...Array(5)].map((_, i) => <div key={i} className="h-24 card" />)}
         </div>
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
           <div className="space-y-6 lg:col-span-8">
-            <div className="h-40 bg-surface rounded-2xl shadow-card" />
+            <div className="h-40 card" />
           </div>
           <div className="lg:col-span-4">
-            <div className="h-48 bg-surface rounded-2xl shadow-card" />
+            <div className="h-48 card" />
           </div>
         </div>
       </div>
@@ -88,21 +88,39 @@ export function FemaleUserProfilePage() {
   const { userId } = useParams()
   const { data, loading, error } = useAdminQuery(fetchFemaleProfile(userId), [userId])
 
+  /* Every hook must run before any early return, or React sees a different
+     hook count between renders ("Rendered more hooks than during the previous
+     render") and unmounts the page. `females` is read defensively because on
+     the first render `data` is still null. */
+  const rawFemales = data?.user?.females
+  const femalesForPhoto = Array.isArray(rawFemales) ? rawFemales[0] : rawFemales
+  const handleViewVerificationPhoto = useCallback(async () => {
+    const photoPath = femalesForPhoto?.verification_photo_path
+    if (!photoPath) return
+    const bucketPath = photoPath.replace(/^verification\//, '')
+    const { data: urlData } = await supabase.storage
+      .from('verification')
+      .createSignedUrl(bucketPath, 300)
+    if (urlData?.signedUrl) {
+      window.open(urlData.signedUrl, '_blank', 'noopener,noreferrer')
+    }
+  }, [femalesForPhoto])
+
   if (loading) return <PageSkeleton />
 
   if (error || !data?.user) {
     return (
       <PageContainer className="flex flex-col items-center justify-center min-h-[50vh] text-center">
         <div className="account-info-panel rounded-xl p-8 max-w-md mx-auto space-y-6">
-          <div className="w-16 h-16 bg-error/10 text-error rounded-full flex items-center justify-center mx-auto">
+          <div className="w-16 h-16 bg-critical/10 text-critical rounded-full flex items-center justify-center mx-auto">
             <MaterialIcon name="error_outline" className="text-4xl" />
           </div>
-          <h3 className="type-headline-lg text-on-surface">User Profile Not Found</h3>
-          <p className="type-body-md text-on-surface-variant">
+          <h3 className="type-headline-lg text-ink">User Profile Not Found</h3>
+          <p className="type-body-md text-ink-2">
             This female user profile does not exist or could not be loaded.
           </p>
           <Link to="/users" className="btn-primary inline-flex items-center gap-2 px-6 py-2.5 rounded-lg justify-center w-full">
-            <MaterialIcon name="arrow_back" className="text-on-primary" />
+            <MaterialIcon name="arrow_back" className="text-white" />
             Back to User Directory
           </Link>
         </div>
@@ -130,17 +148,6 @@ export function FemaleUserProfilePage() {
 
   const verificationStatus = females?.verification_status ?? 'unverified'
 
-  const handleViewVerificationPhoto = useCallback(async () => {
-    const photoPath = females?.verification_photo_path
-    if (!photoPath) return
-    const bucketPath = photoPath.replace(/^verification\//, '')
-    const { data: urlData } = await supabase.storage
-      .from('verification')
-      .createSignedUrl(bucketPath, 300)
-    if (urlData?.signedUrl) {
-      window.open(urlData.signedUrl, '_blank', 'noopener,noreferrer')
-    }
-  }, [females])
   const accountRows = [
     { label: 'Phone', value: formatPhone(user.phone) },
     { label: 'Age', value: user.age ? `${user.age} years` : '—' },
@@ -161,7 +168,7 @@ export function FemaleUserProfilePage() {
             userId={shortId(user.id)}
             userStatus={females?.is_online ? 'active' : 'offline'}
             status={verificationStatus.toUpperCase()}
-            statusTone={VERIFICATION_STATUS_TONE[verificationStatus] ?? 'text-on-surface-variant'}
+            statusTone={VERIFICATION_STATUS_TONE[verificationStatus] ?? 'text-ink-2'}
             onViewVerification={females?.verification_photo_path ? handleViewVerificationPhoto : undefined}
           />
         </AnimatedCardEntrance>
@@ -209,32 +216,32 @@ export function FemaleUserProfilePage() {
         {payouts.length > 0 && (
           <AnimatedCardEntrance delay={0.7}>
             <section className="table-shell">
-              <div className="flex items-center justify-between border-b border-outline-variant px-6 py-4">
-                <h4 className="type-headline-md text-on-surface">Payout History</h4>
-                <span className="text-sm text-on-surface-variant">{payouts.length} requests</span>
+              <div className="flex items-center justify-between border-b border-hairline px-6 py-4">
+                <h4 className="type-headline-md text-ink">Payout History</h4>
+                <span className="text-sm text-ink-2">{payouts.length} requests</span>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                  <thead className="bg-surface-container-low">
+                  <thead className="bg-canvas-sunk">
                     <tr className="table-head">
                       {['Payout ID', 'Amount', 'Method', 'Date', 'Status'].map((col) => (
                         <th key={col} className="px-6 py-3 uppercase">{col}</th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-outline-variant">
+                  <tbody className="divide-y divide-hairline">
                     {payouts.map((p) => {
                       const detail = Array.isArray(p.payout_details) ? p.payout_details[0] : p.payout_details
                       return (
                         <tr key={p.id} className="table-row">
-                          <td className="table-cell-mono px-6 py-4 text-on-surface-variant">#{shortId(p.id)}</td>
-                          <td className="type-body-md px-6 py-4 font-semibold text-on-surface">
+                          <td className="table-cell-mono px-6 py-4 text-ink-2">#{shortId(p.id)}</td>
+                          <td className="type-body-md px-6 py-4 font-semibold text-ink">
                             {formatRupees(p.payout_amount_paisa)}
                           </td>
-                          <td className="type-body-md px-6 py-4 text-on-surface-variant capitalize">
+                          <td className="type-body-md px-6 py-4 text-ink-2 capitalize">
                             {detail?.method || (detail?.upi_id ? 'UPI' : '—')}
                           </td>
-                          <td className="type-body-md px-6 py-4 text-on-surface-variant">{formatDate(p.requested_at)}</td>
+                          <td className="type-body-md px-6 py-4 text-ink-2">{formatDate(p.requested_at)}</td>
                           <td className="px-6 py-4">
                             <span className={statusVariant(p.status)}>{p.status}</span>
                           </td>

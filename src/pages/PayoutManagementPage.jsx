@@ -11,9 +11,16 @@ import { StatusBadge } from '../components/ui/StatusBadge';
 import { SearchableSelect, FilterPanel } from '../components/ui';
 import { useAdminQuery } from '../hooks/useAdminQuery';
 import { supabase } from '../lib/supabase';
-import { formatRupees, formatDate, formatPhone, shortId } from '../lib/utils';
+import { formatRupees, formatDate, shortId } from '../lib/utils';
+import { Reveal } from '../components/motion/primitives';
+import { ValuePlaceholder, LoadingBar } from '../components/motion/Placeholder';
 
 async function fetchPayouts() {
+  /* payout_details has NO foreign key to payouts — it hangs off female_id.
+     Embedding it here returns PGRST200 ("Could not find a relationship between
+     'payouts' and 'payout_details'"), which threw and broke the whole page.
+     Verified against production 2026-09-05. It is fetched separately and joined
+     on female_id below. */
   const { data, error } = await supabase
     .from('payouts')
     .select(`
@@ -27,17 +34,22 @@ async function fetchPayouts() {
       users!inner (
         name,
         profile_picture_url
-      ),
-      payout_details (
-        upi_id,
-        account_number,
-        method
       )
     `)
     .order('requested_at', { ascending: false })
 
   if (error) throw error
-  return data || []
+  const payouts = data || []
+  if (payouts.length === 0) return []
+
+  const femaleIds = [...new Set(payouts.map(p => p.female_id).filter(Boolean))]
+  const { data: details } = await supabase
+    .from('payout_details')
+    .select('female_id, upi_id, account_number, method')
+    .in('female_id', femaleIds)
+
+  const byFemale = new Map((details || []).map(d => [d.female_id, d]))
+  return payouts.map(p => ({ ...p, payout_details: byFemale.get(p.female_id) ?? null }))
 }
 
 function statusLabel(status) {
@@ -75,18 +87,18 @@ function ActionModal({ modal, onClose, onConfirm, actionLoading }) {
   const busy = !!actionLoading
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[95] flex items-center justify-center bg-ink/25 p-4 backdrop-blur-sm">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 space-y-6"
+        className="card card-pad-lg w-full max-w-md space-y-5"
       >
         <div>
-          <h3 className="text-xl font-black text-on-surface">
+          <h3 className="font-display text-display-md text-ink">
             {isComplete ? 'Mark as Completed' : 'Reject Payout'}
           </h3>
-          <p className="text-sm text-on-surface-variant mt-1">
+          <p className="mt-1 text-body-sm text-ink-2">
             {isComplete
               ? `Enter the UTR number to confirm payment to ${modal.name}.`
               : `Rejecting payout for ${modal.name}. Coins will be refunded automatically.`}
@@ -95,12 +107,12 @@ function ActionModal({ modal, onClose, onConfirm, actionLoading }) {
 
         {isComplete && (
           <div className="space-y-2">
-            <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant">
-              UTR Number <span className="text-red-500">*</span>
+            <label className="text-label uppercase text-ink-3">
+              UTR Number <span className="text-critical">*</span>
             </label>
             <input
               type="text"
-              className="w-full border border-outline-variant rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary"
+              className="w-full rounded-well border border-hairline bg-canvas-sunk px-4 py-3 text-body text-ink outline-none transition-all placeholder:text-ink-3 focus:border-ember focus:bg-card focus:ring-2 focus:ring-ember-soft"
               placeholder="e.g. 123456789012"
               value={utr}
               onChange={(e) => setUtr(e.target.value)}
@@ -110,11 +122,11 @@ function ActionModal({ modal, onClose, onConfirm, actionLoading }) {
 
         {isReject && (
           <div className="space-y-2">
-            <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant">
+            <label className="text-label uppercase text-ink-3">
               Reason (optional)
             </label>
             <textarea
-              className="w-full border border-outline-variant rounded-2xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-red-400"
+              className="w-full resize-none rounded-well border border-hairline bg-canvas-sunk px-4 py-3 text-body text-ink outline-none transition-all placeholder:text-ink-3 focus:border-ember focus:bg-card focus:ring-2 focus:ring-ember-soft"
               rows={3}
               placeholder="e.g. Invalid UPI ID, account not found..."
               value={reason}
@@ -127,22 +139,20 @@ function ActionModal({ modal, onClose, onConfirm, actionLoading }) {
           <button
             onClick={onClose}
             disabled={busy}
-            className="flex-1 py-3 rounded-2xl font-bold border border-outline-variant text-on-surface hover:bg-surface-container transition-colors disabled:opacity-60"
+            className="btn btn-ghost flex-1 py-3"
           >
             Cancel
           </button>
           <button
             onClick={() => onConfirm({ utr, reason })}
             disabled={busy || (isComplete && !utr.trim())}
-            className={`flex-1 py-3 rounded-2xl font-bold transition-colors disabled:opacity-60 ${
-              isReject
-                ? 'bg-red-500 text-white hover:bg-red-600'
-                : 'bg-primary text-on-primary hover:bg-primary/90'
+            className={`btn flex-1 py-3 text-white ${
+              isReject ? 'bg-critical hover:opacity-90' : 'btn-ember'
             }`}
           >
             {busy ? (
               <span className="flex items-center justify-center gap-2">
-                <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
                 Processing…
               </span>
             ) : isComplete ? 'Confirm Completed' : 'Confirm Reject'}
@@ -271,16 +281,16 @@ export function PayoutManagementPage() {
   ]
 
   const payoutStats = [
-    { label: 'Total Requests', value: String(counts.total), icon: 'list_alt', accent: 'primary', badge: <span className="badge-neutral">All time</span> },
-    { label: 'Pending', value: String(counts.pending), icon: 'pending', accent: 'tertiary', badge: <span className="badge-neutral">Awaiting approval</span> },
-    { label: 'Completed', value: String(counts.completed), icon: 'check_circle', accent: 'secondary', badge: <span className="badge-trend-up flex items-center gap-1"><MaterialIcon name="verified" size="sm" />Payout successful</span> },
-    { label: 'Rejected', value: String(counts.rejected), icon: 'cancel', accent: 'error', badge: <span className="font-label-sm text-label-sm normal-case text-error">Validation failed</span> },
-    { label: 'Processing', value: String(counts.processing), icon: 'sync', accent: 'secondary', badge: <span className="badge-neutral">In transit</span> },
+    { label: 'Total Requests', value: counts.total, isCount: true, icon: 'list_alt', accent: 'primary', badge: <span className="badge-neutral">All time</span> },
+    { label: 'Pending', value: counts.pending, isCount: true, icon: 'pending', accent: 'tertiary', badge: <span className="badge-neutral">Awaiting approval</span> },
+    { label: 'Completed', value: counts.completed, isCount: true, icon: 'check_circle', accent: 'good', badge: <span className="badge-trend-up flex items-center gap-1"><MaterialIcon name="verified" size="sm" />Payout successful</span> },
+    { label: 'Rejected', value: counts.rejected, isCount: true, icon: 'cancel', accent: 'error', badge: <span className="font-label-sm text-label-sm normal-case text-critical">Validation failed</span> },
+    { label: 'Processing', value: counts.processing, isCount: true, icon: 'sync', accent: 'secondary', badge: <span className="badge-neutral">In transit</span> },
   ]
 
   const hasActiveFilters = Object.values(filters).some(v => v !== '')
   const options = {
-    statuses: ['All', 'pending', 'approved', 'completed', 'rejected', 'processing'],
+    statuses: ['All', 'pending', 'approved', 'completed', 'rejected', 'failed', 'cancelled'],
     dateRanges: ['All', 'Today', 'Last 7 Days', 'Last 30 Days'],
   }
 
@@ -327,12 +337,12 @@ export function PayoutManagementPage() {
       )
     }
     if (row.status === 'completed') {
-      return <span className="text-sm italic text-on-surface-variant">Processed</span>
+      return <span className="text-sm italic text-ink-2">Processed</span>
     }
     if (row.status === 'processing') {
-      return <span className="text-sm font-semibold text-primary">In transit</span>
+      return <span className="text-sm font-semibold text-ember">In transit</span>
     }
-    return <div className="text-right pr-4 text-on-surface-variant font-bold">—</div>
+    return <div className="text-right pr-4 text-ink-2 font-bold">—</div>
   }
 
   return (
@@ -344,8 +354,8 @@ export function PayoutManagementPage() {
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
-            className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-4 rounded-2xl shadow-xl font-bold text-white ${
-              toast.type === 'error' ? 'bg-red-600' : toast.type === 'warning' ? 'bg-amber-500' : 'bg-emerald-600'
+            className={`fixed right-5 top-[70px] z-[90] flex items-center gap-3 rounded-well px-5 py-3.5 text-body-sm font-semibold text-white shadow-pop ${
+              toast.type === 'error' ? 'bg-critical' : toast.type === 'warning' ? 'bg-warn' : 'bg-good'
             }`}
           >
             <MaterialIcon name={toast.type === 'error' ? 'error' : toast.type === 'warning' ? 'warning' : 'check_circle'} className="!text-[20px]" />
@@ -366,13 +376,39 @@ export function PayoutManagementPage() {
         )}
       </AnimatePresence>
 
-      {loading ? (
-        <div className="space-y-8 animate-pulse">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {[...Array(5)].map((_, i) => <div key={i} className="h-32 bg-surface rounded-2xl shadow-card" />)}
+      <LoadingBar active={loading} />
+
+      <Reveal>
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="font-display text-display-lg text-ink">Payouts</h1>
+            <p className="mt-1 text-body text-ink-2">
+              Creator withdrawal requests and settlement
+            </p>
           </div>
-          <div className="h-20 bg-surface rounded-2xl shadow-card" />
-          <div className="h-64 bg-surface rounded-2xl shadow-card" />
+        </div>
+      </Reveal>
+
+      {loading ? (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-3 xs:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-5">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="card card-pad">
+                <div className="mb-3 h-3 w-2/3 rounded shimmer-bar" />
+                <div className="font-display text-metric"><ValuePlaceholder sample="000" /></div>
+              </div>
+            ))}
+          </div>
+          <div className="card h-20" />
+          <div className="card overflow-hidden">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex items-center gap-4 border-b border-hairline px-5 py-4">
+                <div className="h-9 w-9 shrink-0 rounded-full shimmer-bar" />
+                <div className="h-3 w-32 rounded shimmer-bar" />
+                <div className="ml-auto h-3 w-20 rounded shimmer-bar" />
+              </div>
+            ))}
+          </div>
         </div>
       ) : (
         <>
@@ -409,11 +445,11 @@ export function PayoutManagementPage() {
                     </div>
                     <button
                       onClick={() => setShowFilters(!showFilters)}
-                      className="flex items-center gap-2 px-6 py-4 rounded-2xl font-bold transition-all bg-primary text-on-primary shadow-lg shadow-accent-glow hover:bg-primary/90 h-[56px]"
+                      className="flex items-center gap-2 px-6 py-4 rounded-2xl font-bold transition-all bg-ember text-white shadow-lg shadow-accent-glow hover:bg-ember/90 h-[56px]"
                     >
                       <MaterialIcon name="tune" className="!text-[20px]" />
                       <span>Filter</span>
-                      {hasActiveFilters && <span className="w-2.5 h-2.5 rounded-full bg-error animate-pulse border-2 border-white" />}
+                      {hasActiveFilters && <span className="w-2.5 h-2.5 rounded-full bg-critical animate-pulse border-2 border-white" />}
                     </button>
                   </div>
                   <FilterPanel isOpen={showFilters} onReset={() => setFilters({ status: '', dateRange: '' })}>
@@ -444,13 +480,13 @@ export function PayoutManagementPage() {
                   <thead>
                     <tr className="table-head">
                       {TABLE_COLUMNS.map((col) => (
-                        <th key={col} className={`border-b border-outline-variant px-6 py-4 ${col === 'Amount' || col === 'Actions' ? 'text-right' : ''}`}>
+                        <th key={col} className={`border-b border-hairline px-6 py-4 ${col === 'Amount' || col === 'Actions' ? 'text-right' : ''}`}>
                           {col}
                         </th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="type-body-md divide-y divide-outline-variant text-on-surface">
+                  <tbody className="type-body-md divide-y divide-hairline text-ink">
                     <AnimatePresence>
                       {filtered.length > 0 ? (
                         filtered.map((row) => (
@@ -467,18 +503,18 @@ export function PayoutManagementPage() {
                             <td className="px-6 py-5"><TableUserCell name={row.name} avatarUrl={row.avatarUrl} /></td>
                             <td className="px-6 py-5 text-right font-bold">{row.amount}</td>
                             <td className="px-6 py-5"><StatusBadge variant={row.status}>{row.statusLabel}</StatusBadge></td>
-                            <td className="px-6 py-5 italic text-on-surface-variant">{row.upiId}</td>
-                            <td className="px-6 py-5 text-on-surface-variant">{row.date}</td>
+                            <td className="px-6 py-5 italic text-ink-2">{row.upiId}</td>
+                            <td className="px-6 py-5 text-ink-2">{row.date}</td>
                             <td className="table-cell-actions px-6 py-5">{renderActions(row)}</td>
                           </motion.tr>
                         ))
                       ) : (
                         <motion.tr key="no-results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                           <td colSpan={TABLE_COLUMNS.length} className="text-center py-20">
-                            <div className="flex flex-col items-center gap-2 text-on-surface-variant">
+                            <div className="flex flex-col items-center gap-2 text-ink-2">
                               <MaterialIcon name="payments" className="!text-5xl opacity-20" />
                               <p className="type-title-md">No payout requests found</p>
-                              <button onClick={() => { setSearchQuery(''); setFilters({ status: '', dateRange: '' }) }} className="mt-2 text-primary font-semibold hover:underline">
+                              <button onClick={() => { setSearchQuery(''); setFilters({ status: '', dateRange: '' }) }} className="mt-2 text-ember font-semibold hover:underline">
                                 Clear all filters
                               </button>
                             </div>

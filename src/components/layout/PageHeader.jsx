@@ -10,7 +10,7 @@ export function PageHeader({ description, children, className = '' }) {
     <header className={`mb-8 flex flex-col lg:flex-row lg:items-end justify-between gap-6 ${className}`.trim()}>
       {description && (
         <div className="max-w-2xl">
-          <p className="text-body-lg normal-case text-on-surface-variant">
+          <p className="text-body-lg normal-case text-ink-2">
             {description}
           </p>
         </div>

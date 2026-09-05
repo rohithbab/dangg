@@ -6,7 +6,7 @@ export function ProfileTopBarActions({
 }) {
   return (
     <div className="flex items-center gap-4">
-      <span className="text-body-md font-semibold normal-case text-on-surface">{adminName}</span>
+      <span className="text-body-md font-semibold normal-case text-ink">{adminName}</span>
     </div>
   );
 }

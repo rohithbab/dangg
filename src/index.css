@@ -1,749 +1,327 @@
+/* Temporary compatibility shim for not-yet-migrated pages. Delete when empty.
+   Must precede the @tailwind directives — CSS requires @import to come first. */
+@import './styles/legacy-bridge.css';
+
 @tailwind base;
 @tailwind components;
-
-@layer components {
-  /* ─── Typography pairs ─────────────────────────────────────── */
-  .type-display {
-    @apply font-display text-display text-on-surface;
-  }
-  .type-headline-lg {
-    @apply font-headline-lg text-headline-lg text-on-surface;
-  }
-  .type-headline-md {
-    @apply font-headline-md text-headline-md text-on-surface;
-  }
-  .type-body-md {
-    @apply font-body-md text-body-md text-on-surface-variant;
-  }
-  .type-label-md {
-    @apply font-label-md text-label-md uppercase tracking-wider text-on-surface-variant;
-  }
-  /* Section heading with lime left-border accent */
-  .section-heading {
-    font-family: 'Syne', ui-sans-serif, system-ui, sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: #0e0e0d;
-    border-left: 3px solid #c8f500;
-    padding-left: 0.5rem;
-    line-height: 1.4;
-  }
-
-  /* ─── Shell ────────────────────────────────────────────────── */
-  .shell-sidebar {
-    @apply fixed left-0 top-0 z-50 flex h-full w-[248px] flex-col bg-sidebar;
-  }
-  .shell-header {
-    @apply fixed top-0 right-0 left-[248px] z-40 flex h-14 items-center justify-between border-b-2 border-outline-variant bg-surface-container-low px-6;
-    box-shadow: 0 2px 12px 0 rgb(14 14 13 / 0.14), 0 1px 3px 0 rgb(14 14 13 / 0.10);
-  }
-  .shell-main {
-    @apply ml-[248px] bg-background pb-12 pt-14;
-  }
-  .shell-main-compact {
-    @apply ml-[248px] bg-background pb-12 pt-14;
-  }
-  .shell-content {
-    @apply mx-auto max-w-7xl px-6 md:px-8 pt-8 md:pt-10 space-y-8;
-  }
-  .shell-content--narrow {
-    @apply max-w-6xl;
-  }
-  .shell-content-flush {
-    @apply mx-auto max-w-none space-y-0 p-0;
-  }
-
-  /* ─── Cards ────────────────────────────────────────────────── */
-  .card-base {
-    @apply rounded-2xl border border-outline-variant bg-surface;
-    box-shadow: 0 4px 16px 0 rgb(14 14 13 / 0.10), 0 1px 3px 0 rgb(14 14 13 / 0.08);
-  }
-  .card-interactive {
-    @apply rounded-2xl border border-outline-variant bg-surface transition-all duration-200;
-    box-shadow: 0 4px 16px 0 rgb(14 14 13 / 0.10), 0 1px 3px 0 rgb(14 14 13 / 0.08);
-  }
-  .card-interactive:hover {
-    box-shadow: 0 16px 40px -8px rgb(14 14 13 / 0.24);
-    transform: translateY(-2px);
-  }
-  .card-pad {
-    @apply p-6;
-  }
-  .card-pad-lg {
-    @apply p-8;
-  }
-  /* Dark "inverse" card — charcoal surface */
-  .card-dark {
-    @apply rounded-2xl bg-sidebar border border-sidebar-border shadow-card;
-  }
-  /* Accent card — acid green */
-  .card-accent {
-    @apply rounded-2xl bg-primary border border-primary shadow-card;
-  }
-
-  /* ─── Nav ──────────────────────────────────────────────────── */
-  .nav-item {
-    @apply mx-3 flex items-center gap-3 rounded-xl px-3 py-2.5 text-on-sidebar-muted transition-all duration-150 hover:bg-sidebar-hover hover:text-on-sidebar;
-  }
-  .nav-item-active {
-    @apply mx-3 flex items-center gap-3 rounded-xl bg-sidebar-active px-3 py-2.5 text-on-sidebar-active transition-all duration-150;
-  }
-  .nav-label {
-    @apply text-sm font-medium tracking-normal normal-case;
-  }
-
-  /* ─── Buttons ──────────────────────────────────────────────── */
-  .btn-ghost-pill {
-    @apply rounded-full border border-outline-variant bg-surface px-4 py-1.5 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container;
-  }
-  .btn-icon {
-    @apply flex items-center justify-center rounded-xl p-2 text-on-surface-variant transition-colors hover:bg-surface-container active:opacity-80;
-  }
-  .btn-primary {
-    @apply rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-on-primary transition-all hover:bg-primary-container active:scale-95 shadow-accent-glow;
-  }
-  .btn-inverse {
-    @apply rounded-xl bg-sidebar px-5 py-2.5 font-bold text-on-sidebar shadow-card transition-colors hover:bg-sidebar-surface;
-  }
-  .btn-outline {
-    @apply rounded-xl border border-outline-variant px-3 py-1.5 font-label-md text-label-md normal-case tracking-normal text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface;
-  }
-  .btn-sm-primary {
-    @apply rounded-lg bg-primary px-4 py-2 font-label-md text-label-md normal-case tracking-normal text-on-primary shadow-sm transition-all hover:opacity-90 active:scale-95;
-  }
-  .btn-sm-success {
-    @apply rounded-lg bg-emerald-600 px-3 py-2 font-label-md text-label-md normal-case tracking-normal text-white transition-all hover:bg-emerald-700 active:scale-95;
-  }
-  .btn-sm-danger-outline {
-    @apply rounded-lg border border-error px-3 py-2 font-label-md text-label-md normal-case tracking-normal text-error transition-all hover:bg-error-container active:scale-95;
-  }
-  .btn-link {
-    @apply text-sm font-semibold text-on-surface transition-colors hover:text-primary hover:underline;
-  }
-  .btn-toolbar {
-    @apply flex items-center gap-2 rounded-xl border border-outline-variant px-4 py-2 font-label-md text-label-md normal-case tracking-normal text-on-surface transition-colors hover:bg-surface-container;
-  }
-  .btn-logout-icon {
-    @apply flex items-center gap-2 px-3 py-1.5 font-body-md normal-case text-on-surface-variant transition-colors hover:text-on-surface;
-  }
-  .btn-text-primary {
-    @apply rounded-xl px-4 py-2 text-sm font-bold text-on-surface transition-colors hover:text-primary hover:bg-surface-container;
-  }
-  .btn-back-labeled {
-    @apply flex items-center gap-2 rounded-full px-2 py-2 text-on-surface-variant transition-colors hover:bg-surface-container;
-  }
-  .btn-pagination-secondary {
-    @apply rounded-xl border border-outline-variant px-4 py-2 font-label-md text-label-md normal-case tracking-normal text-on-surface transition-colors hover:bg-surface-container disabled:opacity-50;
-  }
-  .btn-pagination-primary {
-    @apply rounded-xl bg-primary px-4 py-2 font-label-md text-label-md normal-case tracking-normal text-on-primary transition-opacity hover:opacity-90;
-  }
-  .btn-apply-filters {
-    @apply whitespace-nowrap rounded-xl bg-primary px-6 py-2 font-label-md text-label-md normal-case tracking-normal text-on-primary transition-opacity hover:opacity-90;
-  }
-  .btn-operator-logs {
-    @apply mt-8 w-full rounded-xl bg-primary py-3 font-label-md text-label-md normal-case tracking-normal text-on-primary shadow-sm transition-colors hover:opacity-90;
-  }
-  .btn-edit-profile {
-    @apply flex w-full items-center justify-center gap-2 rounded-xl bg-surface-container py-3 font-label-md text-label-md normal-case tracking-normal transition-colors hover:bg-surface-container-high;
-  }
-  .btn-block-user {
-    @apply rounded-xl border border-outline-variant px-6 py-2 font-label-md text-label-md normal-case tracking-normal text-on-surface transition-colors hover:bg-surface-container;
-  }
-  .btn-verify-approve {
-    @apply flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700 active:scale-95;
-  }
-  .btn-verify-reject {
-    @apply flex flex-1 items-center justify-center gap-2 rounded-xl border border-error py-2.5 text-sm font-bold text-error transition-colors hover:bg-error-container active:scale-95;
-  }
-  .btn-verification-photo {
-    @apply rounded-xl border-2 border-on-surface px-6 py-2.5 font-label-md text-label-md normal-case tracking-normal text-on-surface transition-all duration-300 hover:bg-sidebar hover:text-on-sidebar hover:border-sidebar;
-  }
-  .btn-reopen-chat {
-    @apply h-10 cursor-not-allowed rounded-full bg-surface-container px-6 text-sm font-semibold text-on-surface-variant;
-  }
-  .btn-delete-transcript {
-    @apply rounded-xl border border-error px-4 py-1.5 text-sm font-semibold text-error transition-all hover:bg-error hover:text-white;
-  }
-  .btn-replay-icon {
-    @apply flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant text-on-surface-variant transition-colors hover:bg-surface-container;
-  }
-
-  /* ─── Icon wells ───────────────────────────────────────────── */
-  .icon-well-primary {
-    @apply rounded-xl bg-primary/15 p-2.5 text-on-surface;
-  }
-  .icon-well-secondary {
-    @apply rounded-xl bg-secondary/10 p-2.5 text-secondary;
-  }
-  .icon-well-tertiary {
-    @apply rounded-xl bg-tertiary/15 p-2.5 text-tertiary;
-  }
-  .icon-well-alert {
-    @apply flex h-12 w-12 items-center justify-center rounded-full bg-error-container text-error;
-  }
-
-  /* ─── Progress tracks ──────────────────────────────────────── */
-  .progress-track {
-    @apply h-1 w-full overflow-hidden rounded-full bg-surface-container;
-  }
-  .progress-track-lg {
-    @apply h-2 w-full overflow-hidden rounded-full bg-surface-container;
-  }
-  .progress-bar-sm {
-    @apply mt-4 h-1 w-full overflow-hidden rounded-full bg-surface-container;
-  }
-  .progress-bar-md {
-    @apply h-2 w-full overflow-hidden rounded-full bg-surface-container;
-  }
-
-  /* ─── Badges ───────────────────────────────────────────────── */
-  .badge-trend-up {
-    @apply rounded-lg bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700;
-  }
-  .badge-trend-down {
-    @apply rounded-lg bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-700;
-  }
-  .badge-status-stable {
-    @apply rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold uppercase text-emerald-800;
-  }
-  .badge-status-growing {
-    @apply rounded-full bg-secondary/10 px-2.5 py-1 text-[10px] font-bold uppercase text-secondary;
-  }
-  .badge-neutral {
-    @apply rounded-lg bg-surface-container px-2.5 py-1 font-label-md text-label-md normal-case tracking-normal text-on-surface-variant;
-  }
-  .badge-accent {
-    @apply rounded-lg bg-primary/15 px-2.5 py-1 font-label-md text-label-md normal-case tracking-normal text-on-surface;
-  }
-  .badge-gender-male {
-    @apply inline-flex items-center rounded-full bg-secondary/10 px-3 py-1 font-label-sm text-label-sm font-bold normal-case text-secondary;
-  }
-  .badge-gender-female {
-    @apply inline-flex items-center rounded-full bg-rose-50 px-3 py-1 font-label-sm text-label-sm font-bold normal-case text-rose-600;
-  }
-  .badge-gender-chip-male {
-    @apply inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 font-label-md text-label-md normal-case tracking-normal text-white;
-  }
-  .badge-gender-chip-female {
-    @apply inline-flex items-center rounded-full bg-rose-50 px-3 py-1 font-label-md text-label-md normal-case tracking-normal text-rose-700;
-  }
-  .badge-age-pill {
-    @apply rounded-full bg-surface-container px-3 py-1 font-label-md text-label-md normal-case tracking-normal text-on-surface-variant;
-  }
-
-  /* Payout badges */
-  .badge-payout-pending {
-    @apply rounded-full bg-tertiary/10 px-3 py-1 text-xs font-bold text-tertiary ring-1 ring-inset ring-tertiary/20;
-  }
-  .badge-payout-approved {
-    @apply rounded-full bg-secondary/10 px-3 py-1 text-xs font-bold text-secondary ring-1 ring-inset ring-secondary/20;
-  }
-  .badge-payout-completed {
-    @apply rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 ring-1 ring-inset ring-emerald-700/20;
-  }
-  .badge-payout-rejected {
-    @apply rounded-full bg-error-container px-3 py-1 text-xs font-bold text-error ring-1 ring-inset ring-error/20;
-  }
-  .badge-payout-processing {
-    @apply rounded-full bg-secondary/10 px-3 py-1 text-xs font-bold text-secondary ring-1 ring-inset ring-secondary/20;
-  }
-
-  /* Status badges */
-  .badge-status-active {
-    @apply inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 ring-1 ring-inset ring-emerald-600/20;
-  }
-  .badge-status-offline {
-    @apply inline-flex items-center gap-1.5 rounded-full bg-surface-container px-2.5 py-1 text-[11px] font-bold text-on-surface-variant ring-1 ring-inset ring-outline-variant;
-  }
-  .badge-status-busy {
-    @apply inline-flex items-center gap-1.5 rounded-full bg-tertiary/10 px-2.5 py-1 text-[11px] font-bold text-tertiary ring-1 ring-inset ring-tertiary/20;
-  }
-  .badge-status-suspended {
-    @apply inline-flex items-center gap-1.5 rounded-full bg-error-container px-2.5 py-1 text-[11px] font-bold text-error ring-1 ring-inset ring-error/20;
-  }
-  .badge-transcript-resolved {
-    @apply inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 ring-1 ring-inset ring-emerald-600/20;
-  }
-  .badge-transcript-escalated {
-    @apply inline-flex items-center gap-1.5 rounded-full bg-tertiary/10 px-2.5 py-1 text-[11px] font-bold text-tertiary ring-1 ring-inset ring-tertiary/20;
-  }
-  .badge-transcript-archived {
-    @apply inline-flex items-center gap-1.5 rounded-full bg-surface-container px-2.5 py-1 text-[11px] font-bold text-on-surface-variant ring-1 ring-inset ring-outline-variant;
-  }
-
-  /* ─── Status dots ──────────────────────────────────────────── */
-  .status-dot-pulse-emerald {
-    @apply h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse;
-  }
-  .status-dot-amber {
-    @apply h-1.5 w-1.5 rounded-full bg-tertiary;
-  }
-  .status-dot-gray {
-    @apply h-1.5 w-1.5 rounded-full bg-on-surface-variant/40;
-  }
-  .status-dot-red {
-    @apply h-1.5 w-1.5 rounded-full bg-error;
-  }
-  .status-dot-online {
-    @apply h-2 w-2 shrink-0 animate-pulse rounded-full bg-emerald-600;
-  }
-  .status-dot-break {
-    @apply h-2 w-2 shrink-0 rounded-full bg-tertiary;
-  }
-  .status-dot-offline {
-    @apply h-2 w-2 shrink-0 rounded-full bg-surface-container-highest;
-  }
-  .status-online-label {
-    @apply text-[10px] font-bold uppercase tracking-tighter text-emerald-600;
-  }
-
-  /* ─── Tables ───────────────────────────────────────────────── */
-  .table-shell {
-    @apply overflow-hidden rounded-2xl border border-outline-variant bg-surface shadow-card;
-  }
-  .table-head {
-    @apply bg-surface-container font-label-md text-label-md normal-case tracking-normal text-on-surface-variant;
-  }
-  .table-row {
-    @apply transition-colors hover:bg-surface-container-low;
-  }
-  .table-cell-mono {
-    @apply font-mono text-on-surface-variant;
-  }
-  .table-cell-actions {
-    @apply text-right;
-  }
-  .table-toolbar {
-    @apply flex flex-col gap-3 border-b border-outline-variant bg-surface px-6 py-4 sm:flex-row sm:items-center sm:justify-between;
-  }
-  .table-footer {
-    @apply flex flex-col gap-3 border-t border-outline-variant bg-surface-container-low px-6 py-4 sm:flex-row sm:items-center sm:justify-between;
-  }
-
-  /* ─── Filter / search ──────────────────────────────────────── */
-  .filter-panel {
-    @apply card-base space-y-6 p-6 shadow-card;
-  }
-  .filter-tabs {
-    @apply flex items-center border-b border-outline-variant;
-  }
-  .filter-tab {
-    @apply border-b-2 border-transparent px-6 py-3 text-body-md font-medium text-on-surface-variant transition-colors hover:text-on-surface;
-  }
-  .filter-tab-active {
-    @apply border-on-surface font-bold text-on-surface;
-  }
-  .filter-tab-count {
-    @apply ml-1 font-label-sm text-label-sm font-normal normal-case opacity-60;
-  }
-  .filter-pill {
-    @apply rounded-full bg-primary/15 px-3 py-1 font-label-sm text-label-sm text-on-surface;
-  }
-  .filter-field-label {
-    @apply type-label-md;
-  }
-  .input-search {
-    @apply w-full rounded-xl border border-outline-variant bg-surface py-2 pl-10 pr-4 text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-on-surface/20 md:w-64;
-  }
-  .input-search-full {
-    @apply w-full rounded-xl border border-outline-variant bg-surface-container-low py-3 pl-12 pr-4 text-body-md text-on-surface transition-all focus:border-on-surface focus:outline-none focus:ring-4 focus:ring-on-surface/10;
-  }
-  .input-field {
-    @apply w-full rounded-xl border border-outline-variant py-2 text-body-md text-on-surface focus:border-on-surface focus:outline-none focus:ring-4 focus:ring-on-surface/10;
-  }
-  .input-field-icon {
-    @apply pl-10 pr-4;
-  }
-  .input-field-prefix {
-    @apply pl-12 pr-4;
-  }
-  .input-prefix-label {
-    @apply pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-label-sm text-label-sm normal-case uppercase text-on-surface-variant;
-  }
-
-  /* ─── Pagination ───────────────────────────────────────────── */
-  .pagination-btn {
-    @apply flex h-10 w-10 items-center justify-center rounded-xl border border-outline-variant font-bold transition-colors hover:bg-surface-container disabled:opacity-50;
-  }
-  .pagination-btn-active {
-    @apply flex h-10 w-10 items-center justify-center rounded-xl bg-sidebar font-bold text-on-sidebar;
-  }
-  .pagination-btn-ghost {
-    @apply flex h-10 w-10 items-center justify-center rounded-xl font-bold transition-colors hover:bg-surface-container;
-  }
-  .pagination-btn-sm {
-    @apply flex h-8 w-8 items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant transition-colors hover:bg-surface disabled:opacity-50;
-  }
-  .pagination-page-active {
-    @apply rounded-xl bg-sidebar px-3 py-1 font-label-md text-label-md normal-case tracking-normal text-on-sidebar;
-  }
-  .pagination-page {
-    @apply px-3 py-1 font-label-md text-label-md normal-case tracking-normal text-on-surface-variant;
-  }
-  .list-page-footer {
-    @apply mt-12 flex flex-col gap-4 rounded-2xl border border-outline-variant bg-surface p-4 shadow-card sm:flex-row sm:items-center sm:justify-between;
-  }
-
-  /* ─── Distribution bar ─────────────────────────────────────── */
-  .distribution-track {
-    @apply flex h-10 w-full overflow-hidden rounded-full bg-surface-container;
-  }
-  .distribution-segment-pending {
-    @apply flex h-full items-center justify-center bg-tertiary text-[10px] font-bold text-on-primary;
-  }
-  .distribution-segment-completed {
-    @apply flex h-full items-center justify-center bg-emerald-600 text-[10px] font-bold text-white;
-  }
-  .distribution-segment-rejected {
-    @apply flex h-full items-center justify-center bg-error text-[10px] font-bold text-white;
-  }
-  .distribution-segment-processing {
-    @apply flex h-full items-center justify-center bg-secondary text-[10px] font-bold text-white;
-  }
-  .legend-dot-pending {
-    @apply h-3 w-3 rounded-full bg-tertiary;
-  }
-  .legend-dot-completed {
-    @apply h-3 w-3 rounded-full bg-emerald-600;
-  }
-  .legend-dot-rejected {
-    @apply h-3 w-3 rounded-full bg-error;
-  }
-  .legend-dot-processing {
-    @apply h-3 w-3 rounded-full bg-secondary;
-  }
-
-  /* ─── Avatar chips ─────────────────────────────────────────── */
-  .user-avatar-secondary {
-    @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-bold text-white;
-  }
-  .user-avatar-tertiary {
-    @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-tertiary text-sm font-bold text-on-primary;
-  }
-  .user-avatar-primary {
-    @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sidebar text-sm font-bold text-on-sidebar;
-  }
-  .user-avatar-accent {
-    @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-on-primary;
-  }
-  .user-avatar-error {
-    @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-error-container text-sm font-bold text-error;
-  }
-  .btn-table-row-action {
-    @apply rounded-full p-2 text-on-surface-variant transition-all hover:bg-surface-container hover:text-on-surface;
-  }
-
-  /* ─── Feature card ─────────────────────────────────────────── */
-  .card-feature {
-    @apply relative overflow-hidden rounded-2xl bg-sidebar p-8 text-on-sidebar shadow-card;
-  }
-  .card-feature-copy {
-    @apply max-w-sm text-on-sidebar-muted;
-  }
-
-  /* ─── Card lift ────────────────────────────────────────────── */
-  .card-lift {
-    @apply transition-all duration-200 hover:shadow-card-hover hover:-translate-y-0.5;
-  }
-
-  /* ─── Engagement card footer ───────────────────────────────── */
-  .engagement-footer {
-    @apply border-t border-outline-variant bg-surface-container-low p-4 text-center;
-  }
-
-  /* ─── Wallet card ──────────────────────────────────────────── */
-  .card-wallet {
-    @apply relative flex min-h-[320px] items-end overflow-hidden rounded-2xl bg-sidebar shadow-card;
-  }
-
-  /* ─── Activity panel ───────────────────────────────────────── */
-  .activity-panel {
-    @apply rounded-2xl border border-outline-variant bg-surface-container-low p-6;
-  }
-  .activity-item {
-    @apply flex cursor-default items-center justify-between rounded-xl border border-outline-variant bg-surface p-4 transition-colors hover:border-on-surface/20;
-  }
-
-  /* ─── Sidebar profile card ─────────────────────────────────── */
-  .sidebar-profile-card {
-    @apply flex items-center gap-3 rounded-xl border border-sidebar-border bg-sidebar-surface p-3;
-  }
-
-  /* ─── Pending card ─────────────────────────────────────────── */
-  .card-pending {
-    @apply card-base flex flex-col overflow-hidden;
-  }
-  .card-pending-header {
-    @apply flex items-center justify-between border-b border-outline-variant bg-surface-container-low p-6;
-  }
-
-  /* ─── User profile ─────────────────────────────────────────── */
-  .bento-card {
-    @apply card-interactive;
-  }
-  .profile-avatar-wrap {
-    @apply relative shrink-0;
-  }
-  .profile-avatar {
-    @apply h-32 w-32 rounded-2xl object-cover ring-4 ring-surface-container;
-  }
-  .profile-avatar-round {
-    @apply h-32 w-32 rounded-full border-4 border-surface object-cover shadow-card;
-  }
-  .profile-status-dot {
-    @apply absolute -bottom-2 -right-2 h-6 w-6 rounded-full border-4 border-surface bg-emerald-600;
-  }
-  .profile-stat-box {
-    @apply rounded-xl border border-outline-variant bg-surface-container-low px-4 py-2 text-center;
-  }
-  .profile-stat-card {
-    @apply bento-card flex flex-col justify-between rounded-2xl p-5;
-  }
-  .profile-stat-icon-well-primary {
-    @apply rounded-xl bg-primary/15 p-2 text-on-surface;
-  }
-  .profile-stat-icon-well-secondary {
-    @apply rounded-xl bg-secondary/10 p-2 text-secondary;
-  }
-  .profile-stat-icon-well-tertiary {
-    @apply rounded-xl bg-tertiary/10 p-2 text-tertiary;
-  }
-  .profile-stat-icon-well-neutral {
-    @apply rounded-xl bg-surface-container p-2 text-on-surface;
-  }
-  .profile-stat-icon-well-accent {
-    @apply rounded-xl bg-rose-50 p-2 text-rose-600;
-  }
-  .profile-header-accent {
-    @apply pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/10;
-  }
-  .profile-header-card {
-    @apply bento-card relative flex flex-col items-center gap-8 overflow-hidden rounded-2xl p-8 md:flex-row;
-  }
-
-  /* ─── Earnings cards ───────────────────────────────────────── */
-  .earnings-card {
-    @apply bento-card rounded-2xl p-6 transition-shadow hover:shadow-card-hover;
-  }
-  .earnings-card-accent {
-    @apply border-l-4 border-l-primary;
-  }
-  .earnings-card-highlight {
-    @apply bento-card rounded-2xl bg-sidebar p-6 text-on-sidebar shadow-card lg:scale-105;
-  }
-  .earnings-highlight-badge {
-    @apply mt-2 inline-block rounded-full bg-primary/20 px-2 py-0.5 font-label-sm text-label-sm normal-case text-on-sidebar;
-  }
-
-  /* ─── Rating / chat metric cards ───────────────────────────── */
-  .rating-stat-card {
-    @apply bento-card rounded-2xl p-5 text-center;
-  }
-  .chat-engagement-card {
-    @apply rounded-2xl bg-sidebar p-6 text-on-sidebar shadow-card;
-  }
-  .chat-metric-card {
-    @apply bento-card flex items-center gap-6 rounded-2xl p-6;
-  }
-  .chat-metric-icon-well-primary {
-    @apply flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-on-surface;
-  }
-  .chat-metric-icon-well-secondary {
-    @apply flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-secondary/10 text-secondary;
-  }
-
-  /* ─── Metric icon wells ─────────────────────────────────────── */
-  .metric-icon-well-primary {
-    @apply rounded-xl bg-primary/15 p-3 text-on-surface transition-colors group-hover:bg-sidebar group-hover:text-on-sidebar;
-  }
-  .metric-icon-well-secondary {
-    @apply rounded-xl bg-secondary/10 p-3 text-secondary transition-colors group-hover:bg-secondary group-hover:text-white;
-  }
-  .metric-icon-well-tertiary {
-    @apply rounded-xl bg-tertiary/10 p-3 text-tertiary transition-colors group-hover:bg-tertiary group-hover:text-on-primary;
-  }
-
-  /* ─── Account info ──────────────────────────────────────────── */
-  .account-info-icon-well {
-    @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-container text-on-surface;
-  }
-  .account-info-panel {
-    @apply bento-card h-full rounded-2xl border-t-4 border-t-on-surface p-6;
-  }
-  .account-info-row {
-    @apply flex items-center justify-between border-b border-outline-variant pb-3;
-  }
-  .badge-transaction-success {
-    @apply rounded-full bg-emerald-50 px-3 py-1 font-label-sm text-label-sm font-bold normal-case text-emerald-700;
-  }
-
-  /* ─── Chat stat cards ───────────────────────────────────────── */
-  .chat-stat-card {
-    @apply bento-card rounded-2xl p-6 transition-shadow hover:shadow-card-hover;
-  }
-  .stat-icon-well-lg-primary {
-    @apply rounded-xl bg-primary/15 p-3 text-on-surface;
-  }
-  .stat-icon-well-lg-secondary {
-    @apply rounded-xl bg-secondary/10 p-3 text-secondary;
-  }
-  .stat-icon-well-lg-tertiary {
-    @apply rounded-xl bg-tertiary/10 p-3 text-tertiary;
-  }
-  .stat-icon-well-lg-error {
-    @apply rounded-xl bg-error-container p-3 text-error;
-  }
-  .stat-badge-error {
-    @apply rounded-lg bg-error-container px-2 py-1 font-label-md text-label-md normal-case tracking-normal text-error;
-  }
-
-  /* ─── Segment bars ──────────────────────────────────────────── */
-  .segment-bar-row {
-    @apply mt-4 flex gap-1;
-  }
-  .segment-bar-active {
-    @apply h-1 flex-1 rounded-full bg-on-surface;
-  }
-  .segment-bar-inactive {
-    @apply h-1 flex-1 rounded-full bg-surface-container;
-  }
-  .day-pill {
-    @apply rounded-lg bg-surface-container px-2 py-1 font-label-sm text-label-sm normal-case text-on-surface-variant;
-  }
-  .day-pill-active {
-    @apply rounded-lg bg-sidebar px-2 py-1 font-label-sm text-label-sm font-bold normal-case text-on-sidebar;
-  }
-
-  /* ─── Map card ──────────────────────────────────────────────── */
-  .engagement-map-card {
-    @apply bento-card relative min-h-[300px] overflow-hidden rounded-2xl p-8 lg:col-span-2;
-  }
-  .map-badge-active {
-    @apply rounded-xl bg-sidebar px-4 py-2 font-label-md text-label-md normal-case tracking-normal text-on-sidebar;
-  }
-  .map-badge-idle {
-    @apply rounded-xl bg-surface-container px-4 py-2 font-label-md text-label-md normal-case tracking-normal text-on-surface-variant;
-  }
-
-  /* ─── Operator pulse ────────────────────────────────────────── */
-  .operator-pulse-card {
-    @apply bento-card flex flex-col justify-center rounded-2xl p-6;
-  }
-
-  /* ─── Verification ──────────────────────────────────────────── */
-  .verification-card {
-    @apply card-interactive card-pad;
-  }
-  .verification-photo-wrap {
-    @apply relative mb-4 aspect-square w-full overflow-hidden rounded-xl bg-surface-container;
-  }
-  .verification-photo {
-    @apply h-full w-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0;
-  }
-  .verification-id-badge {
-    @apply absolute right-2 top-2 rounded-lg bg-sidebar/80 px-2 py-1 font-label-sm text-label-sm normal-case tracking-normal text-on-sidebar backdrop-blur-md;
-  }
-
-  /* ─── Chat replay ───────────────────────────────────────────── */
-  .chat-replay-layout {
-    @apply flex min-h-[calc(100vh-8rem)] flex-col bg-surface-container-low;
-  }
-  .chat-replay-scroll {
-    @apply flex flex-1 flex-col space-y-8 overflow-y-auto px-6 py-8 md:px-10;
-  }
-  .chat-date-separator {
-    @apply flex justify-center;
-  }
-  .chat-date-label {
-    @apply rounded-full bg-outline-variant/30 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant;
-  }
-  .chat-message-row {
-    @apply flex max-w-[70%] items-end gap-3;
-  }
-  .chat-message-row-outgoing {
-    @apply ml-auto flex-row-reverse self-end;
-  }
-  .chat-message-avatar {
-    @apply h-10 w-10 shrink-0 rounded-full border border-surface object-cover shadow-sm;
-  }
-  .chat-bubble-incoming {
-    @apply rounded-2xl rounded-bl-none border border-outline-variant bg-surface p-4 shadow-card transition-all hover:border-on-surface/20;
-  }
-  .chat-bubble-outgoing {
-    @apply rounded-2xl rounded-br-none bg-sidebar p-4 text-on-sidebar shadow-card transition-all hover:opacity-90;
-  }
-  .chat-bubble-time {
-    @apply text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant/80;
-  }
-  .chat-bubble-time-outgoing {
-    @apply mr-1 text-right;
-  }
-  .chat-bubble-time-incoming {
-    @apply ml-1;
-  }
-  .chat-status-banner {
-    @apply my-4 flex items-center justify-center;
-  }
-  .chat-status-pill {
-    @apply flex items-center gap-2 rounded-full border border-outline-variant/20 bg-surface-container px-4 py-2;
-  }
-  .chat-replay-footer {
-    @apply flex h-16 shrink-0 items-center gap-4 border-t border-outline-variant bg-surface px-6;
-  }
-  .chat-replay-input {
-    @apply flex h-10 flex-1 items-center justify-between rounded-full bg-surface-container px-4 opacity-60;
-  }
-}
-
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   DANGG ADMIN — WARM SIGNAL
+   Base atmosphere + component layer. Tokens live in tailwind.config.cjs.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 @layer base {
-  html {
-    @apply antialiased;
+  :root {
+    --grain-opacity: 0.035;
   }
 
-  html.light,
-  html:not(.dark) {
-    @apply bg-background text-on-surface;
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   body {
-    @apply min-h-screen bg-background font-sans text-on-surface;
-    background-image: radial-gradient(circle, rgb(14 14 13 / 0.07) 1px, transparent 1px);
-    background-size: 20px 20px;
+    @apply bg-canvas text-ink font-sans;
+    font-size: 13.5px;
+    /* Warm atmosphere: two soft light sources bloom out of the top corners so
+       the canvas is never a flat fill. Very low alpha — felt, not seen. */
+    background-image:
+      radial-gradient(900px 520px at 12% -8%, rgba(247, 214, 176, 0.42), transparent 62%),
+      radial-gradient(760px 460px at 92% -12%, rgba(232, 81, 31, 0.10), transparent 58%),
+      radial-gradient(1100px 700px at 50% 108%, rgba(207, 232, 210, 0.30), transparent 66%);
+    background-attachment: fixed;
+    min-height: 100vh;
   }
 
-  #root {
-    @apply min-h-screen w-full;
+  /* Film grain — kills the "flat vector" look on large cream fields. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* All metric figures line up in columns and never jitter while counting. */
+  .tabular, [data-metric] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1, 'cv01' 1;
+  }
+
+  ::selection {
+    background: theme('colors.ember');
+    color: #fff;
+  }
+
+  /* Warm, thin scrollbars that match the canvas */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.hairline-strong') transparent;
+  }
+  *::-webkit-scrollbar { width: 9px; height: 9px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    background: theme('colors.hairline-strong');
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  *::-webkit-scrollbar-thumb:hover { background: theme('colors.ink-3'); background-clip: content-box; }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.ember');
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* Honour reduced-motion globally — motion is decoration, never the message. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
-.material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
-  display: inline-block;
-  white-space: nowrap;
-  word-wrap: normal;
-  direction: ltr;
-  font-variation-settings:
-    'FILL' 0,
-    'wght' 400,
-    'GRAD' 0,
-    'opsz' 24;
+@layer components {
+  /* ── Card system ───────────────────────────────────────────────────────── */
+
+  /* The base plane. Note: NO border by default — separation is tone + shadow.
+     A 1px hairline is applied only via .card-outlined where a card sits on
+     another card. */
+  .card {
+    @apply relative rounded-card bg-card shadow-card;
+    /* Inner top highlight — reads as a physical bevel catching the light. */
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 42%);
+  }
+
+  .card-outlined { @apply border border-hairline; }
+
+  /* Lift on hover — only for cards that are actually interactive. */
+  .card-interactive {
+    @apply cursor-pointer transition-all duration-300 ease-smooth;
+  }
+  .card-interactive:hover {
+    @apply shadow-card-hover;
+    transform: translateY(-3px);
+  }
+  .card-interactive:active { transform: translateY(-1px); }
+
+  /* Ember-forward card for the single most important metric on a page. */
+  .card-ember {
+    @apply rounded-card text-white shadow-ember;
+    background:
+      radial-gradient(120% 140% at 0% 0%, #F26A34 0%, #E8511F 46%, #C93F12 100%);
+  }
+
+  .card-pad { @apply p-5; }
+  .card-pad-lg { @apply p-6; }
+
+  /* ── Typography helpers ────────────────────────────────────────────────── */
+  .metric-label {
+    @apply text-label uppercase text-ink-3;
+  }
+  .metric-value {
+    @apply font-display text-metric text-ink tabular;
+  }
+  .card-title {
+    @apply font-display text-display-md text-ink;
+  }
+  .card-sub {
+    @apply text-body-sm text-ink-3;
+  }
+
+  /* ── Ghost affordance ('↗' in the inspo's card corners) ────────────────── */
+  .ghost-action {
+    @apply grid h-8 w-8 place-items-center rounded-pill bg-canvas-sunk text-ink-2
+           transition-all duration-300 ease-smooth;
+  }
+  .ghost-action:hover {
+    @apply bg-ember text-white;
+    transform: rotate(45deg) scale(1.06);
+  }
+
+  /* ── Pills, badges, chips ──────────────────────────────────────────────── */
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-label-xs
+           font-medium uppercase;
+  }
+  .pill-good     { @apply bg-good-soft text-good; }
+  .pill-warn     { @apply bg-warn-soft text-warn; }
+  .pill-critical { @apply bg-critical-soft text-critical; }
+  .pill-info     { @apply bg-info-soft text-info; }
+  .pill-neutral  { @apply bg-canvas-sunk text-ink-2; }
+  .pill-ember    { @apply bg-ember-soft text-ember; }
+
+  /* Trend deltas sit next to metrics — tiny, tabular, colour-coded. */
+  .delta {
+    @apply inline-flex items-center gap-0.5 text-label font-medium tabular;
+  }
+  .delta-up   { @apply text-good; }
+  .delta-down { @apply text-critical; }
+
+  /* ── Buttons ───────────────────────────────────────────────────────────── */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-pill px-4 py-2.5
+           text-body-sm font-medium transition-all duration-250 ease-smooth
+           disabled:pointer-events-none disabled:opacity-45;
+  }
+  .btn-primary {
+    @apply bg-ink text-ink-inverse;
+  }
+  .btn-primary:hover { @apply bg-ember shadow-ember; transform: translateY(-1px); }
+  .btn-ember  { @apply bg-ember text-white; }
+  .btn-ember:hover { @apply bg-ember-hover shadow-ember; transform: translateY(-1px); }
+  .btn-ghost  { @apply bg-canvas-sunk text-ink-2; }
+  .btn-ghost:hover { @apply bg-hairline text-ink; }
+  .btn-quiet  { @apply bg-transparent text-ink-2 hover:bg-canvas-sunk hover:text-ink; }
+
+  /* ── Wells & tracks ────────────────────────────────────────────────────── */
+  .well {
+    @apply rounded-well bg-canvas-sunk;
+    box-shadow: theme('boxShadow.inset');
+  }
+  .track {
+    @apply h-2 w-full overflow-hidden rounded-pill bg-canvas-sunk;
+  }
+  .track-fill {
+    @apply h-full rounded-pill bg-ember;
+    transition: width 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* ── Loading ───────────────────────────────────────────────────────────── */
+
+  /* Legacy block skeleton — still referenced by unmigrated pages. New work
+     should use the live placeholders in components/motion/Placeholder.jsx. */
+  .skeleton {
+    @apply rounded-card;
+    background: linear-gradient(90deg, #F2EFE6 0%, #E8E3D5 40%, #F2EFE6 80%);
+    background-size: 200% 100%;
+    @apply animate-shimmer;
+  }
+
+  /* Shimmering label bar — a travelling highlight, not a flat pulse. */
+  .shimmer-bar {
+    background: linear-gradient(
+      100deg,
+      #EFEBE0 0%, #EFEBE0 38%,
+      #F8F6EF 50%,
+      #EFEBE0 62%, #EFEBE0 100%
+    );
+    background-size: 220% 100%;
+    animation: shimmer 1.6s infinite linear;
+  }
+
+  /* Indeterminate sweep inside a progress track. */
+  .track-indeterminate {
+    height: 100%;
+    width: 38%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, theme('colors.ember'), transparent);
+    opacity: 0.55;
+    animation: sweep 1.35s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  }
+  @keyframes sweep {
+    0%   { transform: translateX(-110%); }
+    100% { transform: translateX(370%); }
+  }
+
+  /* ── Dock (assistive ball + expanding panel) ───────────────────────────── */
+
+  /* Frosted surface shared by the panel and the compact bottom bar.
+     Written literally because Tailwind opacity modifiers (bg-card/85) are not
+     available against this config's custom colour tokens. */
+  .dock-surface {
+    border-radius: 999px;
+    background: rgba(252, 251, 247, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(18px) saturate(1.6);
+    -webkit-backdrop-filter: blur(18px) saturate(1.6);
+    box-shadow: theme('boxShadow.pop');
+    white-space: nowrap;
+  }
+
+  /* The vertical panel is a column, not a pill — softer rounding and a
+     min-width so labels have room to breathe. */
+  .dock-panel {
+    border-radius: 20px;
+    min-width: 186px;
+  }
+
+  /* The ball. A soft ember sphere with a specular highlight so it reads as a
+     physical object floating above the page rather than a flat circle. */
+  .dock-ball {
+    background:
+      radial-gradient(circle at 34% 28%, #F8794B 0%, #E8511F 46%, #C33F12 100%);
+    box-shadow:
+      0 2px 6px rgba(60, 50, 25, 0.18),
+      0 10px 26px -6px rgba(232, 81, 31, 0.55),
+      inset 0 1px 1px rgba(255, 255, 255, 0.45);
+    border: none;
+    transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .dock-ball:hover {
+    box-shadow:
+      0 3px 8px rgba(60, 50, 25, 0.22),
+      0 16px 36px -6px rgba(232, 81, 31, 0.68),
+      inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  }
+
+  /* ── Chart chrome ──────────────────────────────────────────────────────── */
+  /* Recharts overrides so charts inherit the system rather than fight it. */
+  .recharts-cartesian-axis-tick text {
+    fill: theme('colors.ink-3');
+    font-size: 10.5px;
+    font-weight: 500;
+  }
+  .recharts-cartesian-grid line {
+    stroke: theme('colors.hairline');
+  }
+  .recharts-surface { overflow: visible; }
+  /* Recharts injects its own focus ring on bars; we supply our own. */
+  .recharts-wrapper *:focus { outline: none; }
+
+  .chart-tooltip {
+    @apply rounded-well bg-ink px-3 py-2 text-ink-inverse shadow-pop;
+    font-size: 11.5px;
+  }
+
+  /* Floating value badge that rides the data (inspo: the "485" pill) */
+  .value-badge {
+    @apply rounded-pill bg-ember px-2 py-1 text-label-xs font-semibold text-white
+           shadow-ember tabular;
+  }
 }
 
-.material-symbols-outlined.fill {
-  font-variation-settings:
-    'FILL' 1,
-    'wght' 400,
-    'GRAD' 0,
-    'opsz' 24;
+@layer utilities {
+  /* Diagonal hatch — the inspo's "remaining capacity / target" fill. */
+  .hatch {
+    background-image: repeating-linear-gradient(
+      45deg,
+      currentColor 0 1.5px,
+      transparent 1.5px 7px
+    );
+  }
+  .hatch-dense {
+    background-image: repeating-linear-gradient(
+      45deg,
+      currentColor 0 1.5px,
+      transparent 1.5px 4.5px
+    );
+  }
+
+  /* Keeps content above the fixed grain overlay. */
+  .above-grain { position: relative; z-index: 1; }
+
+  .glass {
+    background: rgba(252, 251, 247, 0.72);
+    backdrop-filter: blur(14px) saturate(1.5);
+    -webkit-backdrop-filter: blur(14px) saturate(1.5);
+  }
 }

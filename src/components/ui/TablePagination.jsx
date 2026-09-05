@@ -7,7 +7,7 @@ export function TablePagination({
 }) {
   return (
     <>
-      <p className="font-label-sm text-label-sm normal-case tracking-normal text-on-surface-variant">
+      <p className="font-label-sm text-label-sm normal-case tracking-normal text-ink-2">
         {summary}
       </p>
       <div className="flex gap-2">
