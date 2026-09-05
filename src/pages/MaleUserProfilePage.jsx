@@ -5,23 +5,90 @@ import { ProfileStatCard } from '../components/ui/ProfileStatCard';
 import { ChatEngagementCard } from '../components/ui/ChatEngagementCard';
 import { AccountInfoCard } from '../components/ui/AccountInfoCard';
 import { MaterialIcon } from '../components/ui/MaterialIcon';
-import { getUserById } from '../data/userProfiles';
 import { AnimatedCardEntrance, AnimatedStaggerGroup } from '../components/animation';
+import { useAdminQuery } from '../hooks/useAdminQuery';
+import { supabase } from '../lib/supabase';
+import { formatRupees, formatDate, formatPhone, shortId } from '../lib/utils';
+
+function fetchMaleProfile(userId) {
+  return async function fetchMaleProfileQuery() {
+    const [userResult, paymentsResult, chatResult] = await Promise.all([
+      supabase
+        .from('users')
+        .select(`
+          id, name, phone, age, created_at, profile_picture_url,
+          males!inner (
+            coin_balance,
+            total_coins_purchased,
+            total_coins_spent,
+            chats_initiated
+          )
+        `)
+        .eq('id', userId)
+        .eq('role', 'male')
+        .single(),
+
+      supabase
+        .from('payments')
+        .select('id, amount_paisa, coins_to_credit, status, created_at')
+        .eq('male_id', userId)
+        .eq('status', 'captured')
+        .order('created_at', { ascending: false })
+        .limit(10),
+
+      supabase
+        .from('chat_sessions')
+        .select('id, status, started_at, ended_at')
+        .eq('male_id', userId)
+        .order('started_at', { ascending: false })
+        .limit(5),
+    ])
+
+    if (userResult.error) throw userResult.error
+    return {
+      user: userResult.data,
+      payments: paymentsResult.data || [],
+      chats: chatResult.data || [],
+    }
+  }
+}
+
+function PageSkeleton() {
+  return (
+    <PageContainer>
+      <div className="space-y-10 animate-pulse">
+        <div className="h-36 bg-surface rounded-2xl shadow-card" />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="grid grid-cols-3 gap-4 lg:col-span-2">
+            {[...Array(3)].map((_, i) => <div key={i} className="h-32 bg-surface rounded-2xl shadow-card" />)}
+          </div>
+          <div className="space-y-4">
+            <div className="h-32 bg-surface rounded-2xl shadow-card" />
+            <div className="h-32 bg-surface rounded-2xl shadow-card" />
+          </div>
+        </div>
+        <div className="h-48 bg-surface rounded-2xl shadow-card" />
+      </div>
+    </PageContainer>
+  )
+}
 
 export function MaleUserProfilePage() {
-  const { userId } = useParams();
-  const user = getUserById(userId);
+  const { userId } = useParams()
+  const { data, loading, error } = useAdminQuery(fetchMaleProfile(userId), [userId])
 
-  if (!user || user.gender !== 'male') {
+  if (loading) return <PageSkeleton />
+
+  if (error || !data?.user) {
     return (
-      <PageContainer className="shell-content--narrow flex flex-col items-center justify-center min-h-[50vh] text-center">
+      <PageContainer className="flex flex-col items-center justify-center min-h-[50vh] text-center">
         <div className="bento-card rounded-xl p-8 max-w-md mx-auto space-y-6">
           <div className="w-16 h-16 bg-error/10 text-error rounded-full flex items-center justify-center mx-auto">
             <MaterialIcon name="error_outline" className="text-4xl" />
           </div>
           <h3 className="type-headline-lg text-on-surface">User Profile Not Found</h3>
           <p className="type-body-md text-on-surface-variant">
-            The male user profile you are trying to view does not exist or has been removed.
+            This male user profile does not exist or could not be loaded.
           </p>
           <Link to="/users" className="btn-primary inline-flex items-center gap-2 px-6 py-2.5 rounded-lg justify-center w-full">
             <MaterialIcon name="arrow_back" className="text-on-primary" />
@@ -29,50 +96,67 @@ export function MaleUserProfilePage() {
           </Link>
         </div>
       </PageContainer>
-    );
+    )
   }
 
-  const financialStats = user.financialStats.map((stat) => ({
-    ...stat,
-    trend: stat.trend ? (
-      <>
-        {stat.trend} <MaterialIcon name="trending_up" size="sm" />
-      </>
-    ) : undefined,
-  }));
+  const { user, payments, chats } = data
+  const males = Array.isArray(user.males) ? user.males[0] : user.males
+  const totalRevenuePaisa = payments.reduce((s, p) => s + (p.amount_paisa || 0), 0)
+
+  const financialStats = [
+    { label: 'Coin Balance', value: `${(males?.coin_balance ?? 0).toLocaleString('en-IN')}`, icon: 'account_balance', accent: 'primary' },
+    { label: 'Coins Purchased', value: `${(males?.total_coins_purchased ?? 0).toLocaleString('en-IN')}`, icon: 'shopping_bag', accent: 'secondary' },
+    { label: 'Coins Spent', value: `${(males?.total_coins_spent ?? 0).toLocaleString('en-IN')}`, icon: 'payments', accent: 'tertiary' },
+    { label: 'Total Spent (INR)', value: formatRupees(totalRevenuePaisa), icon: 'currency_rupee', accent: 'neutral' },
+    { label: 'Purchase Count', value: String(payments.length), icon: 'receipt_long', accent: 'neutral' },
+    { label: 'Chats Initiated', value: `${(males?.chats_initiated ?? 0).toLocaleString('en-IN')}`, icon: 'forum', accent: 'accent' },
+  ]
+
+  const completedChats = chats.filter(c => c.status === 'completed')
+  const totalDurationMs = completedChats.reduce((s, c) => {
+    if (!c.started_at || !c.ended_at) return s
+    return s + (new Date(c.ended_at) - new Date(c.started_at))
+  }, 0)
+  const totalMin = Math.round(totalDurationMs / 60000)
+  const durationLabel = totalMin > 0 ? `${Math.floor(totalMin / 60)}h ${totalMin % 60}m` : '—'
+
+  const chatMetrics = [
+    { label: 'Total Chats', value: String(males?.chats_initiated ?? 0), icon: 'forum' },
+    { label: 'Total Duration', value: durationLabel, icon: 'schedule' },
+  ]
 
   const accountInfo = [
-    { icon: 'call', label: 'Phone Number', value: user.phone },
-    { icon: 'calendar_today', label: 'Joined At', value: user.joinDate },
-    { icon: 'history', label: 'Last Active', value: user.lastActive },
-  ];
+    { icon: 'call', label: 'Phone Number', value: formatPhone(user.phone) },
+    { icon: 'calendar_today', label: 'Joined At', value: formatDate(user.created_at) },
+    { icon: 'cake', label: 'Age', value: user.age ? `${user.age} years` : '—' },
+  ]
 
   return (
-    <PageContainer className="shell-content--narrow">
+    <PageContainer>
       <AnimatedStaggerGroup className="space-y-10">
         <AnimatedCardEntrance delay={0}>
           <UserProfileHeader
-            avatarUrl={user.avatarUrl}
+            avatarUrl={user.profile_picture_url}
             avatarAlt={`${user.name} profile`}
             username={user.name}
-            gender={user.gender}
+            gender="male"
             age={user.age}
-            userId={user.id}
+            userId={shortId(user.id)}
           />
         </AnimatedCardEntrance>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:col-span-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:col-span-2">
             {financialStats.map((stat, i) => (
-              <AnimatedCardEntrance key={stat.label} delay={0.2 + i * 0.1}>
+              <AnimatedCardEntrance key={stat.label} delay={0.2 + i * 0.07}>
                 <ProfileStatCard {...stat} />
               </AnimatedCardEntrance>
             ))}
           </div>
 
-          <div className="space-y-8">
+          <div className="space-y-4">
             <AnimatedCardEntrance delay={0.5}>
-              <ChatEngagementCard metrics={user.chatMetrics} />
+              <ChatEngagementCard metrics={chatMetrics} />
             </AnimatedCardEntrance>
             <AnimatedCardEntrance delay={0.6}>
               <AccountInfoCard items={accountInfo} />
@@ -80,47 +164,45 @@ export function MaleUserProfilePage() {
           </div>
         </div>
 
-        <AnimatedCardEntrance delay={0.7}>
-          <section className="table-shell">
-            <div className="flex items-center justify-between border-b border-outline-variant px-6 py-4">
-              <h4 className="type-headline-md text-on-surface">Recent Transaction History</h4>
-              <button type="button" className="btn-link">
-                View All
-              </button>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-surface-container-low">
-                  <tr className="table-head">
-                    {['Transaction ID', 'Item', 'Amount', 'Date', 'Status'].map((col) => (
-                      <th key={col} className="px-6 py-3 uppercase">
-                        {col}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-outline-variant">
-                  {user.transactions.map((row) => (
-                    <tr key={row.id} className="table-row">
-                      <td className="table-cell-mono px-6 py-4">#{row.id}</td>
-                      <td className="type-body-md px-6 py-4 normal-case text-on-surface">{row.item}</td>
-                      <td className="type-body-md px-6 py-4 font-semibold normal-case text-on-surface">
-                        {row.amount}
-                      </td>
-                      <td className="type-body-md px-6 py-4 normal-case text-on-surface-variant">
-                        {row.date}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="badge-transaction-success">{row.status}</span>
-                      </td>
+        {payments.length > 0 && (
+          <AnimatedCardEntrance delay={0.7}>
+            <section className="table-shell">
+              <div className="flex items-center justify-between border-b border-outline-variant px-6 py-4">
+                <h4 className="type-headline-md text-on-surface">Payment History</h4>
+                <span className="text-sm text-on-surface-variant">{payments.length} transactions</span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-surface-container-low">
+                    <tr className="table-head">
+                      {['Transaction ID', 'Coins', 'Amount', 'Date', 'Status'].map((col) => (
+                        <th key={col} className="px-6 py-3 uppercase">{col}</th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </AnimatedCardEntrance>
+                  </thead>
+                  <tbody className="divide-y divide-outline-variant">
+                    {payments.map((p) => (
+                      <tr key={p.id} className="table-row">
+                        <td className="table-cell-mono px-6 py-4 text-on-surface-variant">#{shortId(p.id)}</td>
+                        <td className="type-body-md px-6 py-4 font-semibold text-on-surface">
+                          +{p.coins_to_credit?.toLocaleString('en-IN')} coins
+                        </td>
+                        <td className="type-body-md px-6 py-4 font-semibold text-on-surface">
+                          {formatRupees(p.amount_paisa)}
+                        </td>
+                        <td className="type-body-md px-6 py-4 text-on-surface-variant">{formatDate(p.created_at)}</td>
+                        <td className="px-6 py-4">
+                          <span className="badge-transaction-success">Captured</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </AnimatedCardEntrance>
+        )}
       </AnimatedStaggerGroup>
     </PageContainer>
-  );
+  )
 }

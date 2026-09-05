@@ -1,105 +1,139 @@
 import { useEffect, useRef } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { PageContainer } from '../components/layout/PageContainer';
 import { ChatDateSeparator } from '../components/ui/ChatDateSeparator';
 import { ChatMessageBubble } from '../components/ui/ChatMessageBubble';
-import { ChatStatusBanner } from '../components/ui/ChatStatusBanner';
 import { ChatReplayFooter } from '../components/ui/ChatReplayFooter';
+import { MaterialIcon } from '../components/ui/MaterialIcon';
+import { useAdminQuery } from '../hooks/useAdminQuery';
+import { supabase } from '../lib/supabase';
 
-const USER_AVATAR =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuAOEmvT3L-7C3oNDB_zhNbIzRyvJP26h76UhK3uVai0dJwpkjjEEgZHJV5H0QlUzeyFfUi6w5PvKwRafp-Ktqx6WdazzHzjA0cuhwtdMrb7LFZnifGJve1D8OlORYBoJ9d6p6-5mfmyzKmpw9Y2emB3uFH62iOfqs_u2Tqyag7iRDJHqa93e3-gVAqQA625w-7mwh6eJC3dan_VE6vYc40sosH0uFFY2NRIAhPV0OWGFl76Opyw3hJUMrpZmfAay91h8b1Y53WPb3I';
+const PLACEHOLDER_AVATAR = 'https://placehold.co/40x40/e2e8f0/64748b?text=U';
 
-const AGENT_AVATAR =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuD-jrA3i9nII5Cun9H-2Z5d9cqwCk-RS_KHTntrPOYXMAV6_UH6TEUVn7ElATppsAFZXyfvDD4mW3S8ytRL87rFUOardfB7tV9xjJ9qT2x6XZUjsd0ps-pEtfRlaoYDPO8D1uvzVecYYv-GoViHlVebJgPKRDmW0DneLPDrIvA3iWBEnLqyES2jhtAb9Q9FCWlXQVtG9ebed4IOE9tc8C3tnBGMsou15fBMH_UfCoZ7sCTNKkEp0DKAgrCKiK1bQN_yL71moXaJYhM';
+function fetchSessionReplay(chatId) {
+  return async function fetchSessionReplayQuery() {
+    const [sessionResult, messagesResult] = await Promise.all([
+      supabase
+        .from('chat_sessions')
+        .select(`
+          id, status, started_at, ended_at, male_id, female_id,
+          male_user:users!male_id (name, profile_picture_url),
+          female_user:users!female_id (name, profile_picture_url)
+        `)
+        .eq('id', chatId)
+        .single(),
 
-const RECEIPT_IMAGE =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuDBakAI3sEUXUnOX42xoaXmc2JpxveyAiVP1QFmAFvaPdY6_quHbM4W3NTtxOR7h6RyMtNmRxK-ay2uWWqklIks8fQRsscDVwNIZHJF16xZO-O7rBgIPM-TsX-acS2jljyN9-MToDi9OEclCSDr7VA6mZIKhNl7gJA9dZZV0Zaj462wEjOTTJKKR38XM7MnBJc65X7OPmQAlSLoK-H6zjLM_CO9vUgdRy1uP1_FrMaG9kQs5iwiN5mm_F2uCzzyQiGarCwbTTJLc74';
+      supabase
+        .from('chat_messages')
+        .select('id, sender_id, content, sent_at')
+        .eq('session_id', chatId)
+        .order('sent_at', { ascending: true }),
+    ])
 
-const MESSAGES = [
-  {
-    id: '1',
-    avatarUrl: USER_AVATAR,
-    message:
-      "Hello! I'm having an issue with my recent subscription renewal. It seems I was charged twice for the Professional Plan.",
-    time: '09:41 AM',
-    outgoing: false,
-  },
-  {
-    id: '2',
-    avatarUrl: AGENT_AVATAR,
-    message:
-      'Hello, Mr. Henderson. I can certainly help you with that! Let me pull up your transaction records right now. Could you please confirm the last 4 digits of the card used?',
-    time: '09:42 AM',
-    outgoing: true,
-  },
-  {
-    id: '3',
-    avatarUrl: USER_AVATAR,
-    imageCaption: 'Sure, here is a screenshot of the banking notification I received this morning.',
-    imageUrl: RECEIPT_IMAGE,
-    time: '09:43 AM',
-    outgoing: false,
-  },
-];
+    if (sessionResult.error) throw sessionResult.error
 
-const AGENT_FOLLOW_UP = [
-  {
-    id: '4',
-    message:
-      "I've located the duplicate entry. It appears there was a latency spike in the payment gateway during your first attempt. I have initiated a refund for the second transaction.",
-  },
-  {
-    id: '5',
-    message:
-      'The funds should appear back in your account within 3-5 business days. Is there anything else I can assist you with today?',
-  },
-];
+    return {
+      session: sessionResult.data,
+      messages: messagesResult.data || [],
+    }
+  }
+}
+
+function groupMessagesByDay(messages) {
+  const groups = []
+  let currentDay = null
+
+  for (const msg of messages) {
+    const d = new Date(msg.sent_at)
+    const dayKey = d.toDateString()
+    if (dayKey !== currentDay) {
+      currentDay = dayKey
+      groups.push({ type: 'separator', label: d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }), key: dayKey })
+    }
+    groups.push({ type: 'message', ...msg })
+  }
+
+  return groups
+}
+
+function formatTime(sentAt) {
+  return new Date(sentAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
+}
 
 export function ChatReplayPage() {
-  const scrollRef = useRef(null);
+  const { chatId } = useParams()
+  const scrollRef = useRef(null)
+  const { data, loading, error } = useAdminQuery(fetchSessionReplay(chatId), [chatId])
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (scrollRef.current && !loading) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
-  }, []);
+  }, [loading])
+
+  if (loading) {
+    return (
+      <PageContainer flush>
+        <div className="flex h-full items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-outline-variant border-t-primary" />
+        </div>
+      </PageContainer>
+    )
+  }
+
+  if (error || !data?.session) {
+    return (
+      <PageContainer className="flex flex-col items-center justify-center min-h-[50vh] text-center">
+        <div className="bg-surface rounded-xl p-8 max-w-md mx-auto space-y-6 shadow-card">
+          <div className="w-16 h-16 bg-error/10 text-error rounded-full flex items-center justify-center mx-auto">
+            <MaterialIcon name="error_outline" className="text-4xl" />
+          </div>
+          <h3 className="text-xl font-black text-on-surface">Session Not Found</h3>
+          <p className="text-sm text-on-surface-variant">This chat session could not be loaded.</p>
+          <Link to="/transcript" className="btn-primary inline-flex items-center gap-2 px-6 py-2.5 rounded-lg justify-center w-full">
+            <MaterialIcon name="arrow_back" className="text-on-primary" />
+            Back to Transcripts
+          </Link>
+        </div>
+      </PageContainer>
+    )
+  }
+
+  const { session, messages } = data
+  const maleAvatar = session.male_user?.profile_picture_url || PLACEHOLDER_AVATAR
+  const femaleAvatar = session.female_user?.profile_picture_url || PLACEHOLDER_AVATAR
+  const items = groupMessagesByDay(messages)
 
   return (
     <PageContainer flush>
       <div className="chat-replay-layout">
         <div ref={scrollRef} className="chat-replay-scroll">
-          <ChatDateSeparator label="Monday, October 24" />
-
-          {MESSAGES.map((msg) => (
-            <ChatMessageBubble key={msg.id} {...msg} />
-          ))}
-
-          <ChatStatusBanner message="Agent Sarah is verifying the transaction..." />
-
-          <div className="chat-message-row chat-message-row-outgoing max-w-[70%] self-end">
-            <img src={AGENT_AVATAR} alt="" className="chat-message-avatar" />
-            <div className="flex flex-col items-end space-y-1">
-              {AGENT_FOLLOW_UP.map((msg, index) => (
-                <div
-                  key={msg.id}
-                  className={`chat-bubble-outgoing ${index > 0 ? 'mt-2' : ''}`}
-                >
-                  <p className="type-body-md normal-case text-on-sidebar font-medium">{msg.message}</p>
-                </div>
-              ))}
-              <span className="chat-bubble-time chat-bubble-time-outgoing">09:45 AM</span>
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
+              <MaterialIcon name="chat_bubble_outline" className="!text-[48px] text-on-surface-variant/30" />
+              <p className="text-on-surface-variant font-medium">No messages in this session.</p>
             </div>
-          </div>
-
-          <ChatMessageBubble
-            avatarUrl={USER_AVATAR}
-            message="That was very fast, thank you Sarah! That's all for now."
-            time="09:46 AM"
-            outgoing={false}
-          />
+          ) : (
+            items.map((item) => {
+              if (item.type === 'separator') {
+                return <ChatDateSeparator key={item.key} label={item.label} />
+              }
+              const isFemale = item.sender_id === session.female_id
+              return (
+                <ChatMessageBubble
+                  key={item.id}
+                  avatarUrl={isFemale ? femaleAvatar : maleAvatar}
+                  message={item.content}
+                  time={formatTime(item.sent_at)}
+                  outgoing={isFemale}
+                />
+              )
+            })
+          )}
         </div>
 
         <ChatReplayFooter />
       </div>
     </PageContainer>
-  );
+  )
 }

@@ -6,85 +6,62 @@ import { MaterialIcon } from '../components/ui/MaterialIcon';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { SearchableSelect, FilterPanel } from '../components/ui';
 import { useFilteredData } from '../hooks/useFilteredData';
+import { useAdminQuery } from '../hooks/useAdminQuery';
+import { supabase } from '../lib/supabase';
+import { shortId } from '../lib/utils';
 
-const COMPLETED_SESSIONS = [
-  {
-    id: '#CHT-harmony',
-    title: 'Pastel Harmony Session',
-    host: 'Julian M.',
-    hostId: 'USR-1029',
-    guest: 'Elena R.',
-    guestId: 'USR-2045',
-    status: 'Completed',
-    date: 'May 23, 2026',
-    duration: '42:15',
-    messages: 128,
-    safetyScore: '9.8/10',
-    hostAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCsjtsFXy4HiwpA18wotAsbpSldoj0cMxbU6FyiTHXWTdTvXd7RA2v5KfH1MXirPJEpfQ_iQGrhRinkrllVfwf-HhqhTVheUyZx7_dDTp5GJ5yNVst0aUcijIRGiymqRnVtGuHHfXqu9VZPAnLBAPHvu2KRKOQ6FYZOcPHMHGWKg1lZbWgDe471Wkpr2eLRiqFbaC636DC0IIjSnu5PjZKKgL_vJ20vuNygQqqojWvRqVAmw4NGre9rEncFEisvfVuim1niPpKmm50',
-    guestAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDHVrImgb65P6IK4-CzpSQQ78pnCpXEuV3pKVAVK2SA4PLDwF7wM_mEBrc8xpEw8B01kuwYXfqaywfsxDMhPfpTJbTrwXHjdf4ML4LDwYjPDN4gK4xy9HG565m2hazCfAzGKEtT8UWCSyuvpNZ8gxz5rYzIYkqAovGZotbwTP4sdX6bmrI7oc-gzjPlAMHHw4i_53jI-bvWZfra3uNcLhnsGx3nDA77Qd9nP2YKf2xj9pihV_yWgn_iDUsTeBrFv2Z6qVULzhi34ZQ',
-    hostVerified: true,
-    guestPremium: true,
-  },
-  {
-    id: '#CHT-technical',
-    title: 'Technical Admin Support',
-    host: 'Liam S.',
-    hostId: 'USR-3001',
-    guest: 'Sophia K.',
-    guestId: 'USR-2046',
-    status: 'Completed',
-    date: 'May 22, 2026',
-    duration: '18:32',
-    messages: 45,
-    safetyScore: '9.5/10',
-    hostAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD-jrA3i9nII5Cun9H-2Z5d9cqwCk-RS_KHTntrPOYXMAV6_UH6TEUVn7ElATppsAFZXyfvDD4mW3S8ytRL87rFUOardfB7tV9xjJ9qT2x6XZUjsd0ps-pEtfRlaoYDPO8D1uvzVecYYv-GoViHlVebJgPKRDmW0DneLPDrIvA3iWBEnLqyES2jhtAb9Q9FCWlXQVtG9ebed4IOE9tc8C3tnBGMsou15fBMH_UfCoZ7sCTNKkEp0DKAgrCKiK1bQN_yL71moXaJYhM',
-    guestAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCMLOW8Yrk_ulGkiRJuMR3tcbCwHU24mS9RmxRAUksnjQmUNZRZRGx0XZHOeDkCfy1LgY0HKyCg4RS6_PzT-2DEYjtxcKMo5vgmkKa1uNx4UUqK7awz7D-Mj5MC7Jxpcfxv5gayPmGLk6FpX2SDi2dazZ-WxocaxnuIgFoEzW6fOsILUSqEN4niqkMGF4Vj0x79X7EycJophXmuVSnibgnkKToWUb4zZ0r_ywnrRjxF31Lg68vLYiWb5x51Hpwe4YO5GYOytoEWJ24',
-    hostVerified: true,
-    guestPremium: false,
-  },
-  {
-    id: '#CHT-revenue',
-    title: 'Revenue Verification Query',
-    host: 'Noah W.',
-    hostId: 'USR-3002',
-    guest: 'Olivia M.',
-    guestId: 'USR-2045',
-    status: 'Completed',
-    date: 'May 15, 2026',
-    duration: '29:45',
-    messages: 82,
-    safetyScore: '9.9/10',
-    hostAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCUj00C3KT5nSaEAlKpeljYwzdXdFBp_Jzu8fs76Q2pDyi7dWGAZtp8QL3pTTM6-LK8DLOx8ZDgQO0EmF69xck3hb2E2ViTfVcjvDVEtsij1laprpkzgju5KTPMNwyxMFXAdGnBDge8uy6Ev0EzcKnF1zaSVxxdK91G5p2vSJH0aO6RBU0C0rWTfsaH7w05gOL9LkMZviKVYuwZJcEmCWbhigBp5jdwiI3VQTO-6qvjSuLEUBquUexWL5nhwB292VQowMAVk5xmXTw',
-    guestAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuATGH8HWZrgoNSJRnvHbNZIVAK713m_e3vW-BNggJ0W0DSYISvOuXoENkItB6GhKxzaxWww6-pu8SdseG9P_JYDYAHefb0l1rp8sPOgUtsEfjmezwrLSYwPEir-cFOWYaOB7pArM5tXZyFNSSCiYvS1IHmRKcuGjjoljsCPJnTwkFfycy5OgaBsejFVOah0HR8xdIUjyVoHwUK3rqz5Hn_7xhsdyykydJJi5jrqh98K1NcdZJMKSgraJjIIA0eQz1jkNCtKzyUE3Pg',
-    hostVerified: false,
-    guestPremium: true,
-  },
-  {
-    id: '#CHT-general',
-    title: 'General Feedback Session',
-    host: 'Mason T.',
-    hostId: 'USR-1029',
-    guest: 'Isabella G.',
-    guestId: 'USR-2046',
-    status: 'Completed',
-    date: 'Apr 20, 2026',
-    duration: '05:12',
-    messages: 14,
-    safetyScore: '9.2/10',
-    hostAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDlwbX_qgejOvGn8WVEz0iw1djsq_oEtitwXHVoRcYvR4Wwi1sdLFvvFH9jYw4ItBtXZaRisYrn6pGAyV1LCz-LhbA-ANSt9BKSbdmcTVwqrqyNtW4im_8urw20RSGAdocuX475YTAD284Tbj1aBLOW_TLiAxBSfDqWLat48QieL4wJgH8RulJtKF3XsGmWgn_oUhgW9LSc5NeXts0SQWTqrcrdAJH8szoj6Cnb3nZHnij61Y_tuvT3hPs4tvJeZYT9Hw4bGdxSims',
-    guestAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAOEmvT3L-7C3oNDB_zhNbIzRyvJP26h76UhK3uVai0dJwpkjjEEgZHJV5H0QlUzeyFfUi6w5PvKwRafp-Ktqx6WdazzHzjA0cuhwtdMrb7LFZnifGJve1D8OlORYBoJ9d6p6-5mfmyzKmpw9Y2emB3uFH62iOfqs_u2Tqyag7iRDJHqa93e3-gVAqQA625w-7mwh6eJC3dan_VE6vYc40sosH0uFFY2NRIAhPV0OWGFl76Opyw3hJUMrpZmfAay91h8b1Y53WPb3I',
-    hostVerified: true,
-    guestPremium: true,
-  },
-];
+function computeDuration(startedAt, endedAt) {
+  if (!startedAt || !endedAt) return '—'
+  const ms = new Date(endedAt) - new Date(startedAt)
+  if (ms <= 0) return '—'
+  const totalSec = Math.floor(ms / 1000)
+  const mins = Math.floor(totalSec / 60)
+  const secs = totalSec % 60
+  const hrs = Math.floor(mins / 60)
+  const remMins = mins % 60
+  return hrs > 0 ? `${hrs}h ${remMins}m` : `${mins}:${String(secs).padStart(2, '0')}`
+}
+
+const PLACEHOLDER_AVATAR = 'https://placehold.co/96x96/e2e8f0/64748b?text=U';
+
+async function fetchCompletedSessions() {
+  const { data, error } = await supabase
+    .from('chat_sessions')
+    .select(`
+      id, status, started_at, ended_at, male_id, female_id,
+      male_user:users!male_id (name, profile_picture_url),
+      female_user:users!female_id (name, profile_picture_url)
+    `)
+    .order('started_at', { ascending: false })
+    .limit(100)
+
+  if (error) throw error
+
+  return (data || []).map(s => ({
+    id: s.id,
+    shortId: shortId(s.id),
+    title: `${s.male_user?.name || 'Male'} & ${s.female_user?.name || 'Female'}`,
+    host: s.male_user?.name || 'Unknown',
+    hostId: s.male_id,
+    guest: s.female_user?.name || 'Unknown',
+    guestId: s.female_id,
+    hostAvatar: s.male_user?.profile_picture_url || PLACEHOLDER_AVATAR,
+    guestAvatar: s.female_user?.profile_picture_url || PLACEHOLDER_AVATAR,
+    status: s.status,
+    date: s.started_at,
+    startedAt: s.started_at,
+    endedAt: s.ended_at,
+    duration: computeDuration(s.started_at, s.ended_at),
+  }))
+}
 
 export function ChatDetailPage() {
   const navigate = useNavigate();
   const [selectedSession, setSelectedSession] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const { data: sessions, loading } = useAdminQuery(fetchCompletedSessions);
 
-  // Rebuilt filtering hook usage
   const {
     filteredResults,
     searchQuery,
@@ -92,8 +69,8 @@ export function ChatDetailPage() {
     filters,
     updateFilter,
     resetFilters,
-  } = useFilteredData(COMPLETED_SESSIONS, {
-    searchFields: ['id', 'title', 'host', 'hostId', 'guest', 'guestId'],
+  } = useFilteredData(sessions || [], {
+    searchFields: ['id', 'shortId', 'title', 'host', 'hostId', 'guest', 'guestId'],
     initialFilters: {
       id: '',
       hostName: '',
@@ -105,14 +82,13 @@ export function ChatDetailPage() {
     },
   });
 
-  // Unique options for dropdowns
   const options = useMemo(() => ({
-    chatIds: [...new Set(COMPLETED_SESSIONS.map(s => s.id))].sort(),
-    hosts: [...new Set(COMPLETED_SESSIONS.map(s => s.host))].sort(),
-    users: [...new Set(COMPLETED_SESSIONS.map(s => s.guest))].sort(),
-    userIds: [...new Set(COMPLETED_SESSIONS.map(s => s.guestId))].sort(),
+    chatIds: [...new Set((sessions || []).map(s => s.shortId))].sort(),
+    hosts: [...new Set((sessions || []).map(s => s.host))].sort(),
+    users: [...new Set((sessions || []).map(s => s.guest))].sort(),
+    userIds: [...new Set((sessions || []).map(s => s.guestId))].sort(),
     dateRanges: ['All', 'Today', 'Last 7 Days', 'Last 30 Days', 'Custom Date'],
-  }), []);
+  }), [sessions]);
 
   const hasActiveFilters = Object.values(filters).some(v => v !== '');
 
@@ -129,8 +105,8 @@ export function ChatDetailPage() {
     setIsModalOpen(true);
   };
 
-  const handleViewChat = () => {
-    navigate('/transcript/1');
+  const handleViewChat = (sessionId) => {
+    navigate(`/transcript/${sessionId}`);
   };
 
   return (
@@ -249,9 +225,16 @@ export function ChatDetailPage() {
 
         {/* Results Grid */}
         <section className="min-h-[400px] relative">
+          {loading && (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 animate-pulse">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="h-52 bg-surface rounded-2xl border border-outline-variant" />
+              ))}
+            </div>
+          )}
           <AnimatePresence mode="popLayout">
-            {filteredResults.length > 0 ? (
-              <div 
+            {!loading && filteredResults.length > 0 ? (
+              <div
                 className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
               >
                 {filteredResults.map((session) => (
@@ -271,11 +254,11 @@ export function ChatDetailPage() {
                           <MaterialIcon name="history" />
                         </div>
                         <div>
-                          <p className="text-xs font-black text-on-surface-variant uppercase tracking-widest">{session.id}</p>
+                          <p className="text-xs font-black text-on-surface-variant uppercase tracking-widest">#{session.shortId}</p>
                           <p className="text-sm font-bold text-on-surface line-clamp-1">{session.title}</p>
                         </div>
                       </div>
-                      <StatusBadge variant="success">{session.status}</StatusBadge>
+                      <StatusBadge variant={session.status}>{session.status}</StatusBadge>
                     </div>
 
                     {/* Participants */}
@@ -303,22 +286,24 @@ export function ChatDetailPage() {
                           <p className="text-sm font-bold text-on-surface">{session.duration}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-tighter">Messages</p>
-                          <p className="text-sm font-bold text-on-surface">{session.messages}</p>
+                          <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-tighter">Date</p>
+                          <p className="text-sm font-bold text-on-surface">
+                            {session.startedAt ? new Date(session.startedAt).toLocaleDateString('en-IN') : '—'}
+                          </p>
                         </div>
                       </div>
                     </div>
 
                     {/* Action */}
                     <div className="p-4 bg-surface-container-low flex gap-2">
-                      <button 
+                      <button
                         onClick={() => handleOpenDetails(session)}
                         className="flex-1 py-2.5 rounded-xl font-bold text-sm bg-white border border-outline-variant text-on-surface hover:bg-surface-container-highest transition-all"
                       >
                         Details
                       </button>
-                      <button 
-                        onClick={handleViewChat}
+                      <button
+                        onClick={() => handleViewChat(session.id)}
                         className="flex-1 py-2.5 rounded-xl font-bold text-sm bg-primary text-on-primary shadow-md hover:shadow-lg hover:bg-primary/90 transition-all"
                       >
                         Replay
@@ -327,7 +312,7 @@ export function ChatDetailPage() {
                   </motion.div>
                 ))}
               </div>
-            ) : (
+            ) : !loading ? (
               <motion.div
                 key="empty"
                 initial={{ opacity: 0 }}
@@ -338,9 +323,9 @@ export function ChatDetailPage() {
                   <MaterialIcon name="history_toggle_off" className="!text-[40px] text-on-surface-variant/30" />
                 </div>
                 <h3 className="text-2xl font-black text-on-surface">No sessions found</h3>
-                <p className="text-on-surface-variant max-w-xs">We couldn't find any completed sessions matching your search.</p>
+                <p className="text-on-surface-variant max-w-xs">We couldn't find any sessions matching your search.</p>
               </motion.div>
-            )}
+            ) : null}
           </AnimatePresence>
         </section>
       </div>
@@ -389,7 +374,7 @@ export function ChatDetailPage() {
               </div>
 
               <div className="flex gap-4 justify-center">
-                <button onClick={handleViewChat} className="bg-primary text-on-primary px-10 py-4 rounded-2xl font-bold flex items-center gap-3 shadow-lg shadow-accent-glow hover:scale-105 transition-transform active:scale-95">
+                <button onClick={() => handleViewChat(selectedSession.id)} className="bg-primary text-on-primary px-10 py-4 rounded-2xl font-bold flex items-center gap-3 shadow-lg shadow-accent-glow hover:scale-105 transition-transform active:scale-95">
                   <MaterialIcon name="visibility" />
                   <span>View Transcript</span>
                 </button>
@@ -398,12 +383,12 @@ export function ChatDetailPage() {
 
             <div className="bg-surface-container-low/50 border-t border-outline-variant/10 p-8 flex justify-around">
               <div className="text-center">
-                <p className="text-xs font-bold text-on-surface-variant uppercase tracking-tight mb-1">Messages</p>
-                <p className="text-xl font-black text-on-surface">{selectedSession.messages}</p>
+                <p className="text-xs font-bold text-on-surface-variant uppercase tracking-tight mb-1">Duration</p>
+                <p className="text-xl font-black text-on-surface">{selectedSession.duration}</p>
               </div>
               <div className="text-center">
-                <p className="text-xs font-bold text-on-surface-variant uppercase tracking-tight mb-1">Safety Score</p>
-                <p className="text-xl font-black text-emerald-600">{selectedSession.safetyScore}</p>
+                <p className="text-xs font-bold text-on-surface-variant uppercase tracking-tight mb-1">Status</p>
+                <p className="text-xl font-black text-emerald-600 capitalize">{selectedSession.status}</p>
               </div>
             </div>
           </div>
