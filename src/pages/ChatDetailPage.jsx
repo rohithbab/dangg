@@ -9,7 +9,7 @@ import { useFilteredData } from '../hooks/useFilteredData';
 import { Reveal } from '../components/motion/primitives';
 import { LoadingBar } from '../components/motion/Placeholder';
 import { useAdminQuery } from '../hooks/useAdminQuery';
-import { supabase } from '../lib/supabase';
+import { adminApi } from '../lib/adminApi';
 import { shortId } from '../lib/utils';
 
 function computeDuration(startedAt, endedAt) {
@@ -27,17 +27,7 @@ function computeDuration(startedAt, endedAt) {
 const PLACEHOLDER_AVATAR = 'https://placehold.co/96x96/e2e8f0/64748b?text=U';
 
 async function fetchCompletedSessions() {
-  const { data, error } = await supabase
-    .from('chat_sessions')
-    .select(`
-      id, status, started_at, ended_at, male_id, female_id,
-      male_user:users!male_id (name, profile_picture_url),
-      female_user:users!female_id (name, profile_picture_url)
-    `)
-    .order('started_at', { ascending: false })
-    .limit(100)
-
-  if (error) throw error
+  const data = await adminApi('chatSessions')
 
   return (data || []).map(s => ({
     id: s.id,

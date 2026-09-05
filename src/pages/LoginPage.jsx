@@ -20,19 +20,20 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false)
 
   /* ── AUTH LOGIC — UNCHANGED ─────────────────────────────────────────── */
-  const handleSubmit = (e) => {
+  /* login() now performs a network round-trip to the admin-login Edge
+     Function, which verifies the credentials server-side. The artificial
+     setTimeout that used to fake latency is gone — the request provides it. */
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
-    setTimeout(() => {
-      const ok = login(username, password)
-      if (ok) {
-        navigate('/analytics', { replace: true })
-      } else {
-        setError('Invalid credentials. Please try again.')
-        setLoading(false)
-      }
-    }, 400)
+    const result = await login(username, password)
+    if (result.ok) {
+      navigate('/analytics', { replace: true })
+    } else {
+      setError(result.error)
+      setLoading(false)
+    }
   }
 
   const stats = [

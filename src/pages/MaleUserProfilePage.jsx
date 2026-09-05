@@ -7,49 +7,12 @@ import { AccountInfoCard } from '../components/ui/AccountInfoCard';
 import { MaterialIcon } from '../components/ui/MaterialIcon';
 import { AnimatedCardEntrance, AnimatedStaggerGroup } from '../components/animation';
 import { useAdminQuery } from '../hooks/useAdminQuery';
-import { supabase } from '../lib/supabase';
+import { adminApi } from '../lib/adminApi';
 import { formatRupees, formatDate, formatPhone, shortId } from '../lib/utils';
 
 function fetchMaleProfile(userId) {
   return async function fetchMaleProfileQuery() {
-    const [userResult, paymentsResult, chatResult] = await Promise.all([
-      supabase
-        .from('users')
-        .select(`
-          id, name, phone, age, created_at, profile_picture_url,
-          males!inner (
-            coin_balance,
-            total_coins_purchased,
-            total_coins_spent,
-            chats_initiated
-          )
-        `)
-        .eq('id', userId)
-        .eq('role', 'male')
-        .single(),
-
-      supabase
-        .from('payments')
-        .select('id, amount_paisa, coins_to_credit, status, created_at')
-        .eq('male_id', userId)
-        .eq('status', 'captured')
-        .order('created_at', { ascending: false })
-        .limit(10),
-
-      supabase
-        .from('chat_sessions')
-        .select('id, status, started_at, ended_at')
-        .eq('male_id', userId)
-        .order('started_at', { ascending: false })
-        .limit(5),
-    ])
-
-    if (userResult.error) throw userResult.error
-    return {
-      user: userResult.data,
-      payments: paymentsResult.data || [],
-      chats: chatResult.data || [],
-    }
+    return adminApi('userProfile', { userId, role: 'male' })
   }
 }
 

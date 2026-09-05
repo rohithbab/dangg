@@ -10,46 +10,13 @@ import { TableUserCell } from '../components/ui/TableUserCell';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { SearchableSelect, FilterPanel } from '../components/ui';
 import { useAdminQuery } from '../hooks/useAdminQuery';
-import { supabase } from '../lib/supabase';
+import { adminApi } from '../lib/adminApi';
 import { formatRupees, formatDate, shortId } from '../lib/utils';
 import { Reveal } from '../components/motion/primitives';
 import { ValuePlaceholder, LoadingBar } from '../components/motion/Placeholder';
 
 async function fetchPayouts() {
-  /* payout_details has NO foreign key to payouts — it hangs off female_id.
-     Embedding it here returns PGRST200 ("Could not find a relationship between
-     'payouts' and 'payout_details'"), which threw and broke the whole page.
-     Verified against production 2026-09-05. It is fetched separately and joined
-     on female_id below. */
-  const { data, error } = await supabase
-    .from('payouts')
-    .select(`
-      id,
-      status,
-      payout_amount_paisa,
-      coins_requested,
-      female_id,
-      requested_at,
-      utr_number,
-      users!inner (
-        name,
-        profile_picture_url
-      )
-    `)
-    .order('requested_at', { ascending: false })
-
-  if (error) throw error
-  const payouts = data || []
-  if (payouts.length === 0) return []
-
-  const femaleIds = [...new Set(payouts.map(p => p.female_id).filter(Boolean))]
-  const { data: details } = await supabase
-    .from('payout_details')
-    .select('female_id, upi_id, account_number, method')
-    .in('female_id', femaleIds)
-
-  const byFemale = new Map((details || []).map(d => [d.female_id, d]))
-  return payouts.map(p => ({ ...p, payout_details: byFemale.get(p.female_id) ?? null }))
+  return adminApi('payouts')
 }
 
 function statusLabel(status) {
@@ -179,11 +146,8 @@ export function PayoutManagementPage() {
 
   const handleApprove = useCallback(async (payoutId) => {
     setActionLoading(prev => ({ ...prev, [payoutId]: 'approve' }))
-    const { error } = await supabase
-      .from('payouts')
-      .update({ status: 'approved', approved_at: new Date().toISOString() })
-      .eq('id', payoutId)
-      .eq('status', 'pending')
+    let error = null
+    try { await adminApi('approvePayout', { payoutId }) } catch (e) { error = e }
     setActionLoading(prev => ({ ...prev, [payoutId]: null }))
 
     if (error) {
@@ -200,39 +164,37 @@ export function PayoutManagementPage() {
     setActionLoading(prev => ({ ...prev, [payoutId]: action }))
 
     if (action === 'complete') {
-      const { error } = await supabase
-        .from('payouts')
-        .update({ status: 'completed', completed_at: new Date().toISOString(), utr_number: utr.trim() })
-        .eq('id', payoutId)
-        .eq('status', 'approved')
+      try {
+        await adminApi('completePayout', { payoutId, utr: utr.trim() })
+        showToast('Payout marked as completed')
+      } catch (e) {
+        showToast(`Complete failed: ${e.message}`, 'error')
+        setActionLoading(prev => ({ ...prev, [payoutId]: null }))
+        setModal(null)
+        return
+      }
       setActionLoading(prev => ({ ...prev, [payoutId]: null }))
-      if (error) { showToast(`Complete failed: ${error.message}`, 'error'); setModal(null); return }
-      showToast('Payout marked as completed')
     }
 
     if (action === 'reject') {
-      // Refund coins to female, then update status
-      const { error: refundErr } = await supabase.rpc('credit_female_earnings', {
-        p_female_id: femaleId,
-        p_amount: coinsRequested,
-        p_type: 'payout_failed_reversal',
-        p_reference_id: payoutId,
-        p_description: reason.trim() ? `Payout rejected: ${reason.trim()}` : 'Payout rejected by admin',
-      })
-      if (refundErr) { showToast(`Refund failed: ${refundErr.message}`, 'error'); setActionLoading(prev => ({ ...prev, [payoutId]: null })); setModal(null); return }
-
-      const { error } = await supabase
-        .from('payouts')
-        .update({
-          status: 'rejected',
-          rejected_at: new Date().toISOString(),
-          rejection_reason: reason.trim() || null,
+      /* The refund-then-flip ordering now lives server-side in admin-api, so
+         the coins can never be lost to a half-completed sequence in the
+         browser (a closed tab used to be able to do exactly that). */
+      try {
+        await adminApi('rejectPayout', {
+          payoutId,
+          femaleId,
+          coinsRequested,
+          reason: reason.trim(),
         })
-        .eq('id', payoutId)
-        .eq('status', 'pending')
+        showToast('Payout rejected, coins refunded', 'warning')
+      } catch (e) {
+        showToast(`Reject failed: ${e.message}`, 'error')
+        setActionLoading(prev => ({ ...prev, [payoutId]: null }))
+        setModal(null)
+        return
+      }
       setActionLoading(prev => ({ ...prev, [payoutId]: null }))
-      if (error) { showToast(`Reject failed: ${error.message}`, 'error'); setModal(null); return }
-      showToast('Payout rejected, coins refunded', 'warning')
     }
 
     setModal(null)

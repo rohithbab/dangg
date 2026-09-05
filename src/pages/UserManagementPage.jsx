@@ -7,31 +7,13 @@ import { StatusBadge } from '../components/ui/StatusBadge';
 import { MaterialIcon } from '../components/ui/MaterialIcon';
 import { SearchableSelect, FilterPanel } from '../components/ui';
 import { useAdminQuery } from '../hooks/useAdminQuery';
-import { supabase } from '../lib/supabase';
+import { adminApi } from '../lib/adminApi';
 import { formatDate, getInitials, shortId } from '../lib/utils';
 import { Reveal } from '../components/motion/primitives';
 import { LoadingBar } from '../components/motion/Placeholder';
 
 async function fetchUsers() {
-  const { data, error } = await supabase
-    .from('users')
-    .select(`
-      id,
-      name,
-      phone,
-      role,
-      age,
-      is_active,
-      is_suspended,
-      profile_picture_url,
-      created_at,
-      males (coin_balance, chats_initiated),
-      females (verification_status, is_online)
-    `)
-    .order('created_at', { ascending: false })
-
-  if (error) throw error
-  return data || []
+  return adminApi('users')
 }
 
 const TABLE_COLUMNS = ['User', 'Gender', 'Join Date', 'Age', 'Status', 'View']

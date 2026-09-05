@@ -1,4 +1,5 @@
 import { PageContainer } from '../components/layout/PageContainer';
+import { ErrorBanner } from '../components/ui/ErrorBanner';
 import { KpiCard } from '../components/ui/KpiCard';
 import { motion } from 'framer-motion';
 import { Stagger, Reveal } from '../components/motion/primitives';
@@ -8,7 +9,7 @@ import { FunnelBars, RadialProgress } from '../components/viz/charts';
 import { CAT } from '../components/viz/palette';
 import { SplitBar, PulseDot } from '../components/viz/micro';
 import { useAdminQuery } from '../hooks/useAdminQuery';
-import { supabase } from '../lib/supabase';
+import { adminApi } from '../lib/adminApi';
 import { formatRupees } from '../lib/utils';
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -17,44 +18,7 @@ import { formatRupees } from '../lib/utils';
    as it was. Only presentation below this function was redesigned.
    ───────────────────────────────────────────────────────────────────────── */
 async function fetchAnalytics() {
-  const zero = { count: 0, data: [] }
-  const t = (ms) => new Promise(r => setTimeout(() => r(zero), ms))
-  const safeQuery = (q) => Promise.race([
-    q.then(r => r).catch(() => zero),
-    t(5000),
-  ])
-
-  const [r0, r1, r2, r3, r4, r5, r6, r7] = await Promise.all([
-    safeQuery(supabase.from('users').select('*', { count: 'exact', head: true })),
-    safeQuery(supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'male')),
-    safeQuery(supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'female')),
-    safeQuery(supabase.from('payments').select('amount_paisa').eq('status', 'captured')),
-    /* 'processing' is NOT a member of the payout_status enum (valid values are
-       pending/approved/completed/rejected/failed/cancelled). Including it made
-       Postgres reject the whole query with 22P02, so pending payouts always
-       read ₹0. Verified against production 2026-09-05. */
-    safeQuery(supabase.from('payouts').select('payout_amount_paisa').in('status', ['pending', 'approved'])),
-    safeQuery(supabase.from('chat_sessions').select('*', { count: 'exact', head: true })),
-    /* The chat_session_status enum only has 'active' and 'ended' — filtering on
-       'completed' returns a hard 22P02 error from Postgres, so this count was
-       permanently 0. Verified against production 2026-09-05. */
-    safeQuery(supabase.from('chat_sessions').select('*', { count: 'exact', head: true }).eq('status', 'ended')),
-    safeQuery(supabase.from('chat_messages').select('*', { count: 'exact', head: true })),
-  ])
-
-  const payments = r3.data || []
-  const pendingPayouts = r4.data || []
-
-  return {
-    totalUsers: r0.count ?? 0,
-    maleUsers: r1.count ?? 0,
-    femaleUsers: r2.count ?? 0,
-    totalRevenuePaisa: payments.reduce((s, p) => s + (p.amount_paisa || 0), 0),
-    pendingPayoutsPaisa: pendingPayouts.reduce((s, p) => s + (p.payout_amount_paisa || 0), 0),
-    totalChats: r5.count ?? 0,
-    completedChats: r6.count ?? 0,
-    totalMessages: r7.count ?? 0,
-  }
+  return adminApi('analytics')
 }
 
 /* Card chrome shared by the larger panels. Renders identically loading or not
@@ -77,7 +41,7 @@ function Panel({ title, sub, action, children, className = '', span = '' }) {
 }
 
 export function AnalyticsDashboardPage() {
-  const { data, loading } = useAdminQuery(fetchAnalytics)
+  const { data, loading, error, refetch } = useAdminQuery(fetchAnalytics)
 
   /* No early return on `loading` — the whole page renders from first paint and
      individual values fill in. Zeros are safe placeholders because every
@@ -140,6 +104,7 @@ export function AnalyticsDashboardPage() {
 
         <LoadingRegion loading={loading} />
         <LoadingBar active={loading} />
+        <ErrorBanner error={error} onRetry={refetch} />
 
         {/* ── Masthead ───────────────────────────────────────────────────── */}
         <Reveal>

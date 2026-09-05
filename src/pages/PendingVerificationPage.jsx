@@ -6,58 +6,20 @@ import { ValuePlaceholder, LoadingBar } from '../components/motion/Placeholder';
 import { VerificationRequestCard } from '../components/ui/VerificationRequestCard';
 import { MaterialIcon } from '../components/ui/MaterialIcon';
 import { useAdminQuery } from '../hooks/useAdminQuery';
-import { supabase } from '../lib/supabase';
+import { adminApi } from '../lib/adminApi';
 import { formatPhone } from '../lib/utils';
 
 async function fetchPendingVerifications() {
-  const { data, error } = await supabase
-    .from('females')
-    .select(`
-      id,
-      verification_status,
-      verification_submitted_at,
-      verification_photo_path,
-      users!inner (
-        name,
-        phone,
-        profile_picture_url
-      )
-    `)
-    .eq('verification_status', 'pending')
-    .order('verification_submitted_at', { ascending: true })
-
-  if (error) throw error
-
-  const rows = data || []
-
-  // Batch-generate signed URLs for verification photos using service role
-  const signedPhotos = await Promise.all(
-    rows.map(async (f) => {
-      if (!f.verification_photo_path) return null
-      // verification_photo_path is the R2 key, e.g. "verification/photos/{uid}/file.jpg"
-      // Supabase storage bucket is named "verification", so strip the leading "verification/"
-      const bucketPath = f.verification_photo_path.replace(/^verification\//, '')
-      const { data: urlData } = await supabase.storage
-        .from('verification')
-        .createSignedUrl(bucketPath, 3600)
-      return urlData?.signedUrl ?? null
-    })
-  )
-
-  return rows.map((f, i) => ({
+  const rows = await adminApi('pendingVerifications')
+  return rows.map((f) => ({
     id: f.id.substring(0, 8).toUpperCase(),
     fullId: f.id,
     name: f.users?.name || 'Unknown',
     phone: formatPhone(f.users?.phone),
-    imageUrl: signedPhotos[i] || f.users?.profile_picture_url || null,
+    imageUrl: f.signedPhotoUrl || f.users?.profile_picture_url || null,
     imageAlt: `${f.users?.name || 'User'} verification photo`,
-    hasVerificationPhoto: !!signedPhotos[i],
+    hasVerificationPhoto: !!f.signedPhotoUrl,
   }))
-}
-
-const statVariants = {
-  hidden: { opacity: 0, y: 12 },
-  visible: (i) => ({ opacity: 1, y: 0, transition: { delay: i * 0.06, duration: 0.35, ease: [0.16, 1, 0.3, 1] } }),
 }
 
 export function PendingVerificationPage() {
@@ -76,10 +38,8 @@ export function PendingVerificationPage() {
 
   const handleApprove = useCallback(async (fullId, name) => {
     setActionLoading(prev => ({ ...prev, [fullId]: 'approve' }))
-    const { error } = await supabase
-      .from('females')
-      .update({ verification_status: 'verified', verification_decided_at: new Date().toISOString() })
-      .eq('id', fullId)
+    let error = null
+    try { await adminApi('approveVerification', { femaleId: fullId }) } catch (e) { error = e }
     setActionLoading(prev => ({ ...prev, [fullId]: null }))
 
     if (error) {
@@ -100,14 +60,10 @@ export function PendingVerificationPage() {
     if (!rejectModal) return
     const { fullId, name } = rejectModal
     setActionLoading(prev => ({ ...prev, [fullId]: 'reject' }))
-    const { error } = await supabase
-      .from('females')
-      .update({
-        verification_status: 'rejected',
-        verification_decided_at: new Date().toISOString(),
-        verification_rejection_reason: rejectReason.trim() || null,
-      })
-      .eq('id', fullId)
+    let error = null
+    try {
+      await adminApi('rejectVerification', { femaleId: fullId, reason: rejectReason.trim() })
+    } catch (e) { error = e }
     setActionLoading(prev => ({ ...prev, [fullId]: null }))
 
     if (error) {
