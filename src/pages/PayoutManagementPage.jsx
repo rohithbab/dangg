@@ -45,7 +45,9 @@ async function fetchPayouts() {
   const femaleIds = [...new Set(payouts.map(p => p.female_id).filter(Boolean))]
   const { data: details } = await supabase
     .from('payout_details')
-    .select('female_id, upi_id, account_number, method')
+    /* Columns verified against the live payout_details table. The modal shows
+       these so an admin can see WHERE the money is going before releasing it. */
+    .select('female_id, upi_id, account_number, account_holder_name, ifsc_code, method, is_admin_verified')
     .in('female_id', femaleIds)
 
   const byFemale = new Map((details || []).map(d => [d.female_id, d]))
@@ -76,6 +78,24 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
 }
 
+/* One line of the payment-destination block. Values come straight from
+   payout_details and are shown in full — a masked account number is useless
+   for the verification this dialog exists to support. */
+function PayRow({ label, value, mono = false, strong = false }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3">
+      <dt className="shrink-0 text-body-sm text-ink-2">{label}</dt>
+      <dd
+        className={`min-w-0 break-all text-right text-body-sm ${mono ? 'font-mono' : ''} ${
+          strong ? 'font-bold text-ink' : 'font-medium text-ink'
+        }`}
+      >
+        {value || '—'}
+      </dd>
+    </div>
+  )
+}
+
 // ─── Action modal component ────────────────────────────────────────────────────
 function ActionModal({ modal, onClose, onConfirm, actionLoading }) {
   const [utr, setUtr] = useState('')
@@ -104,6 +124,41 @@ function ActionModal({ modal, onClose, onConfirm, actionLoading }) {
               : `Rejecting payout for ${modal.name}. Coins will be refunded automatically.`}
           </p>
         </div>
+
+        {/* Payment destination. Confirming this modal releases real money, and
+            the admin was previously asked for a UTR without ever being shown
+            WHERE the transfer went — the account lived only in a truncated
+            table cell behind the dialog. */}
+        {isComplete && (
+          <div className="rounded-well border border-hairline bg-canvas-sunk p-4">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-label uppercase text-ink-3">Paying to</span>
+              {modal.payTo?.verified
+                ? <span className="pill pill-good">Verified</span>
+                : <span className="pill pill-warn">Unverified</span>}
+            </div>
+
+            {modal.payTo ? (
+              <dl className="mt-3 space-y-2">
+                {modal.payTo.method === 'upi' || modal.payTo.upiId ? (
+                  <PayRow label="UPI ID" value={modal.payTo.upiId} mono />
+                ) : (
+                  <>
+                    <PayRow label="Account holder" value={modal.payTo.accountHolder} />
+                    <PayRow label="Account number" value={modal.payTo.accountNumber} mono />
+                    <PayRow label="IFSC" value={modal.payTo.ifsc} mono />
+                  </>
+                )}
+                <PayRow label="Amount" value={modal.amount} strong />
+              </dl>
+            ) : (
+              <p className="mt-2 text-body-sm text-critical">
+                No payout details on file for this creator. Confirm the destination
+                out-of-band before marking this as paid.
+              </p>
+            )}
+          </div>
+        )}
 
         {isComplete && (
           <div className="space-y-2">
@@ -253,6 +308,17 @@ export function PayoutManagementPage() {
       status: p.status,
       statusLabel: statusLabel(p.status),
       upiId: upiOrAccount,
+      /* Full payment destination, shown in the confirm modal. */
+      payTo: detail
+        ? {
+            method: detail.method,
+            upiId: detail.upi_id,
+            accountNumber: detail.account_number,
+            accountHolder: detail.account_holder_name,
+            ifsc: detail.ifsc_code,
+            verified: detail.is_admin_verified,
+          }
+        : null,
       date: formatDate(p.requested_at),
     }
   }), [rawPayouts])
@@ -320,7 +386,7 @@ export function PayoutManagementPage() {
             type="button"
             className="btn-sm-success flex items-center gap-1.5 disabled:opacity-60"
             disabled={busy}
-            onClick={() => setModal({ action: 'complete', payoutId: row.fullId, femaleId: row.femaleId, coinsRequested: row.coinsRequested, name: row.name })}
+            onClick={() => setModal({ action: 'complete', payoutId: row.fullId, femaleId: row.femaleId, coinsRequested: row.coinsRequested, name: row.name, payTo: row.payTo, amount: row.amount })}
           >
             {loading === 'complete' ? <span className="w-3 h-3 rounded-full border-2 border-white/40 border-t-white animate-spin" /> : null}
             Complete

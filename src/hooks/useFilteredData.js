@@ -143,13 +143,6 @@ export function useFilteredData(data = [], {
     });
   }, [data, searchQuery, searchFields, filters]);
 
-  // Debug logging
-  console.group('🛠️ useFilteredData Debug');
-  console.log('Filters:', filters);
-  console.log('Search:', searchQuery);
-  console.log('Results:', filteredResults.length);
-  console.groupEnd();
-
   return {
     filteredResults,
     searchQuery,

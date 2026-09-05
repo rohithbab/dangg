@@ -5,6 +5,7 @@ import { LoginPage } from './pages/LoginPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { DASHBOARD_NAV_ITEMS } from './routes/dashboardRoutes';
 import { BrandPageLoader } from './components/brand/BrandLoader';
+import { ChunkErrorBoundary } from './components/system/ChunkErrorBoundary';
 
 const AnalyticsDashboardPage = lazy(() => import('./pages/AnalyticsDashboardPage').then(m => ({ default: m.AnalyticsDashboardPage })));
 const RevenueOverviewPage = lazy(() => import('./pages/RevenueOverviewPage').then(m => ({ default: m.RevenueOverviewPage })));
@@ -24,8 +25,15 @@ function PageLoader() {
   return <BrandPageLoader />;
 }
 
+/* Every page is a lazy chunk, so every page can hit a stale-deploy import
+   failure. The boundary goes OUTSIDE Suspense: the rejected import throws
+   while Suspense is resolving, so a boundary nested inside would never see it. */
 function Lazy({ children }) {
-  return <Suspense fallback={<PageLoader />}>{children}</Suspense>;
+  return (
+    <ChunkErrorBoundary>
+      <Suspense fallback={<PageLoader />}>{children}</Suspense>
+    </ChunkErrorBoundary>
+  );
 }
 
 const IMPLEMENTED_ROUTES = new Set([

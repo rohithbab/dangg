@@ -60,6 +60,19 @@ function formatTime(sentAt) {
   return new Date(sentAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
 }
 
+/* How long the session ran. Returns null for a session still open or missing
+   timestamps, so the caller can omit the field rather than print "NaN". */
+function formatDuration(startedAt, endedAt) {
+  if (!startedAt || !endedAt) return null
+  const ms = new Date(endedAt) - new Date(startedAt)
+  if (!Number.isFinite(ms) || ms <= 0) return null
+  const mins = Math.round(ms / 60000)
+  if (mins < 60) return `${mins} min`
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  return m ? `${h}h ${m}m` : `${h}h`
+}
+
 export function ChatReplayPage() {
   const { chatId } = useParams()
   const scrollRef = useRef(null)
@@ -103,11 +116,39 @@ export function ChatReplayPage() {
   const maleAvatar = session.male_user?.profile_picture_url || PLACEHOLDER_AVATAR
   const femaleAvatar = session.female_user?.profile_picture_url || PLACEHOLDER_AVATAR
   const items = groupMessagesByDay(messages)
+  const duration = formatDuration(session.started_at, session.ended_at)
 
   return (
     <PageContainer flush>
       <div className="chat-replay-layout">
+        {/* Who, how long, and how many messages. The page previously identified
+            the conversation only by a raw UUID in the top bar, so an admin
+            reading a transcript could not tell whose it was. */}
+        <header className="chat-status-banner">
+          <div className="mx-auto flex w-full max-w-3xl flex-wrap items-center gap-x-3 gap-y-1.5">
+            <div className="flex min-w-0 items-center gap-2">
+              <img src={femaleAvatar} alt="" className="chat-message-avatar" />
+              <img src={maleAvatar} alt="" className="chat-message-avatar -ml-4" />
+              <span className="min-w-0 truncate font-semibold text-ink">
+                {session.female_user?.name || 'Unknown'}
+                <span className="px-1.5 text-ink-3">↔</span>
+                {session.male_user?.name || 'Unknown'}
+              </span>
+            </div>
+            <span className="chat-status-pill">{session.status}</span>
+            <span className="text-ink-3">·</span>
+            <span>{messages.length} {messages.length === 1 ? 'message' : 'messages'}</span>
+            {duration && (
+              <>
+                <span className="text-ink-3">·</span>
+                <span>{duration}</span>
+              </>
+            )}
+          </div>
+        </header>
+
         <div ref={scrollRef} className="chat-replay-scroll">
+          <div className="chat-replay-thread">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
               <MaterialIcon name="chat_bubble_outline" className="!text-[48px] text-ink-2/30" />
@@ -136,6 +177,7 @@ export function ChatReplayPage() {
               )
             })
           )}
+          </div>
         </div>
 
         <ChatReplayFooter />

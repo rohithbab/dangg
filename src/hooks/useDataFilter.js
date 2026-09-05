@@ -152,17 +152,6 @@ export function useDataFilter(data = [], {
       });
     }
 
-    // FINAL VERIFICATION LOGGING
-    console.group('🔍 Filtering Pipeline Debug');
-    console.log('Active Filters:', filters);
-    console.log('Search Query:', searchQuery);
-    console.log('Raw Data Count:', data.length);
-    console.log('Filtered Results Count:', result.length);
-    if (result.length > 0) {
-      console.log('First Match ID:', result[0].id);
-    }
-    console.groupEnd();
-
     return result;
   }, [data, searchQuery, searchFields, filters, sort]);
 

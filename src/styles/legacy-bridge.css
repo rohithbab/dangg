@@ -189,15 +189,49 @@
   }
 
   /* ── Chat replay ───────────────────────────────────────────────────────── */
-  .chat-replay-layout  { @apply flex h-[calc(100vh-140px)] flex-col; }
-  .chat-replay-scroll  { @apply flex-1 space-y-3 overflow-y-auto px-4 py-5 sm:px-6; }
-  .chat-replay-footer  { @apply border-t border-hairline px-4 py-3 sm:px-6; }
+  /* min-h-0 is required: without it the flex child refuses to shrink and the
+     scroll area overflows the viewport instead of scrolling internally. */
+  .chat-replay-layout  { @apply flex h-[calc(100dvh-64px)] min-h-0 flex-col; }
+  .chat-replay-scroll  { @apply min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6; }
+  /* A transcript is a reading column, not a table — full-width rows stranded
+     every message against the left edge of a 1440px screen. */
+  .chat-replay-thread  { @apply mx-auto w-full max-w-3xl space-y-3; }
+  .chat-replay-footer  { @apply shrink-0 border-t border-hairline bg-card/60 px-4 py-3 sm:px-6; }
   .chat-replay-input   { @apply w-full rounded-pill border border-hairline bg-canvas-sunk px-4 py-2.5 text-body text-ink-3; }
   .chat-status-banner  { @apply flex items-center gap-2 border-b border-hairline px-4 py-2.5 text-body-sm text-ink-2 sm:px-6; }
   .chat-status-pill    { @apply pill pill-neutral; }
   .chat-date-separator { @apply my-4 flex items-center gap-3; }
   .chat-date-label     { @apply shrink-0 rounded-pill bg-canvas-sunk px-3 py-1 text-label-xs uppercase text-ink-3; }
   .chat-bubble-time    { @apply mt-1 block text-label-xs opacity-60; }
+
+  /* Message rows. These six class names were referenced by ChatMessageBubble
+     but defined nowhere, so every bubble rendered as bare unstyled text with
+     no surface, no padding and no left/right alignment — which is what made
+     the transcript look broken once a wide image was in the thread. */
+  .chat-message-row           { @apply flex max-w-full items-end gap-2.5; }
+  .chat-message-row-outgoing  { @apply flex-row-reverse; }
+
+  /* min-w-0 lets long words wrap instead of forcing the row wider than the
+     scroll container; max-w caps the bubble well short of the full width. */
+  .chat-bubble-incoming,
+  .chat-bubble-outgoing {
+    @apply min-w-0 max-w-[min(80%,34rem)] rounded-card px-3.5 py-2.5 shadow-sm
+           [overflow-wrap:anywhere];
+  }
+  .chat-bubble-incoming { @apply rounded-bl-sm border border-hairline bg-card text-ink; }
+  .chat-bubble-outgoing { @apply rounded-br-sm border border-ember/20 bg-ember-soft text-ink; }
+
+  .chat-bubble-time-incoming  { @apply text-left text-ink-3; }
+  .chat-bubble-time-outgoing  { @apply text-right text-ink-3; }
+
+  /* Media inside a bubble is capped by height as well as width: an unbounded
+     photo previously filled the whole viewport and pushed every other message
+     out of view. */
+  .chat-media-frame   { @apply overflow-hidden rounded-xl border border-hairline/60 bg-canvas-sunk; }
+  .chat-media-img     { @apply block max-h-[19rem] w-auto max-w-full cursor-zoom-in object-contain transition-opacity hover:opacity-90; }
+  .chat-media-video   { @apply block max-h-[19rem] w-full bg-black object-contain; }
+  .chat-media-caption { @apply px-1 pt-1.5 text-body-sm normal-case text-ink; }
+  .chat-media-fallback{ @apply flex items-center gap-2 px-3 py-6 text-body-sm text-ink-3; }
 
   /* ── Misc ──────────────────────────────────────────────────────────────── */
   .badge-transaction-success { @apply pill pill-good; }

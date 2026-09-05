@@ -30,3 +30,6 @@ dist-ssr
 # Docker build failed with UNRESOLVED_IMPORT while local builds passed.
 /*.png
 .playwright-mcp/
+
+# Claude Code local session state
+.claude/
