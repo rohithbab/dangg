@@ -17,9 +17,18 @@ export function VerificationRequestCard({
 
   return (
     <article className="verification-card group">
-      <div className="verification-photo-wrap relative">
+      <div
+        className="verification-photo-wrap relative cursor-pointer group/photo"
+        onClick={() => imageUrl && window.open(imageUrl, '_blank', 'noopener,noreferrer')}
+        title={imageUrl ? 'Click to open full photo' : undefined}
+      >
         {imageUrl ? (
-          <img src={imageUrl} alt={imageAlt} className="verification-photo" />
+          <>
+            <img src={imageUrl} alt={imageAlt} className="verification-photo transition-opacity group-hover/photo:opacity-90" />
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/photo:opacity-100 transition-opacity bg-black/20 rounded-xl">
+              <MaterialIcon name="open_in_new" className="!text-2xl text-white drop-shadow" />
+            </div>
+          </>
         ) : (
           <div className="verification-photo flex items-center justify-center bg-surface-container">
             <MaterialIcon name="person" className="!text-6xl text-on-surface-variant/30" />

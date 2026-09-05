@@ -7,6 +7,8 @@ export function ChatMessageBubble({
   imageUrl,
   imageAlt = '',
   imageCaption,
+  videoUrl,
+  videoCaption,
 }) {
   const rowClass = outgoing
     ? 'chat-message-row chat-message-row-outgoing'
@@ -19,13 +21,29 @@ export function ChatMessageBubble({
     <div className={rowClass}>
       <img src={avatarUrl} alt={avatarAlt} className="chat-message-avatar" />
       <div className={`space-y-1 ${alignClass}`.trim()}>
-        {imageUrl ? (
+        {videoUrl ? (
+          <div className={`${bubbleClass} space-y-3 !p-2`}>
+            {videoCaption && (
+              <p className="type-body-md px-2 pt-2 normal-case text-on-surface font-medium">{videoCaption}</p>
+            )}
+            <div className="overflow-hidden rounded-xl border border-outline-variant/60 shadow-inner">
+              <video
+                src={videoUrl}
+                controls
+                playsInline
+                className="h-auto w-full max-h-72 object-contain bg-black"
+              />
+            </div>
+          </div>
+        ) : imageUrl ? (
           <div className={`${bubbleClass} space-y-3 !p-2`}>
             {imageCaption && (
               <p className="type-body-md px-2 pt-2 normal-case text-on-surface font-medium">{imageCaption}</p>
             )}
             <div className="overflow-hidden rounded-xl border border-outline-variant/60 shadow-inner">
-              <img src={imageUrl} alt={imageAlt} className="h-auto w-full object-cover" />
+              <a href={imageUrl} target="_blank" rel="noopener noreferrer">
+                <img src={imageUrl} alt={imageAlt} className="h-auto w-full object-cover cursor-pointer hover:opacity-90 transition-opacity" />
+              </a>
             </div>
           </div>
         ) : (

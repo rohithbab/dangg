@@ -25,7 +25,7 @@ function fetchSessionReplay(chatId) {
 
       supabase
         .from('chat_messages')
-        .select('id, sender_id, body, sent_at')
+        .select('id, sender_id, body, message_type, media_url, sent_at')
         .eq('chat_session_id', chatId)
         .order('sent_at', { ascending: true }),
     ])
@@ -119,13 +119,19 @@ export function ChatReplayPage() {
                 return <ChatDateSeparator key={item.key} label={item.label} />
               }
               const isFemale = item.sender_id === session.female_id
+              const isImage = item.message_type === 'image'
+              const isVideo = item.message_type === 'video'
               return (
                 <ChatMessageBubble
                   key={item.id}
                   avatarUrl={isFemale ? femaleAvatar : maleAvatar}
-                  message={item.body}
                   time={formatTime(item.sent_at)}
                   outgoing={isFemale}
+                  message={(!isImage && !isVideo) ? item.body : undefined}
+                  imageUrl={isImage ? item.media_url : undefined}
+                  imageCaption={isImage && item.body ? item.body : undefined}
+                  videoUrl={isVideo ? item.media_url : undefined}
+                  videoCaption={isVideo && item.body ? item.body : undefined}
                 />
               )
             })
