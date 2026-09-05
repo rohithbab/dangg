@@ -28,6 +28,8 @@ async function fetchRevenue() {
   const completedPayoutsPaisa = (completedPayouts || []).reduce((s, p) => s + (p.payout_amount_paisa || 0), 0)
   const pendingPayoutsPaisa = (pendingPayouts || []).reduce((s, p) => s + (p.payout_amount_paisa || 0), 0)
   const totalFemaleCoins = (femalesData || []).reduce((s, f) => s + (f.earnings_balance_coins || 0), 0)
+  // 1 earning-coin = ₹0.04 (10 paisa × 40% female share)
+  const totalFemaleBalanceRupees = Math.floor(totalFemaleCoins * 4) / 100
   const actualProfitPaisa = totalRevenuePaisa - completedPayoutsPaisa
 
   return {
@@ -35,7 +37,7 @@ async function fetchRevenue() {
     completedPayoutsPaisa,
     actualProfitPaisa,
     pendingPayoutsPaisa,
-    totalFemaleCoins,
+    totalFemaleBalanceRupees,
     femaleCount: femaleCount || 0,
   }
 }
@@ -104,7 +106,7 @@ export function RevenueOverviewPage() {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
           <AnimatedCardEntrance delay={0.4}>
             <WalletBalanceCard
-              amount={d.totalFemaleCoins || 0}
+              amount={d.totalFemaleBalanceRupees || 0}
               avatarUrls={[]}
               avatarCount={d.femaleCount || 0}
             />

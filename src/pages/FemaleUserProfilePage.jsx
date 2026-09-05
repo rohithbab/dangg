@@ -121,7 +121,7 @@ export function FemaleUserProfilePage() {
     .reduce((s, p) => s + (p.payout_amount_paisa || 0), 0)
 
   const earningsStats = [
-    { label: 'Balance (Coins)', value: balanceCoins.toLocaleString('en-IN') },
+    { label: 'Balance', value: formatRupees(balanceCoins * 4), badge: `${balanceCoins.toLocaleString('en-IN')} coins` },
     { label: 'Total Payouts', value: formatRupees(totalPayoutsPaisa), variant: 'accent' },
     { label: 'Pending Payouts', value: formatRupees(pendingPayoutsPaisa), valueTone: 'tertiary' },
     { label: 'Coin Price', value: `${females?.coin_price ?? 0} coins/chat`, valueTone: 'muted' },
