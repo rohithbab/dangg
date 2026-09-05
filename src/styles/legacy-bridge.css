@@ -198,7 +198,9 @@
   .chat-replay-thread  { @apply mx-auto w-full max-w-3xl space-y-3; }
   .chat-replay-footer  { @apply shrink-0 border-t border-hairline bg-card/60 px-4 py-3 sm:px-6; }
   .chat-replay-input   { @apply w-full rounded-pill border border-hairline bg-canvas-sunk px-4 py-2.5 text-body text-ink-3; }
-  .chat-status-banner  { @apply flex items-center gap-2 border-b border-hairline px-4 py-2.5 text-body-sm text-ink-2 sm:px-6; }
+  /* shrink-0 keeps the banner at its natural height; without it the flex
+     parent compresses it as the thread grows and it slides under the top bar. */
+  .chat-status-banner  { @apply flex shrink-0 items-center gap-2 border-b border-hairline bg-card/60 px-4 py-2.5 text-body-sm text-ink-2 sm:px-6; }
   .chat-status-pill    { @apply pill pill-neutral; }
   .chat-date-separator { @apply my-4 flex items-center gap-3; }
   .chat-date-label     { @apply shrink-0 rounded-pill bg-canvas-sunk px-3 py-1 text-label-xs uppercase text-ink-3; }

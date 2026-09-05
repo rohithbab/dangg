@@ -78,10 +78,27 @@ export function ChatReplayPage() {
   const scrollRef = useRef(null)
   const { data, loading, error } = useAdminQuery(fetchSessionReplay(chatId), [chatId])
 
+  /* Jump to the newest message. Media has no intrinsic height until it loads,
+     so scrolling once on `loading` lands short and the last messages stay
+     below the fold — re-pin as each image or video reports its size. */
   useEffect(() => {
-    if (scrollRef.current && !loading) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-    }
+    const el = scrollRef.current
+    if (!el || loading) return
+
+    const toBottom = () => { el.scrollTop = el.scrollHeight }
+    toBottom()
+
+    const media = el.querySelectorAll('img, video')
+    media.forEach((m) => {
+      m.addEventListener('load', toBottom)
+      m.addEventListener('loadedmetadata', toBottom)
+      m.addEventListener('error', toBottom)
+    })
+    return () => media.forEach((m) => {
+      m.removeEventListener('load', toBottom)
+      m.removeEventListener('loadedmetadata', toBottom)
+      m.removeEventListener('error', toBottom)
+    })
   }, [loading])
 
   if (loading) {
