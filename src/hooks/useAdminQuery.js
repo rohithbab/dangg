@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 const cache = new Map()
 
@@ -10,15 +10,14 @@ export function useAdminQuery(queryFn, deps = []) {
   const fnRef = useRef(queryFn)
   fnRef.current = queryFn
 
-  useEffect(() => {
-    if (cache.has(key)) return
-
+  const run = useCallback(() => {
+    cache.delete(key)
     let cancelled = false
     setLoading(true)
     setError(null)
 
     const timeout = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Query timeout')), 3000)
+      setTimeout(() => reject(new Error('Query timeout')), 10000)
     )
 
     Promise.race([fnRef.current(), timeout])
@@ -36,9 +35,22 @@ export function useAdminQuery(queryFn, deps = []) {
           setLoading(false)
         }
       })
+
     return () => { cancelled = true }
+  }, [key])
+
+  useEffect(() => {
+    if (cache.has(key)) return
+    return run()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps)
 
-  return { data, loading, error }
+  const refetch = useCallback(() => run(), [run])
+
+  return { data, loading, error, refetch }
+}
+
+export function invalidateQuery(queryFn) {
+  const key = queryFn.name || queryFn.toString().slice(0, 60)
+  cache.delete(key)
 }

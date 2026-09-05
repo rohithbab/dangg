@@ -6,14 +6,31 @@ export function VerificationRequestCard({
   phone,
   imageUrl,
   imageAlt = '',
+  hasVerificationPhoto,
+  actionLoading,
   onApprove,
   onReject,
 }) {
+  const approving = actionLoading === 'approve'
+  const rejecting = actionLoading === 'reject'
+  const busy = approving || rejecting
+
   return (
     <article className="verification-card group">
-      <div className="verification-photo-wrap">
-        <img src={imageUrl} alt={imageAlt} className="verification-photo" />
+      <div className="verification-photo-wrap relative">
+        {imageUrl ? (
+          <img src={imageUrl} alt={imageAlt} className="verification-photo" />
+        ) : (
+          <div className="verification-photo flex items-center justify-center bg-surface-container">
+            <MaterialIcon name="person" className="!text-6xl text-on-surface-variant/30" />
+          </div>
+        )}
         <span className="verification-id-badge">ID: #{id}</span>
+        {hasVerificationPhoto === false && imageUrl && (
+          <span className="absolute bottom-2 left-2 text-[10px] font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full">
+            Profile pic
+          </span>
+        )}
       </div>
       <div className="mb-6 space-y-1">
         <h3 className="type-headline-md text-on-surface">{name}</h3>
@@ -23,13 +40,31 @@ export function VerificationRequestCard({
         </div>
       </div>
       <div className="flex gap-3">
-        <button type="button" className="btn-verify-approve" onClick={onApprove}>
-          <MaterialIcon name="check" className="text-[18px]" />
-          Approve
+        <button
+          type="button"
+          className="btn-verify-approve flex items-center gap-2 disabled:opacity-60"
+          onClick={onApprove}
+          disabled={busy}
+        >
+          {approving ? (
+            <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+          ) : (
+            <MaterialIcon name="check" className="text-[18px]" />
+          )}
+          {approving ? 'Approving…' : 'Approve'}
         </button>
-        <button type="button" className="btn-verify-reject" onClick={onReject}>
-          <MaterialIcon name="close" className="text-[18px]" />
-          Reject
+        <button
+          type="button"
+          className="btn-verify-reject flex items-center gap-2 disabled:opacity-60"
+          onClick={onReject}
+          disabled={busy}
+        >
+          {rejecting ? (
+            <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+          ) : (
+            <MaterialIcon name="close" className="text-[18px]" />
+          )}
+          {rejecting ? 'Rejecting…' : 'Reject'}
         </button>
       </div>
     </article>

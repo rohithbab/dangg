@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageContainer } from '../components/layout';
 import { VerificationRequestCard } from '../components/ui/VerificationRequestCard';
@@ -14,6 +14,7 @@ async function fetchPendingVerifications() {
       id,
       verification_status,
       verification_submitted_at,
+      verification_photo_path,
       users!inner (
         name,
         phone,
@@ -25,13 +26,30 @@ async function fetchPendingVerifications() {
 
   if (error) throw error
 
-  return (data || []).map(f => ({
+  const rows = data || []
+
+  // Batch-generate signed URLs for verification photos using service role
+  const signedPhotos = await Promise.all(
+    rows.map(async (f) => {
+      if (!f.verification_photo_path) return null
+      // verification_photo_path is the R2 key, e.g. "verification/photos/{uid}/file.jpg"
+      // Supabase storage bucket is named "verification", so strip the leading "verification/"
+      const bucketPath = f.verification_photo_path.replace(/^verification\//, '')
+      const { data: urlData } = await supabase.storage
+        .from('verification')
+        .createSignedUrl(bucketPath, 3600)
+      return urlData?.signedUrl ?? null
+    })
+  )
+
+  return rows.map((f, i) => ({
     id: f.id.substring(0, 8).toUpperCase(),
     fullId: f.id,
     name: f.users?.name || 'Unknown',
     phone: formatPhone(f.users?.phone),
-    imageUrl: f.users?.profile_picture_url || null,
-    imageAlt: `${f.users?.name || 'User'} profile`,
+    imageUrl: signedPhotos[i] || f.users?.profile_picture_url || null,
+    imageAlt: `${f.users?.name || 'User'} verification photo`,
+    hasVerificationPhoto: !!signedPhotos[i],
   }))
 }
 
@@ -41,19 +59,77 @@ const statVariants = {
 }
 
 export function PendingVerificationPage() {
-  const { data: verifications, loading } = useAdminQuery(fetchPendingVerifications)
+  const { data: verifications, loading, refetch } = useAdminQuery(fetchPendingVerifications)
   const [searchQuery, setSearchQuery] = useState('')
+  const [actionLoading, setActionLoading] = useState({})
+  const [optimisticRemoved, setOptimisticRemoved] = useState(new Set())
+  const [rejectModal, setRejectModal] = useState(null) // { fullId, name }
+  const [rejectReason, setRejectReason] = useState('')
+  const [toast, setToast] = useState(null)
+
+  const showToast = useCallback((message, type = 'success') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 3500)
+  }, [])
+
+  const handleApprove = useCallback(async (fullId, name) => {
+    setActionLoading(prev => ({ ...prev, [fullId]: 'approve' }))
+    const { error } = await supabase
+      .from('females')
+      .update({ verification_status: 'verified', verification_decided_at: new Date().toISOString() })
+      .eq('id', fullId)
+    setActionLoading(prev => ({ ...prev, [fullId]: null }))
+
+    if (error) {
+      showToast(`Failed to approve ${name}: ${error.message}`, 'error')
+      return
+    }
+    setOptimisticRemoved(prev => new Set([...prev, fullId]))
+    showToast(`${name} approved successfully`)
+    refetch()
+  }, [refetch, showToast])
+
+  const openRejectModal = useCallback((fullId, name) => {
+    setRejectModal({ fullId, name })
+    setRejectReason('')
+  }, [])
+
+  const handleReject = useCallback(async () => {
+    if (!rejectModal) return
+    const { fullId, name } = rejectModal
+    setActionLoading(prev => ({ ...prev, [fullId]: 'reject' }))
+    const { error } = await supabase
+      .from('females')
+      .update({
+        verification_status: 'rejected',
+        verification_decided_at: new Date().toISOString(),
+        verification_rejection_reason: rejectReason.trim() || null,
+      })
+      .eq('id', fullId)
+    setActionLoading(prev => ({ ...prev, [fullId]: null }))
+
+    if (error) {
+      showToast(`Failed to reject ${name}: ${error.message}`, 'error')
+      setRejectModal(null)
+      return
+    }
+    setOptimisticRemoved(prev => new Set([...prev, fullId]))
+    setRejectModal(null)
+    showToast(`${name} rejected`, 'warning')
+    refetch()
+  }, [rejectModal, rejectReason, refetch, showToast])
 
   const stats = useMemo(() => {
-    const total = (verifications || []).length
+    const total = (verifications || []).filter(v => !optimisticRemoved.has(v.fullId)).length
     return [
       { label: 'Pending Review', value: total, icon: 'pending', accent: 'text-amber-500 bg-amber-50' },
       { label: 'Reviewed Today', value: 0, icon: 'check_circle', accent: 'text-emerald-600 bg-emerald-50' },
       { label: 'Avg. Wait Time', value: '—', icon: 'schedule', accent: 'text-blue-500 bg-blue-50' },
     ]
-  }, [verifications])
+  }, [verifications, optimisticRemoved])
 
   const filtered = (verifications || []).filter(v => {
+    if (optimisticRemoved.has(v.fullId)) return false
     if (!searchQuery) return true
     const q = searchQuery.toLowerCase()
     return (
@@ -65,6 +141,71 @@ export function PendingVerificationPage() {
 
   return (
     <PageContainer>
+      {/* Toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-4 rounded-2xl shadow-xl font-bold text-white ${
+              toast.type === 'error' ? 'bg-red-600' : toast.type === 'warning' ? 'bg-amber-500' : 'bg-emerald-600'
+            }`}
+          >
+            <MaterialIcon name={toast.type === 'error' ? 'error' : toast.type === 'warning' ? 'warning' : 'check_circle'} className="!text-[20px]" />
+            {toast.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Reject reason modal */}
+      <AnimatePresence>
+        {rejectModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 space-y-6"
+            >
+              <div>
+                <h3 className="text-xl font-black text-on-surface">Reject Verification</h3>
+                <p className="text-sm text-on-surface-variant mt-1">
+                  Rejecting <span className="font-bold">{rejectModal.name}</span>. The user will be notified.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant">
+                  Reason (optional)
+                </label>
+                <textarea
+                  className="w-full border border-outline-variant rounded-2xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-red-400"
+                  rows={3}
+                  placeholder="e.g. Photo is blurry, face not visible..."
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setRejectModal(null)}
+                  className="flex-1 py-3 rounded-2xl font-bold border border-outline-variant text-on-surface hover:bg-surface-container transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleReject}
+                  disabled={actionLoading[rejectModal.fullId] === 'reject'}
+                  className="flex-1 py-3 rounded-2xl font-bold bg-red-500 text-white hover:bg-red-600 transition-colors disabled:opacity-60"
+                >
+                  {actionLoading[rejectModal.fullId] === 'reject' ? 'Rejecting…' : 'Confirm Reject'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Header + stats */}
       <div className="mb-8 space-y-6">
         <div>
@@ -135,7 +276,12 @@ export function PendingVerificationPage() {
                     exit={{ opacity: 0, scale: 0.97 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <VerificationRequestCard {...request} />
+                    <VerificationRequestCard
+                      {...request}
+                      actionLoading={actionLoading[request.fullId]}
+                      onApprove={() => handleApprove(request.fullId, request.name)}
+                      onReject={() => openRejectModal(request.fullId, request.name)}
+                    />
                   </motion.div>
                 ))}
               </motion.div>

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageContainer } from '../components/layout/PageContainer';
 import { MaterialIcon } from '../components/ui/MaterialIcon';
@@ -20,6 +20,8 @@ async function fetchPayouts() {
       id,
       status,
       payout_amount_paisa,
+      coins_requested,
+      female_id,
       requested_at,
       utr_number,
       users!inner (
@@ -38,15 +40,6 @@ async function fetchPayouts() {
   return data || []
 }
 
-function statusActions(status) {
-  if (status === 'pending') return 'approve'
-  if (status === 'approved') return 'complete-reject'
-  if (status === 'completed') return 'processed'
-  if (status === 'rejected' || status === 'failed' || status === 'cancelled') return 'none'
-  if (status === 'processing') return 'processing'
-  return 'none'
-}
-
 function statusLabel(status) {
   const map = {
     pending: 'Pending',
@@ -60,30 +53,6 @@ function statusLabel(status) {
   return map[status] || status
 }
 
-function PayoutRowActions({ type }) {
-  if (type === 'none') {
-    return <div className="text-right pr-4 text-on-surface-variant font-bold">—</div>
-  }
-  if (type === 'approve') {
-    return <button type="button" className="btn-sm-primary" disabled>Approve</button>
-  }
-  if (type === 'complete-reject') {
-    return (
-      <div className="flex justify-end gap-2">
-        <button type="button" className="btn-sm-success" disabled>Complete</button>
-        <button type="button" className="btn-sm-danger-outline" disabled>Reject</button>
-      </div>
-    )
-  }
-  if (type === 'processed') {
-    return <span className="text-sm italic text-on-surface-variant">Processed</span>
-  }
-  if (type === 'processing') {
-    return <span className="text-sm font-semibold text-primary">In transit</span>
-  }
-  return null
-}
-
 const TABLE_COLUMNS = ['User ID', 'User Name', 'Amount', 'Status', 'UPI / Account', 'Requested Date', 'Actions']
 
 const containerVariants = {
@@ -95,11 +64,170 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
 }
 
+// ─── Action modal component ────────────────────────────────────────────────────
+function ActionModal({ modal, onClose, onConfirm, actionLoading }) {
+  const [utr, setUtr] = useState('')
+  const [reason, setReason] = useState('')
+  if (!modal) return null
+
+  const isComplete = modal.action === 'complete'
+  const isReject = modal.action === 'reject'
+  const busy = !!actionLoading
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 space-y-6"
+      >
+        <div>
+          <h3 className="text-xl font-black text-on-surface">
+            {isComplete ? 'Mark as Completed' : 'Reject Payout'}
+          </h3>
+          <p className="text-sm text-on-surface-variant mt-1">
+            {isComplete
+              ? `Enter the UTR number to confirm payment to ${modal.name}.`
+              : `Rejecting payout for ${modal.name}. Coins will be refunded automatically.`}
+          </p>
+        </div>
+
+        {isComplete && (
+          <div className="space-y-2">
+            <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant">
+              UTR Number <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              className="w-full border border-outline-variant rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary"
+              placeholder="e.g. 123456789012"
+              value={utr}
+              onChange={(e) => setUtr(e.target.value)}
+            />
+          </div>
+        )}
+
+        {isReject && (
+          <div className="space-y-2">
+            <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant">
+              Reason (optional)
+            </label>
+            <textarea
+              className="w-full border border-outline-variant rounded-2xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-red-400"
+              rows={3}
+              placeholder="e.g. Invalid UPI ID, account not found..."
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+            />
+          </div>
+        )}
+
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            disabled={busy}
+            className="flex-1 py-3 rounded-2xl font-bold border border-outline-variant text-on-surface hover:bg-surface-container transition-colors disabled:opacity-60"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => onConfirm({ utr, reason })}
+            disabled={busy || (isComplete && !utr.trim())}
+            className={`flex-1 py-3 rounded-2xl font-bold transition-colors disabled:opacity-60 ${
+              isReject
+                ? 'bg-red-500 text-white hover:bg-red-600'
+                : 'bg-primary text-on-primary hover:bg-primary/90'
+            }`}
+          >
+            {busy ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                Processing…
+              </span>
+            ) : isComplete ? 'Confirm Completed' : 'Confirm Reject'}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
 export function PayoutManagementPage() {
-  const { data: rawPayouts, loading } = useAdminQuery(fetchPayouts)
+  const { data: rawPayouts, loading, refetch } = useAdminQuery(fetchPayouts)
   const [showFilters, setShowFilters] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState({ status: '', dateRange: '' })
+  const [modal, setModal] = useState(null) // { action, payoutId, femaleId, coinsRequested, name }
+  const [actionLoading, setActionLoading] = useState({})
+  const [toast, setToast] = useState(null)
+
+  const showToast = useCallback((message, type = 'success') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 3500)
+  }, [])
+
+  const handleApprove = useCallback(async (payoutId) => {
+    setActionLoading(prev => ({ ...prev, [payoutId]: 'approve' }))
+    const { error } = await supabase
+      .from('payouts')
+      .update({ status: 'approved', approved_at: new Date().toISOString() })
+      .eq('id', payoutId)
+      .eq('status', 'pending')
+    setActionLoading(prev => ({ ...prev, [payoutId]: null }))
+
+    if (error) {
+      showToast(`Approve failed: ${error.message}`, 'error')
+      return
+    }
+    showToast('Payout approved')
+    refetch()
+  }, [refetch, showToast])
+
+  const handleModalConfirm = useCallback(async ({ utr, reason }) => {
+    if (!modal) return
+    const { action, payoutId, femaleId, coinsRequested } = modal
+    setActionLoading(prev => ({ ...prev, [payoutId]: action }))
+
+    if (action === 'complete') {
+      const { error } = await supabase
+        .from('payouts')
+        .update({ status: 'completed', completed_at: new Date().toISOString(), utr_number: utr.trim() })
+        .eq('id', payoutId)
+        .eq('status', 'approved')
+      setActionLoading(prev => ({ ...prev, [payoutId]: null }))
+      if (error) { showToast(`Complete failed: ${error.message}`, 'error'); setModal(null); return }
+      showToast('Payout marked as completed')
+    }
+
+    if (action === 'reject') {
+      // Refund coins to female, then update status
+      const { error: refundErr } = await supabase.rpc('credit_female_earnings', {
+        p_female_id: femaleId,
+        p_amount: coinsRequested,
+        p_type: 'payout_failed_reversal',
+        p_reference_id: payoutId,
+        p_description: reason.trim() ? `Payout rejected: ${reason.trim()}` : 'Payout rejected by admin',
+      })
+      if (refundErr) { showToast(`Refund failed: ${refundErr.message}`, 'error'); setActionLoading(prev => ({ ...prev, [payoutId]: null })); setModal(null); return }
+
+      const { error } = await supabase
+        .from('payouts')
+        .update({
+          status: 'rejected',
+          rejected_at: new Date().toISOString(),
+          rejection_reason: reason.trim() || null,
+        })
+        .eq('id', payoutId)
+        .eq('status', 'pending')
+      setActionLoading(prev => ({ ...prev, [payoutId]: null }))
+      if (error) { showToast(`Reject failed: ${error.message}`, 'error'); setModal(null); return }
+      showToast('Payout rejected, coins refunded', 'warning')
+    }
+
+    setModal(null)
+    refetch()
+  }, [modal, refetch, showToast])
 
   const payouts = useMemo(() => (rawPayouts || []).map(p => {
     const detail = Array.isArray(p.payout_details) ? p.payout_details[0] : p.payout_details
@@ -107,7 +235,8 @@ export function PayoutManagementPage() {
     return {
       id: shortId(p.id),
       fullId: p.id,
-      userId: shortId(p.id),
+      femaleId: p.female_id,
+      coinsRequested: p.coins_requested,
       name: p.users?.name || 'Unknown',
       avatarUrl: p.users?.profile_picture_url || null,
       amount: formatRupees(p.payout_amount_paisa),
@@ -115,7 +244,6 @@ export function PayoutManagementPage() {
       statusLabel: statusLabel(p.status),
       upiId: upiOrAccount,
       date: formatDate(p.requested_at),
-      actions: statusActions(p.status),
     }
   }), [rawPayouts])
 
@@ -156,8 +284,88 @@ export function PayoutManagementPage() {
     dateRanges: ['All', 'Today', 'Last 7 Days', 'Last 30 Days'],
   }
 
+  function renderActions(row) {
+    const loading = actionLoading[row.fullId]
+    const busy = !!loading
+
+    if (row.status === 'pending') {
+      return (
+        <button
+          type="button"
+          className="btn-sm-primary flex items-center gap-1.5 disabled:opacity-60"
+          disabled={busy}
+          onClick={() => handleApprove(row.fullId)}
+        >
+          {loading === 'approve' ? (
+            <span className="w-3 h-3 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+          ) : null}
+          {loading === 'approve' ? 'Approving…' : 'Approve'}
+        </button>
+      )
+    }
+    if (row.status === 'approved') {
+      return (
+        <div className="flex justify-end gap-2">
+          <button
+            type="button"
+            className="btn-sm-success flex items-center gap-1.5 disabled:opacity-60"
+            disabled={busy}
+            onClick={() => setModal({ action: 'complete', payoutId: row.fullId, femaleId: row.femaleId, coinsRequested: row.coinsRequested, name: row.name })}
+          >
+            {loading === 'complete' ? <span className="w-3 h-3 rounded-full border-2 border-white/40 border-t-white animate-spin" /> : null}
+            Complete
+          </button>
+          <button
+            type="button"
+            className="btn-sm-danger-outline flex items-center gap-1.5 disabled:opacity-60"
+            disabled={busy}
+            onClick={() => setModal({ action: 'reject', payoutId: row.fullId, femaleId: row.femaleId, coinsRequested: row.coinsRequested, name: row.name })}
+          >
+            Reject
+          </button>
+        </div>
+      )
+    }
+    if (row.status === 'completed') {
+      return <span className="text-sm italic text-on-surface-variant">Processed</span>
+    }
+    if (row.status === 'processing') {
+      return <span className="text-sm font-semibold text-primary">In transit</span>
+    }
+    return <div className="text-right pr-4 text-on-surface-variant font-bold">—</div>
+  }
+
   return (
     <PageContainer>
+      {/* Toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-4 rounded-2xl shadow-xl font-bold text-white ${
+              toast.type === 'error' ? 'bg-red-600' : toast.type === 'warning' ? 'bg-amber-500' : 'bg-emerald-600'
+            }`}
+          >
+            <MaterialIcon name={toast.type === 'error' ? 'error' : toast.type === 'warning' ? 'warning' : 'check_circle'} className="!text-[20px]" />
+            {toast.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {modal && (
+          <ActionModal
+            modal={modal}
+            onClose={() => setModal(null)}
+            onConfirm={handleModalConfirm}
+            actionLoading={actionLoading[modal.payoutId]}
+          />
+        )}
+      </AnimatePresence>
+
       {loading ? (
         <div className="space-y-8 animate-pulse">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -255,13 +463,13 @@ export function PayoutManagementPage() {
                             transition={{ duration: 0.2, ease: 'easeOut' }}
                             className="table-row"
                           >
-                            <td className="table-cell-mono px-6 py-5">#{row.userId}</td>
+                            <td className="table-cell-mono px-6 py-5">#{row.id}</td>
                             <td className="px-6 py-5"><TableUserCell name={row.name} avatarUrl={row.avatarUrl} /></td>
                             <td className="px-6 py-5 text-right font-bold">{row.amount}</td>
                             <td className="px-6 py-5"><StatusBadge variant={row.status}>{row.statusLabel}</StatusBadge></td>
                             <td className="px-6 py-5 italic text-on-surface-variant">{row.upiId}</td>
                             <td className="px-6 py-5 text-on-surface-variant">{row.date}</td>
-                            <td className="table-cell-actions px-6 py-5"><PayoutRowActions type={row.actions} /></td>
+                            <td className="table-cell-actions px-6 py-5">{renderActions(row)}</td>
                           </motion.tr>
                         ))
                       ) : (
