@@ -75,11 +75,30 @@ export async function login(username, password) {
     return { ok: false, error: 'Cannot reach the server. Check your connection.' };
   }
 
+  /* Distinguish "you typed the wrong password" from "the server is broken".
+     Collapsing every non-2xx into "Invalid credentials" once sent an admin
+     hunting a password problem for an hour while the real cause was an
+     undeployed Edge Function returning 500. Only 401/403 mean bad credentials. */
   if (res.status === 429) {
     return { ok: false, error: 'Too many attempts. Please wait and try again.' };
   }
-  if (!res.ok) {
+  if (res.status === 401 || res.status === 403) {
     return { ok: false, error: 'Invalid credentials. Please try again.' };
+  }
+  if (!res.ok) {
+    let detail = '';
+    try {
+      const body = await res.clone().json();
+      detail = body?.msg || body?.error || '';
+    } catch { /* non-JSON error body */ }
+    console.error('admin-login failed', res.status, detail);
+    return {
+      ok: false,
+      error:
+        res.status >= 500
+          ? `Sign-in service is unavailable (HTTP ${res.status}). This is a server problem, not your password — contact the administrator.`
+          : `Sign-in failed (HTTP ${res.status}). Please try again.`,
+    };
   }
 
   let body;
