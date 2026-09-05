@@ -25,5 +25,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-*.png
+# Screenshots and scratch captures at the repo root only — NOT real assets.
+# A blanket *.png once silently excluded src/assets/brand/*.png, so the
+# Docker build failed with UNRESOLVED_IMPORT while local builds passed.
+/*.png
 .playwright-mcp/
