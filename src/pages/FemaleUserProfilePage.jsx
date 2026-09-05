@@ -21,7 +21,7 @@ const VERIFICATION_STATUS_TONE = {
 
 function fetchFemaleProfile(userId) {
   return async function fetchFemaleProfileQuery() {
-    const [userResult, payoutsResult] = await Promise.all([
+    const [userResult, payoutsResult, detailResult] = await Promise.all([
       supabase
         .from('users')
         .select(`
@@ -41,18 +41,31 @@ function fetchFemaleProfile(userId) {
         .eq('role', 'female')
         .single(),
 
+      /* payout_details has NO foreign key to payouts (it hangs off female_id),
+         so embedding it returns PGRST200 and this query silently returned
+         nothing — the payout history table was always empty. Fetched
+         separately below. Verified against production 2026-09-05. */
       supabase
         .from('payouts')
-        .select('id, status, payout_amount_paisa, requested_at, utr_number, payout_details(upi_id, method)')
+        .select('id, status, payout_amount_paisa, requested_at, utr_number')
         .eq('female_id', userId)
         .order('requested_at', { ascending: false })
         .limit(10),
+
+      supabase
+        .from('payout_details')
+        .select('upi_id, method')
+        .eq('female_id', userId)
+        .maybeSingle(),
     ])
 
     if (userResult.error) throw userResult.error
+    /* This creator's payout method is the same on every one of their payouts,
+       so the single lookup is attached to each row. */
+    const detail = detailResult?.data ?? null
     return {
       user: userResult.data,
-      payouts: payoutsResult.data || [],
+      payouts: (payoutsResult.data || []).map(p => ({ ...p, payout_details: detail })),
     }
   }
 }
@@ -139,7 +152,7 @@ export function FemaleUserProfilePage() {
     .reduce((s, p) => s + (p.payout_amount_paisa || 0), 0)
 
   const earningsStats = [
-    { label: 'Balance (Coins)', value: balanceCoins.toLocaleString('en-IN') },
+    { label: 'Balance', value: formatRupees(balanceCoins * 4), badge: `${balanceCoins.toLocaleString('en-IN')} coins` },
     { label: 'Total Payouts', value: formatRupees(totalPayoutsPaisa), variant: 'accent' },
     { label: 'Pending Payouts', value: formatRupees(pendingPayoutsPaisa), valueTone: 'tertiary' },
     { label: 'Coin Price', value: `${females?.coin_price ?? 0} coins/chat`, valueTone: 'muted' },

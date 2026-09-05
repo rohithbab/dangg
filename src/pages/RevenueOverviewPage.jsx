@@ -34,6 +34,8 @@ async function fetchRevenue() {
   const completedPayoutsPaisa = (completedPayouts || []).reduce((s, p) => s + (p.payout_amount_paisa || 0), 0)
   const pendingPayoutsPaisa = (pendingPayouts || []).reduce((s, p) => s + (p.payout_amount_paisa || 0), 0)
   const totalFemaleCoins = (femalesData || []).reduce((s, f) => s + (f.earnings_balance_coins || 0), 0)
+  // 1 earning-coin = ₹0.04 (10 paisa × 40% female share)
+  const totalFemaleBalanceRupees = Math.floor(totalFemaleCoins * 4) / 100
   const actualProfitPaisa = totalRevenuePaisa - completedPayoutsPaisa
 
   return {
@@ -41,6 +43,7 @@ async function fetchRevenue() {
     completedPayoutsPaisa,
     actualProfitPaisa,
     pendingPayoutsPaisa,
+    totalFemaleBalanceRupees,
     totalFemaleCoins,
     femaleCount: femaleCount || 0,
   }
@@ -72,6 +75,7 @@ export function RevenueOverviewPage() {
   const profit = Math.max(0, d.actualProfitPaisa ?? 0)
   const pending = d.pendingPayoutsPaisa ?? 0
   const coins = d.totalFemaleCoins ?? 0
+  const balanceRupees = d.totalFemaleBalanceRupees ?? 0
   const earners = d.femaleCount ?? 0
 
   /* Derived, presentation only. */
@@ -79,6 +83,7 @@ export function RevenueOverviewPage() {
   const paidPct = revenue > 0 ? Math.round((paidOut / revenue) * 100) : 0
   const liabilityPct = revenue > 0 ? Math.round((pending / revenue) * 100) : 0
   const avgCoins = earners > 0 ? Math.round(coins / earners) : 0
+  const avgRupees = earners > 0 ? balanceRupees / earners : 0
 
   /* A genuine part-to-whole: paid + retained = collected. */
   const split = [
@@ -204,17 +209,26 @@ export function RevenueOverviewPage() {
 
         {/* Creator wallet exposure */}
         <Stagger className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2" gap={0.09} delay={0.25}>
-          <Panel title="Creator Wallets" sub="Unwithdrawn coin balances held by creators">
+          <Panel title="Creator Wallets" sub="Unwithdrawn balances held by creators">
             <div className="flex items-end justify-between gap-4">
-              <div>
-                <span className="metric-label">Total coins held</span>
+              <div className="min-w-0">
+                {/* Rupees lead — that is the real liability. The coin count is
+                    the secondary unit (1 earning-coin = ₹0.04). */}
+                <span className="metric-label">Owed to creators</span>
                 {loading ? (
-                  <div className="mt-1 font-display text-metric"><ValuePlaceholder sample="00,000" /></div>
+                  <div className="mt-1 font-display text-metric"><ValuePlaceholder sample="₹0,000" /></div>
                 ) : (
-                  <Metric value={coins} className="mt-1" />
+                  <div className="mt-1 font-display text-metric text-ink tabular">
+                    {formatRupees(Math.round(balanceRupees * 100))}
+                  </div>
+                )}
+                {!loading && (
+                  <span className="mt-1 block text-label-xs text-ink-3">
+                    {coins.toLocaleString('en-IN')} coins
+                  </span>
                 )}
               </div>
-              <div className="text-right">
+              <div className="shrink-0 text-right">
                 <span className="metric-label">Earners</span>
                 {loading ? (
                   <div className="mt-1 font-display text-metric-sm"><ValuePlaceholder sample="000" /></div>
@@ -223,10 +237,12 @@ export function RevenueOverviewPage() {
                 )}
               </div>
             </div>
-            <div className="mt-5 flex items-center justify-between border-t border-hairline pt-4">
-              <span className="text-body-sm text-ink-2">Average balance per earner</span>
-              <span className="text-body-sm font-semibold text-ink tabular">
-                {loading ? <ValuePlaceholder sample="0,000" /> : `${avgCoins.toLocaleString('en-IN')} coins`}
+            <div className="mt-5 flex items-center justify-between gap-3 border-t border-hairline pt-4">
+              <span className="text-body-sm text-ink-2">Average per earner</span>
+              <span className="shrink-0 text-body-sm font-semibold text-ink tabular">
+                {loading
+                  ? <ValuePlaceholder sample="₹000" />
+                  : `${formatRupees(Math.round(avgRupees * 100))} · ${avgCoins.toLocaleString('en-IN')} coins`}
               </span>
             </div>
           </Panel>
