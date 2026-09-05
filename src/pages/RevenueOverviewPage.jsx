@@ -1,5 +1,4 @@
 import { PageContainer } from '../components/layout/PageContainer';
-import { ErrorBanner } from '../components/ui/ErrorBanner';
 import { KpiCard } from '../components/ui/KpiCard';
 import { Stagger, Reveal } from '../components/motion/primitives';
 import { RupeeMetric, Metric } from '../components/motion/Metric';
@@ -8,14 +7,46 @@ import { FunnelBars, RadialProgress } from '../components/viz/charts';
 import { CAT } from '../components/viz/palette';
 import { PulseDot } from '../components/viz/micro';
 import { useAdminQuery } from '../hooks/useAdminQuery';
-import { adminApi } from '../lib/adminApi';
+import { supabase } from '../lib/supabase';
 import { formatRupees } from '../lib/utils';
 
 /* ─────────────────────────────────────────────────────────────────────────
    DATA LAYER — UNCHANGED.
    ───────────────────────────────────────────────────────────────────────── */
 async function fetchRevenue() {
-  return adminApi('revenue')
+  const [
+    { data: capturedPayments },
+    { data: completedPayouts },
+    { data: pendingPayouts },
+    { data: femalesData },
+    { count: femaleCount },
+  ] = await Promise.all([
+    supabase.from('payments').select('amount_paisa').eq('status', 'captured'),
+    supabase.from('payouts').select('payout_amount_paisa').eq('status', 'completed'),
+    /* 'processing' is NOT a member of the payout_status enum — including it
+       made Postgres reject the query with 22P02. Verified 2026-09-05. */
+    supabase.from('payouts').select('payout_amount_paisa').in('status', ['pending', 'approved']),
+    supabase.from('females').select('earnings_balance_coins').gt('earnings_balance_coins', 0),
+    supabase.from('females').select('*', { count: 'exact', head: true }).gt('earnings_balance_coins', 0),
+  ])
+
+  const totalRevenuePaisa = (capturedPayments || []).reduce((s, p) => s + (p.amount_paisa || 0), 0)
+  const completedPayoutsPaisa = (completedPayouts || []).reduce((s, p) => s + (p.payout_amount_paisa || 0), 0)
+  const pendingPayoutsPaisa = (pendingPayouts || []).reduce((s, p) => s + (p.payout_amount_paisa || 0), 0)
+  const totalFemaleCoins = (femalesData || []).reduce((s, f) => s + (f.earnings_balance_coins || 0), 0)
+  // 1 earning-coin = ₹0.04 (10 paisa × 40% female share)
+  const totalFemaleBalanceRupees = Math.floor(totalFemaleCoins * 4) / 100
+  const actualProfitPaisa = totalRevenuePaisa - completedPayoutsPaisa
+
+  return {
+    totalRevenuePaisa,
+    completedPayoutsPaisa,
+    actualProfitPaisa,
+    pendingPayoutsPaisa,
+    totalFemaleBalanceRupees,
+    totalFemaleCoins,
+    femaleCount: femaleCount || 0,
+  }
 }
 
 function Panel({ title, sub, action, children, span = '' }) {
@@ -36,7 +67,7 @@ function Panel({ title, sub, action, children, span = '' }) {
 }
 
 export function RevenueOverviewPage() {
-  const { data, loading, error, refetch } = useAdminQuery(fetchRevenue)
+  const { data, loading } = useAdminQuery(fetchRevenue)
   const d = data || {}
 
   const revenue = d.totalRevenuePaisa ?? 0
@@ -66,7 +97,6 @@ export function RevenueOverviewPage() {
       <div className="space-y-4 above-grain sm:space-y-5">
         <LoadingRegion loading={loading} label="Loading revenue data" />
         <LoadingBar active={loading} />
-        <ErrorBanner error={error} onRetry={refetch} />
 
         <Reveal>
           <div className="flex flex-wrap items-end justify-between gap-3 pb-1">

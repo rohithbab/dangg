@@ -9,7 +9,7 @@ import { AccountInfoPanel } from '../components/ui/AccountInfoPanel';
 import { MaterialIcon } from '../components/ui/MaterialIcon';
 import { AnimatedCardEntrance, AnimatedStaggerGroup } from '../components/animation';
 import { useAdminQuery } from '../hooks/useAdminQuery';
-import { adminApi } from '../lib/adminApi';
+import { supabase } from '../lib/supabase';
 import { formatRupees, formatDate, formatPhone, shortId } from '../lib/utils';
 
 const VERIFICATION_STATUS_TONE = {
@@ -21,7 +21,52 @@ const VERIFICATION_STATUS_TONE = {
 
 function fetchFemaleProfile(userId) {
   return async function fetchFemaleProfileQuery() {
-    return adminApi('userProfile', { userId, role: 'female' })
+    const [userResult, payoutsResult, detailResult] = await Promise.all([
+      supabase
+        .from('users')
+        .select(`
+          id, name, phone, age, created_at, profile_picture_url,
+          females!inner (
+            verification_status,
+            verification_photo_path,
+            is_online,
+            earnings_balance_coins,
+            rating_avg,
+            total_chats,
+            total_ratings,
+            coin_price
+          )
+        `)
+        .eq('id', userId)
+        .eq('role', 'female')
+        .single(),
+
+      /* payout_details has NO foreign key to payouts (it hangs off female_id),
+         so embedding it returns PGRST200 and this query silently returned
+         nothing — the payout history table was always empty. Fetched
+         separately below. Verified against production 2026-09-05. */
+      supabase
+        .from('payouts')
+        .select('id, status, payout_amount_paisa, requested_at, utr_number')
+        .eq('female_id', userId)
+        .order('requested_at', { ascending: false })
+        .limit(10),
+
+      supabase
+        .from('payout_details')
+        .select('upi_id, method')
+        .eq('female_id', userId)
+        .maybeSingle(),
+    ])
+
+    if (userResult.error) throw userResult.error
+    /* This creator's payout method is the same on every one of their payouts,
+       so the single lookup is attached to each row. */
+    const detail = detailResult?.data ?? null
+    return {
+      user: userResult.data,
+      payouts: (payoutsResult.data || []).map(p => ({ ...p, payout_details: detail })),
+    }
   }
 }
 
@@ -62,20 +107,17 @@ export function FemaleUserProfilePage() {
      the first render `data` is still null. */
   const rawFemales = data?.user?.females
   const femalesForPhoto = Array.isArray(rawFemales) ? rawFemales[0] : rawFemales
-
-  /* The signed URL is minted server-side: the browser has no storage
-     credential, and the path is never trusted from the client — admin-api
-     looks it up from the female id. */
   const handleViewVerificationPhoto = useCallback(async () => {
-    if (!femalesForPhoto?.verification_photo_path) return
-    try {
-      const { url } = await adminApi('verificationPhotoUrl', { femaleId: userId })
-      if (url) window.open(url, '_blank', 'noopener,noreferrer')
-    } catch {
-      /* Nothing actionable for the admin here; the button simply does nothing
-         rather than showing a scary error for a missing photo. */
+    const photoPath = femalesForPhoto?.verification_photo_path
+    if (!photoPath) return
+    const bucketPath = photoPath.replace(/^verification\//, '')
+    const { data: urlData } = await supabase.storage
+      .from('verification')
+      .createSignedUrl(bucketPath, 300)
+    if (urlData?.signedUrl) {
+      window.open(urlData.signedUrl, '_blank', 'noopener,noreferrer')
     }
-  }, [femalesForPhoto, userId])
+  }, [femalesForPhoto])
 
   if (loading) return <PageSkeleton />
 

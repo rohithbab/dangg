@@ -1,5 +1,4 @@
 import { PageContainer } from '../components/layout';
-import { ErrorBanner } from '../components/ui/ErrorBanner';
 import { KpiCard } from '../components/ui/KpiCard';
 import { Stagger, Reveal } from '../components/motion/primitives';
 import { Metric } from '../components/motion/Metric';
@@ -8,40 +7,82 @@ import { FunnelBars, RadialProgress } from '../components/viz/charts';
 import { CAT } from '../components/viz/palette';
 import { PulseDot } from '../components/viz/micro';
 import { useAdminQuery } from '../hooks/useAdminQuery';
-import { adminApi } from '../lib/adminApi';
+import { supabase } from '../lib/supabase';
 
 /* ─────────────────────────────────────────────────────────────────────────
    DATA LAYER — UNCHANGED.
    ───────────────────────────────────────────────────────────────────────── */
 async function fetchChatStats() {
-  const d = await adminApi('chatStats')
+  const [
+    { count: totalRequests },
+    { count: accepted },
+    { count: declined },
+    { count: cancelled },
+    { count: expired },
+    { count: activeSessions },
+    { count: completedSessions },
+    { count: totalMessages },
+    { data: durations },
+  ] = await Promise.all([
+    // Total intent: every request ever sent
+    supabase.from('chat_requests').select('*', { count: 'exact', head: true }),
+    supabase.from('chat_requests').select('*', { count: 'exact', head: true }).eq('status', 'accepted'),
+    supabase.from('chat_requests').select('*', { count: 'exact', head: true }).eq('status', 'declined'),
+    supabase.from('chat_requests').select('*', { count: 'exact', head: true }).eq('status', 'cancelled'),
+    supabase.from('chat_requests').select('*', { count: 'exact', head: true }).eq('status', 'expired'),
+    supabase.from('chat_sessions').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+    supabase.from('chat_sessions').select('*', { count: 'exact', head: true }).eq('status', 'ended'),
+    supabase.from('chat_messages').select('*', { count: 'exact', head: true }),
+    supabase.from('chat_sessions').select('started_at, ended_at').eq('status', 'ended').not('ended_at', 'is', null),
+  ])
 
-  /* Duration maths stays client-side: the function returns raw start/end
-     timestamps, this turns them into the labels the cards display. */
-  const totalDurationMs = (d.durations || []).reduce((sum, s) => {
+  const totalDurationMs = (durations || []).reduce((sum, s) => {
     if (!s.started_at || !s.ended_at) return sum
     return sum + (new Date(s.ended_at) - new Date(s.started_at))
   }, 0)
-  const totalDurationMin = Math.round(totalDurationMs / 60000)
-  const avgDurationSec = (d.durations || []).length > 0
-    ? Math.round(totalDurationMs / (d.durations.length * 1000))
-    : 0
-  const totalHours = Math.floor(totalDurationMin / 60)
-  const totalDurationLabel = totalDurationMin > 0 ? `${totalHours}h ${totalDurationMin % 60}m` : '0m'
-  const avgDurationLabel = avgDurationSec > 0
-    ? `${Math.floor(avgDurationSec / 60)}m ${avgDurationSec % 60}s`
-    : '0m'
 
-  const acceptanceRate = d.totalRequests > 0 ? Math.round((d.accepted / d.totalRequests) * 100) : 0
-  const completionRate = d.accepted > 0 ? Math.round((d.completedSessions / d.accepted) * 100) : 0
+  const totalDurationMin = Math.round(totalDurationMs / 60000)
+  const avgDurationSec = (durations || []).length > 0
+    ? Math.round(totalDurationMs / (durations.length * 1000))
+    : 0
+
+  const totalHours = Math.floor(totalDurationMin / 60)
+  const remainingMin = totalDurationMin % 60
+  const totalDurationLabel = totalDurationMin > 0 ? `${totalHours}h ${remainingMin}m` : '0m'
+
+  const avgMin = Math.floor(avgDurationSec / 60)
+  const avgSec = avgDurationSec % 60
+  const avgDurationLabel = avgDurationSec > 0 ? `${avgMin}m ${avgSec}s` : '0m'
+
+  const totalReq = totalRequests || 0
+  const acceptedCount = accepted || 0
+  const declinedCount = declined || 0
+  const cancelledCount = cancelled || 0
+  const expiredCount = expired || 0
+  const activeCount = activeSessions || 0
+  const completedCount = completedSessions || 0
+
+  // Acceptance rate: % of all sent requests that were accepted
+  const acceptanceRate = totalReq > 0 ? Math.round((acceptedCount / totalReq) * 100) : 0
+  // Completion rate: % of accepted sessions that ended (vs still active)
+  const completionRate = acceptedCount > 0 ? Math.round((completedCount / acceptedCount) * 100) : 0
+  // Drop-off: requests that never became sessions
+  const dropOff = declinedCount + cancelledCount + expiredCount
 
   return {
-    ...d,
+    totalRequests: totalReq,
+    accepted: acceptedCount,
+    declined: declinedCount,
+    cancelled: cancelledCount,
+    expired: expiredCount,
+    activeSessions: activeCount,
+    completedSessions: completedCount,
+    totalMessages: totalMessages || 0,
     totalDurationLabel,
     avgDurationLabel,
     acceptanceRate,
     completionRate,
-    dropOff: (d.declined || 0) + (d.cancelled || 0) + (d.expired || 0),
+    dropOff,
   }
 }
 
@@ -63,7 +104,7 @@ function Panel({ title, sub, action, children, span = '' }) {
 }
 
 export function ChatStatisticsPage() {
-  const { data, loading, error, refetch } = useAdminQuery(fetchChatStats)
+  const { data, loading } = useAdminQuery(fetchChatStats)
   const d = data || {}
 
   const totalReq = d.totalRequests ?? 0
@@ -102,7 +143,6 @@ export function ChatStatisticsPage() {
       <div className="space-y-4 above-grain sm:space-y-5">
         <LoadingRegion loading={loading} label="Loading chat statistics" />
         <LoadingBar active={loading} />
-        <ErrorBanner error={error} onRetry={refetch} />
 
         <Reveal>
           <div className="flex flex-wrap items-end justify-between gap-3 pb-1">

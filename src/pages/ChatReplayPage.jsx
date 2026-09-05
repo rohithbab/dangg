@@ -6,13 +6,36 @@ import { ChatMessageBubble } from '../components/ui/ChatMessageBubble';
 import { ChatReplayFooter } from '../components/ui/ChatReplayFooter';
 import { MaterialIcon } from '../components/ui/MaterialIcon';
 import { useAdminQuery } from '../hooks/useAdminQuery';
-import { adminApi } from '../lib/adminApi';
+import { supabase } from '../lib/supabase';
 
 const PLACEHOLDER_AVATAR = 'https://placehold.co/40x40/e2e8f0/64748b?text=U';
 
 function fetchSessionReplay(chatId) {
   return async function fetchSessionReplayQuery() {
-    return adminApi('chatReplay', { sessionId: chatId })
+    const [sessionResult, messagesResult] = await Promise.all([
+      supabase
+        .from('chat_sessions')
+        .select(`
+          id, status, started_at, ended_at, male_id, female_id,
+          male_user:users!male_id (name, profile_picture_url),
+          female_user:users!female_id (name, profile_picture_url)
+        `)
+        .eq('id', chatId)
+        .single(),
+
+      supabase
+        .from('chat_messages')
+        .select('id, sender_id, body, message_type, media_url, sent_at')
+        .eq('chat_session_id', chatId)
+        .order('sent_at', { ascending: true }),
+    ])
+
+    if (sessionResult.error) throw sessionResult.error
+
+    return {
+      session: sessionResult.data,
+      messages: messagesResult.data || [],
+    }
   }
 }
 
