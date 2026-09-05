@@ -1,9 +1,17 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 
 const cache = new Map()
 
 export function useAdminQuery(queryFn, deps = []) {
-  const key = queryFn.name || queryFn.toString().slice(0, 60)
+  // Use full function body in key so production-minified names never collide.
+  // useMemo recomputes only when deps change, so toString() runs at most once per dep-set.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const key = useMemo(
+    () => (queryFn._cacheKey || queryFn.toString()) + ':' + JSON.stringify(deps),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    deps
+  )
+
   const [data, setData] = useState(() => cache.get(key) ?? null)
   const [loading, setLoading] = useState(() => !cache.has(key))
   const [error, setError] = useState(null)
@@ -40,7 +48,11 @@ export function useAdminQuery(queryFn, deps = []) {
   }, [key])
 
   useEffect(() => {
-    if (cache.has(key)) return
+    if (cache.has(key)) {
+      setData(cache.get(key))
+      setLoading(false)
+      return
+    }
     return run()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps)
@@ -50,7 +62,7 @@ export function useAdminQuery(queryFn, deps = []) {
   return { data, loading, error, refetch }
 }
 
-export function invalidateQuery(queryFn) {
-  const key = queryFn.name || queryFn.toString().slice(0, 60)
+export function invalidateQuery(queryFn, deps = []) {
+  const key = (queryFn._cacheKey || queryFn.toString()) + ':' + JSON.stringify(deps)
   cache.delete(key)
 }

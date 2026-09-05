@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
+import { useCallback } from 'react';
 import { PageContainer } from '../components/layout/PageContainer';
 import { FemaleProfileHeader } from '../components/ui/FemaleProfileHeader';
 import { SectionHeading } from '../components/ui/SectionHeading';
@@ -27,6 +28,7 @@ function fetchFemaleProfile(userId) {
           id, name, phone, age, created_at, profile_picture_url,
           females!inner (
             verification_status,
+            verification_photo_path,
             is_online,
             earnings_balance_coins,
             rating_avg,
@@ -127,6 +129,18 @@ export function FemaleUserProfilePage() {
   ]
 
   const verificationStatus = females?.verification_status ?? 'unverified'
+
+  const handleViewVerificationPhoto = useCallback(async () => {
+    const photoPath = females?.verification_photo_path
+    if (!photoPath) return
+    const bucketPath = photoPath.replace(/^verification\//, '')
+    const { data: urlData } = await supabase.storage
+      .from('verification')
+      .createSignedUrl(bucketPath, 300)
+    if (urlData?.signedUrl) {
+      window.open(urlData.signedUrl, '_blank', 'noopener,noreferrer')
+    }
+  }, [females])
   const accountRows = [
     { label: 'Phone', value: formatPhone(user.phone) },
     { label: 'Age', value: user.age ? `${user.age} years` : '—' },
@@ -148,6 +162,7 @@ export function FemaleUserProfilePage() {
             userStatus={females?.is_online ? 'active' : 'offline'}
             status={verificationStatus.toUpperCase()}
             statusTone={VERIFICATION_STATUS_TONE[verificationStatus] ?? 'text-on-surface-variant'}
+            onViewVerification={females?.verification_photo_path ? handleViewVerificationPhoto : undefined}
           />
         </AnimatedCardEntrance>
 

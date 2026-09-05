@@ -92,10 +92,8 @@ export function ChatTranscriptPage() {
   };
 
   const STATUS_BORDER = {
-    completed: 'border-l-4 border-l-emerald-500',
+    ended: 'border-l-4 border-l-emerald-500',
     active: 'border-l-4 border-l-blue-500',
-    rejected: 'border-l-4 border-l-red-400',
-    ended: 'border-l-4 border-l-gray-400',
   };
 
   return (

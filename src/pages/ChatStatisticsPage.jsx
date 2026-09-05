@@ -15,10 +15,10 @@ async function fetchChatStats() {
     { data: durations },
   ] = await Promise.all([
     supabase.from('chat_sessions').select('*', { count: 'exact', head: true }),
-    supabase.from('chat_sessions').select('*', { count: 'exact', head: true }).eq('status', 'completed'),
-    supabase.from('chat_sessions').select('*', { count: 'exact', head: true }).in('status', ['rejected', 'cancelled']),
+    supabase.from('chat_sessions').select('*', { count: 'exact', head: true }).eq('status', 'ended'),
+    supabase.from('chat_requests').select('*', { count: 'exact', head: true }).in('status', ['rejected', 'cancelled', 'expired']),
     supabase.from('chat_messages').select('*', { count: 'exact', head: true }),
-    supabase.from('chat_sessions').select('started_at, ended_at').eq('status', 'completed').not('ended_at', 'is', null),
+    supabase.from('chat_sessions').select('started_at, ended_at').eq('status', 'ended').not('ended_at', 'is', null),
   ])
 
   const totalDurationMs = (durations || []).reduce((sum, s) => {

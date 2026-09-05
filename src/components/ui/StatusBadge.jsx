@@ -12,6 +12,7 @@ const VARIANTS = {
   male: 'badge-gender-male',
   female: 'badge-gender-female',
   active: 'badge-status-active',
+  ended: 'badge-transcript-resolved',
   offline: 'badge-status-offline',
   busy: 'badge-status-busy',
   suspended: 'badge-status-suspended',

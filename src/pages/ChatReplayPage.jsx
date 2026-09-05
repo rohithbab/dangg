@@ -25,8 +25,8 @@ function fetchSessionReplay(chatId) {
 
       supabase
         .from('chat_messages')
-        .select('id, sender_id, content, sent_at')
-        .eq('session_id', chatId)
+        .select('id, sender_id, body, sent_at')
+        .eq('chat_session_id', chatId)
         .order('sent_at', { ascending: true }),
     ])
 
@@ -123,7 +123,7 @@ export function ChatReplayPage() {
                 <ChatMessageBubble
                   key={item.id}
                   avatarUrl={isFemale ? femaleAvatar : maleAvatar}
-                  message={item.content}
+                  message={item.body}
                   time={formatTime(item.sent_at)}
                   outgoing={isFemale}
                 />
